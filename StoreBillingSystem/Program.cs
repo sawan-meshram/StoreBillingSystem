@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using StoreBillingSystem.Database;
+
 namespace StoreBillingSystem
 {
     public class Program
@@ -8,16 +10,33 @@ namespace StoreBillingSystem
         [STAThread]
         public static void Main(string[] args)
         {
+            //Open sqlite connection
+            DatabaseManager.GetConnection();
+            Console.WriteLine("Database connection established .....");
             //Application.EnableVisualStyles();
             //Application.Run(new MainClass());
             // Console.WriteLine("Hello World!");
 
-            Application.Run(new MainForm());
+            //Application.Run(new MainForm());
 
             //Application.Run(new BillingForm());
             //Application.Run(new AddCustomer());
-            //Application.Run(new ProductForm());
+            Application.Run(new ProductForm());
 
+            //Console.WriteLine(System.IO.Directory.GetCurrentDirectory());
+            //Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
+            //Console.WriteLine("Project Path: " + Application.StartupPath);
+        }
+
+        // Make sure to close the connection when the form is closing or when it's no longer needed.
+        public static void ProductForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            //closed sqlite connection
+            DatabaseManager.CloseConnection();
+            Console.WriteLine("Database connection closed.");
+
+            // Your logic to execute when the form is closed.
+            //MessageBox.Show("Form is closed!");
         }
     }
 

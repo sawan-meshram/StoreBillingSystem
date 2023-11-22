@@ -1,30 +1,29 @@
 ﻿<Properties StartupConfiguration="{264F6592-08B9-4A69-BB0A-FD7ED2E62E2A}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Program.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="../../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/WaterDistrictDemo.aspx">
     <Files>
-      <File FileName="../../EagleAerialCIIWater/EagleAerialCIIWater/Web.config" Line="107" Column="48" />
-      <File FileName="../../EagleAerialCIIWater/EagleAerialCIIWater/ServiceImpl/Avery/DocumentBuilder.cs" Line="37" Column="62" />
-      <File FileName="../../EagleAerialCIIWater/EagleAerialCIIWater/Util/Path.cs" Line="76" Column="39" />
-      <File FileName="../../EagleAerialCIIWater/EagleAerialCIIWater/ServiceImpl/Avery/AbstractAveryTemplate.cs" Line="1" Column="1" />
-      <File FileName="../../EagleAerialCIIWater/EagleAerialCIIWater/IService/ISearchResultList.cs" Line="7" Column="39" />
-      <File FileName="../../EagleAerialCIIWater/EagleAerialCIIWater/Model/CampaignModel.cs" Line="12" Column="46" />
-      <File FileName="../../EagleAerialCIIWater/EagleAerialCIIWater/ServiceImpl/CampaignServiceImpl.cs" Line="5" Column="17" />
-      <File FileName="../../EagleAerialCIIWater/EagleAerialCIIWater/ServiceImpl/SearchResultListImpl.cs" Line="11" Column="18" />
-      <File FileName="../../EagleAerialCIIWater/EagleAerialCIIWater/ServiceImpl/CustomLayerServiceImpl.cs" Line="36" Column="46" />
-      <File FileName="../../EagleAerialCIIWater/EagleAerialCIIWater/Model/SearchResultListModel.cs" Line="12" Column="1" />
-      <File FileName="../../EagleAerialCIIWater/EagleAerialCIIWater/View/WaterDistrictDemo.aspx" Line="3783" Column="19" />
-      <File FileName="../../EagleAerialCIIWater/EagleAerialCIIWater/View/SearchResultList.html" Line="26" Column="26" />
-      <File FileName="../../EagleAerialCIIWater/EagleAerialCIIWater/Controller/Layer/GetCustomLayerList.cs" Line="3" Column="18" />
-      <File FileName="../../EagleAerialCIIWater/EagleAerialCIIWater/Controller/ResultList/GetDirectoriesSearchResultList.cs" Line="7" Column="52" />
-      <File FileName="Program.cs" Line="17" Column="13" />
+      <File FileName="../../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/Model/WaterDistrictModel.cs" Line="2" Column="30" />
+      <File FileName="../../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/Util/RouteConfig.cs" Line="13" Column="66" />
+      <File FileName="../../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/UserProfile.aspx" Line="141" Column="33" />
+      <File FileName="../../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/UserProfile.aspx.cs" Line="54" Column="22" />
+      <File FileName="../../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/Dashboard.aspx" Line="75" Column="31" />
+      <File FileName="../../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/Dashboard.aspx.cs" Line="29" Column="45" />
+      <File FileName="../../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/Login.aspx" Line="100" Column="10" />
+      <File FileName="../../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/ForgotPassword.aspx.cs" Line="27" Column="50" />
+      <File FileName="../../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/PasswordReset.aspx.cs" Line="15" Column="33" />
+      <File FileName="../../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/WaterDistrictDemo.aspx" Line="4425" Column="25" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="StoreBillingSystem" expanded="True">
-            <Node name="StoreBillingSystem" expanded="True">
-              <Node name="Properties" expanded="True" />
-              <Node name="Program.cs" selected="True" />
+          <Node name="EagleAerialCIIWater" expanded="True">
+            <Node name="EagleAerialCIIWater" expanded="True">
+              <Node name="View" expanded="True">
+                <Node name="WaterDistrictDemo.aspx" selected="True" />
+              </Node>
             </Node>
+          </Node>
+          <Node name="StoreBillingSystem" expanded="True">
+            <Node name="StoreBillingSystem" expanded="True" />
           </Node>
         </State>
       </Pad>
@@ -32,9 +31,11 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.ItemProperties.StoreBillingSystem PreferredExecutionTarget="MonoDevelop.Default" />
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="/home/shatam-25/Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/Controller/TextDB.cs" line="293" column="1" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MultiItemStartupConfigurations />
 </Properties>

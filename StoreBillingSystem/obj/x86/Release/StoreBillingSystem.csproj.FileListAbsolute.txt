@@ -1,0 +1,4 @@
+/home/shatam-25/Projects/StoreBillingSystem/StoreBillingSystem/bin/Release/StoreBillingSystem.exe
+/home/shatam-25/Projects/StoreBillingSystem/StoreBillingSystem/obj/x86/Release/StoreBillingSystem.csproj.CoreCompileInputs.cache
+/home/shatam-25/Projects/StoreBillingSystem/StoreBillingSystem/obj/x86/Release/StoreBillingSystem.exe
+/home/shatam-25/Projects/StoreBillingSystem/StoreBillingSystem/obj/x86/Release/StoreBillingSystem.csprojAssemblyReference.cache

@@ -28,7 +28,7 @@ namespace StoreBillingSystem
         {
             // Set up form properties
             this.Text = "Customer Registration Form";
-            this.Size = new System.Drawing.Size(1366,768);
+            this.Size = new System.Drawing.Size(1366, 768);
             this.ForeColor = System.Drawing.Color.Black;
 
             // Create a panel to hold the TableLayoutPanel
@@ -71,10 +71,11 @@ namespace StoreBillingSystem
             tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F)); //button
 
 
-            Label title = new Label { 
-                Text = "Customer Registration", 
-                Dock = DockStyle.Fill, 
-                Font = new System.Drawing.Font("Arial", 16, System.Drawing.FontStyle.Bold) 
+            Label title = new Label
+            {
+                Text = "Customer Registration",
+                Dock = DockStyle.Fill,
+                Font = new System.Drawing.Font("Arial", 16, System.Drawing.FontStyle.Bold)
             };
 
             tableLayoutPanel.Controls.Add(title, 1, 1);
@@ -82,12 +83,13 @@ namespace StoreBillingSystem
 
 
             tableLayoutPanel.Controls.Add(
-                new Label { 
-                    Text = "Name:", 
+                new Label
+                {
+                    Text = "Name:",
                     Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold),
                     Dock = DockStyle.Fill,
                     TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-            }, 1, 3);
+                }, 1, 3);
 
             nameTextBox.Dock = DockStyle.Fill;
             nameTextBox.Height = 50;
@@ -105,8 +107,11 @@ namespace StoreBillingSystem
             tableLayoutPanel.Controls.Add(phoneNumberTextBox, 2, 7);
 
 
-            clearButton = new Button {
-                Text = "Clear", Dock = DockStyle.None, BackColor = System.Drawing.Color.Blue,
+            clearButton = new Button
+            {
+                Text = "Clear",
+                Dock = DockStyle.None,
+                BackColor = System.Drawing.Color.Blue,
                 Font = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold),
                 ForeColor = System.Drawing.Color.White,
                 Height = 40,
@@ -127,7 +132,7 @@ namespace StoreBillingSystem
                 Width = 200
 
             };
-            registerButton.Click += new EventHandler(RegisterButton_Click);
+            registerButton.Click += RegisterButton_Click;
             tableLayoutPanel.Controls.Add(registerButton, 2, 9);
             //tableLayoutPanel.SetColumnSpan(registerButton, 2);
 

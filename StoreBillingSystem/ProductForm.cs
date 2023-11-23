@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Collections.Generic;
+
+using StoreBillingSystem.Entity;
+using StoreBillingSystem.DAO;
+using StoreBillingSystem.DAOImpl;
 using StoreBillingSystem.Database;
 namespace StoreBillingSystem
 {
@@ -13,8 +18,37 @@ namespace StoreBillingSystem
             FormClosed += Program.ProductForm_FormClosed;
             // Attach the FormClosed event handler.
             //FormClosed += ProductForm_FormClosing;
+            InitComponentsData();
         }
 
+        private void InitComponentsData()
+        {
+            categoryDao = new CategoryDaoImpl(DatabaseManager.GetConnection());
+            categoryList = categoryDao.ReadAll();
+
+            productTypeDao = new ProductTypeDaoImpl(DatabaseManager.GetConnection());
+            productTypeList = productTypeDao.ReadAll();
+
+            categoryTypesComboBox.DataSource = categoryList;
+            categoryTypesComboBox.DisplayMember = "Name";
+            categoryTypesComboBox.ValueMember = "Id";
+
+
+            productTypesComboBox.DataSource = productTypeList;
+            productTypesComboBox.DisplayMember = "Abbr";
+            productTypesComboBox.ValueMember = "Id";
+
+            //to retrive the selected Category
+            Category category = (Category)categoryTypesComboBox.SelectedItem;
+            string name = category.Name;
+            int id = category.Id;
+        }
+
+        private ICategoryDao categoryDao;
+        private IProductTypeDao productTypeDao;
+
+        private IList<Category> categoryList;
+        private IList<ProductType> productTypeList;
 
 
         private Font labelFont = new Font("Arial", 11, FontStyle.Bold);
@@ -165,8 +199,8 @@ namespace StoreBillingSystem
 
         private TextBox productIdText;
         private TextBox productNameText;
-        private ComboBox categoryTypes;
-        private ComboBox productTypes;
+        private ComboBox categoryTypesComboBox;
+        private ComboBox productTypesComboBox;
         private TextBox qtyText;
         private DateTimePicker purchaseDate;
         private TextBox purchasePriceText;
@@ -330,13 +364,13 @@ namespace StoreBillingSystem
                 TextAlign = ContentAlignment.MiddleRight,
             }, 0, 3);
 
-            categoryTypes = new ComboBox
+            categoryTypesComboBox = new ComboBox
             {
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
                 Margin = new Padding(5)
             };
-            table.Controls.Add(categoryTypes, 1, 3);
+            table.Controls.Add(categoryTypesComboBox, 1, 3);
 
             //Row-4
             // Product Type
@@ -349,13 +383,13 @@ namespace StoreBillingSystem
                 TextAlign = ContentAlignment.MiddleRight,
             }, 0, 4);
 
-            productTypes = new ComboBox
+            productTypesComboBox = new ComboBox
             {
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
                 Margin = new Padding(5)
             };
-            table.Controls.Add(productTypes, 1, 4);
+            table.Controls.Add(productTypesComboBox, 1, 4);
 
             //Product Qty
             table.Controls.Add(new Label
@@ -742,7 +776,7 @@ namespace StoreBillingSystem
 
 
             table.SetColumnSpan(productNameText, 3);
-            table.SetColumnSpan(categoryTypes, 3);
+            table.SetColumnSpan(categoryTypesComboBox, 3);
             table.SetColumnSpan(separator_1, 6);
             table.SetColumnSpan(separator_2, 6);
             table.SetColumnSpan(separator_3, 6);
@@ -765,6 +799,8 @@ namespace StoreBillingSystem
             ProductTypeForm().ShowDialog();
         }
 
+        private DataGridView categoryTable;
+        private TextBox categoryNameField;
         private Form CategoryForm()
         {
             Form form = new Form 
@@ -864,7 +900,7 @@ namespace StoreBillingSystem
                 TextAlign = ContentAlignment.MiddleRight,
             }, 0, 0);
 
-            TextBox categoryNameField = new TextBox
+            categoryNameField = new TextBox
             {
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
@@ -905,7 +941,7 @@ namespace StoreBillingSystem
             table.Controls.Add(table1, 1, 1);
 
 
-            DataGridView categoryTable = new DataGridView
+            categoryTable = new DataGridView
             {
                 Dock = DockStyle.Fill,
                 BackgroundColor = Color.LightGray,
@@ -940,9 +976,20 @@ namespace StoreBillingSystem
 
 
             form.Controls.Add(table);
+
+            //add event
+            addButton.Click += AddCategoryButton_Click;
+
+            // Attach the CellFormatting event handler
+            //categoryTable.CellFormatting += CategoryTable_CellFormatting;
+
+            categoryNameField.TextChanged += CategoryNameField_TextChanged;
             return form;
         }
 
+        private DataGridView productTypeTable;
+        private TextBox typeFullNameField;
+        private TextBox typeAbbrNameField;
         private Form ProductTypeForm()
         {
             Form form = new Form
@@ -962,7 +1009,7 @@ namespace StoreBillingSystem
                 Dock = DockStyle.Fill,
                 ColumnCount = 4,
                 RowCount = 1,
-                CellBorderStyle = TableLayoutPanelCellBorderStyle.Single,
+                CellBorderStyle = TableLayoutPanelCellBorderStyle.None,
                 //BackColor = Color.Lime,
             };
 
@@ -1020,7 +1067,7 @@ namespace StoreBillingSystem
                 Dock = DockStyle.Fill,
                 ColumnCount = 2,
                 RowCount = 6,
-                CellBorderStyle = TableLayoutPanelCellBorderStyle.Single,
+                CellBorderStyle = TableLayoutPanelCellBorderStyle.None,
             };
 
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-0
@@ -1042,7 +1089,7 @@ namespace StoreBillingSystem
                 TextAlign = ContentAlignment.MiddleRight,
             }, 0, 0);
 
-            TextBox typeFullNameField = new TextBox
+            typeFullNameField = new TextBox
             {
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
@@ -1059,7 +1106,7 @@ namespace StoreBillingSystem
                 TextAlign = ContentAlignment.MiddleRight,
             }, 0, 1);
 
-            TextBox typeAbbrNameField = new TextBox
+            typeAbbrNameField = new TextBox
             {
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
@@ -1100,45 +1147,158 @@ namespace StoreBillingSystem
             table.Controls.Add(table1, 1, 2);
 
 
-            DataGridView categoryTable = new DataGridView
+            productTypeTable = new DataGridView
             {
                 Dock = DockStyle.Fill,
                 BackgroundColor = Color.LightGray,
                 Margin = new Padding(0),
                 //Size = new Size(1160, 454),
             };
-            categoryTable.RowHeadersDefaultCellStyle.Font = new Font("Arial", 10, FontStyle.Bold);
-            categoryTable.ColumnCount = 3;
-            categoryTable.Columns[0].Name = "Sr.No.";
-            categoryTable.Columns[1].Name = "Type Abbrivation";
-            categoryTable.Columns[2].Name = "Type Name";
+            productTypeTable.RowHeadersDefaultCellStyle.Font = new Font("Arial", 10, FontStyle.Bold);
+            productTypeTable.ColumnCount = 3;
+            productTypeTable.Columns[0].Name = "Sr.No.";
+            productTypeTable.Columns[1].Name = "Type Abbrivation";
+            productTypeTable.Columns[2].Name = "Type Name";
 
-            categoryTable.Columns[0].Width = 100;
-            categoryTable.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            categoryTable.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            productTypeTable.Columns[0].Width = 100;
+            productTypeTable.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            productTypeTable.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
-            foreach (DataGridViewColumn column in categoryTable.Columns)
+            foreach (DataGridViewColumn column in productTypeTable.Columns)
             {
                 //column.SortMode = DataGridViewColumnSortMode.NotSortable;
             }
 
             //categoryTable.Rows.Add("1", "Daal", "KG", "1", "100.00", "5", "0", "100.00");
 
-            categoryTable.AllowUserToAddRows = false;
-            categoryTable.AutoGenerateColumns = false;
-            categoryTable.RowHeadersVisible = false;
+            productTypeTable.AllowUserToAddRows = false;
+            productTypeTable.AutoGenerateColumns = false;
+            productTypeTable.RowHeadersVisible = false;
 
-            table.Controls.Add(categoryTable, 0, 3);
+            table.Controls.Add(productTypeTable, 0, 3);
 
             table.Controls.Add(footerPanel, 1, 4);
 
 
-            table.SetColumnSpan(categoryTable, 2);
+            table.SetColumnSpan(productTypeTable, 2);
             //table.SetColumnSpan(footerPanel, 2);
 
 
             form.Controls.Add(table);
+
+            // Attach event handlers
+            addButton.Click += AddProductTypeButton_Click;
+
+            // Attach the CellFormatting event handler
+            //productTypeTable.CellFormatting += ProductTypeTable_CellFormatting;
+
+            typeFullNameField.TextChanged += TypeFullNameField_TextChanged;
+            typeAbbrNameField.TextChanged += TypeAbbrNameField_TextChanged;
+            typeAbbrNameField.KeyPress += TypeAbbrNameField_KeyPress;
             return form;
         }
+
+
+        private int categorySrNo = 1;
+        private int productTypeSrNo = 1;
+
+        private void AddCategoryButton_Click(object sender, EventArgs e)
+        {
+
+            if (string.IsNullOrWhiteSpace(categoryNameField.Text))
+            {
+                // Validation failed, display a message box
+                MessageBox.Show("All fields required.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            string name = categoryNameField.Text.Trim();
+
+            categoryTable.Rows.Add(categorySrNo, name);
+
+            categorySrNo++;
+
+            categoryNameField.Clear();
+        }
+
+        private void AddProductTypeButton_Click(object sender, EventArgs e)
+        {
+
+            if (string.IsNullOrWhiteSpace(typeFullNameField.Text) || string.IsNullOrWhiteSpace(typeAbbrNameField.Text))
+            {
+                // Validation failed, display a message box
+                MessageBox.Show("All fields required.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return; 
+            }
+
+            string name = typeFullNameField.Text.Trim();
+            string abbr = typeAbbrNameField.Text.Trim();
+
+
+
+            productTypeTable.Rows.Add(productTypeSrNo, abbr, name);
+
+            productTypeSrNo++;
+
+            typeFullNameField.Clear();
+            typeAbbrNameField.Clear();
+        }
+
+
+        private void CategoryTable_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            // Check if the current cell is in the first column (index 0) and not a header cell
+            if (e.ColumnIndex == 0 && e.RowIndex >= 0)
+            {
+                // Set the value to the current row index plus the initial serial number
+                e.Value = e.RowIndex+1;
+                e.FormattingApplied = true;
+            }
+        }
+
+        private void ProductTypeTable_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            // Check if the current cell is in the first column (index 0) and not a header cell
+            if (e.ColumnIndex == 0 && e.RowIndex >= 0)
+            {
+                // Set the value to the current row index plus the initial serial number
+                e.Value = e.RowIndex + productTypeSrNo;
+                e.FormattingApplied = true;
+            }
+        }
+
+        private void TypeAbbrNameField_TextChanged(object sender, EventArgs e)
+        {
+            typeAbbrNameField.Text = typeAbbrNameField.Text.ToUpper();
+            typeAbbrNameField.SelectionStart = typeAbbrNameField.Text.Length; // Set the cursor at the end
+        }
+
+        private void TypeAbbrNameField_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.KeyChar = Char.ToUpper(e.KeyChar);
+        }
+
+        private void TypeFullNameField_TextChanged(object sender, EventArgs e)
+        {
+            typeFullNameField.Text = CapitalizeEachWord(typeFullNameField.Text);
+            typeFullNameField.SelectionStart = typeFullNameField.Text.Length; // Set the cursor at the end
+        }
+
+        private void CategoryNameField_TextChanged(object sender, EventArgs e)
+        {
+            categoryNameField.Text = CapitalizeEachWord(categoryNameField.Text);
+            categoryNameField.SelectionStart = categoryNameField.Text.Length; // Set the cursor at the end
+        }
+
+        private string CapitalizeEachWord(string input)
+        {
+            if (!string.IsNullOrEmpty(input))
+            {
+                return Util.U.ToTitleCase(input);
+            }
+
+            return input;
+        }
+
     }
 }

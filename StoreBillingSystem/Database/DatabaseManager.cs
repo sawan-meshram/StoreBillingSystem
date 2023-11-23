@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Data;
 using Mono.Data.Sqlite;
 
 namespace StoreBillingSystem.Database
 {
     public class DatabaseManager
     {
-        private static IDbConnection _connection;
+        private static SqliteConnection _connection;
         private static readonly object _lockObject = new object();
 
         // Private constructor to prevent creating instances outside the class.
@@ -15,7 +14,7 @@ namespace StoreBillingSystem.Database
         }
 
         // Public method to get the shared database connection instance.
-        public static IDbConnection GetConnection()
+        public static SqliteConnection GetConnection()
         {
             // Specify the relative path to your SQLite database file.
             string dbFileName = "billing.db";

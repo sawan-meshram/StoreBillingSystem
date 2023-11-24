@@ -57,6 +57,7 @@
     <Compile Include="DAOImpl\ProductTypeDaoImpl.cs" />
     <Compile Include="Util\StoreDbTable.cs" />
     <Compile Include="Entity\Product.cs" />
+    <Compile Include="Events\TextBoxKeyEvent.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Database\" />
@@ -64,6 +65,7 @@
     <Folder Include="Util\" />
     <Folder Include="DAO\" />
     <Folder Include="DAOImpl\" />
+    <Folder Include="Events\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -7,6 +7,7 @@ using StoreBillingSystem.Entity;
 using StoreBillingSystem.DAO;
 using StoreBillingSystem.DAOImpl;
 using StoreBillingSystem.Database;
+using StoreBillingSystem.Events;
 namespace StoreBillingSystem
 {
     public class ProductForm : Form
@@ -39,9 +40,11 @@ namespace StoreBillingSystem
             productTypesComboBox.ValueMember = "Id";
 
             //to retrive the selected Category
+            /*
             Category category = (Category)categoryTypesComboBox.SelectedItem;
             string name = category.Name;
             int id = category.Id;
+            */           
         }
 
         private ICategoryDao categoryDao;
@@ -786,8 +789,26 @@ namespace StoreBillingSystem
 
             box.Controls.Add(table);
 
+
+            qtyText.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
+            purchasePriceText.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
+            sellingPriceText_1.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
+            sellingPriceText_2.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
+            sellingPriceText_3.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
+            sellingPriceText_4.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
+            discountText_1.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
+            discountText_2.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
+            discountText_3.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
+            discountText_4.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
+            cgstText.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
+            sgstText.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
+            purchaseCGstPercentText.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
+            purchaseSGstPercentText.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
+
             return box;
         }
+
+
 
         private void CategoryButton_Click(object sender, EventArgs e)
         {
@@ -965,6 +986,10 @@ namespace StoreBillingSystem
             categoryTable.AllowUserToAddRows = false;
             categoryTable.AutoGenerateColumns = false;
             categoryTable.RowHeadersVisible = false;
+
+            //Binf list with datagridview
+            categoryTable.Columns[1].DataPropertyName = "Name";
+            categoryTable.DataSource = categoryList;
 
             table.Controls.Add(categoryTable, 0, 3);
 
@@ -1163,7 +1188,6 @@ namespace StoreBillingSystem
             productTypeTable.Columns[0].Width = 100;
             productTypeTable.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             productTypeTable.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-
             foreach (DataGridViewColumn column in productTypeTable.Columns)
             {
                 //column.SortMode = DataGridViewColumnSortMode.NotSortable;
@@ -1194,13 +1218,22 @@ namespace StoreBillingSystem
 
             typeFullNameField.TextChanged += TypeFullNameField_TextChanged;
             typeAbbrNameField.TextChanged += TypeAbbrNameField_TextChanged;
-            typeAbbrNameField.KeyPress += TypeAbbrNameField_KeyPress;
+            typeAbbrNameField.KeyPress += TextBoxKeyEvent.UppercaseTextBox_KeyPress;
             return form;
         }
 
 
         private int categorySrNo = 1;
         private int productTypeSrNo = 1;
+
+        private void UpdateCategorySrNoColumn()
+        {
+            Console.WriteLine("Inside function :" + categoryTable.Rows.Count);
+            for (int i = 0; i < categoryList.Count; i++) 
+            {
+                categoryTable.Rows[i].Cells[0].Value = i + 1;
+            }
+        }
 
         private void AddCategoryButton_Click(object sender, EventArgs e)
         {
@@ -1213,12 +1246,27 @@ namespace StoreBillingSystem
             }
 
             string name = categoryNameField.Text.Trim();
+            Category category = new Category(name);
+            if (!categoryDao.IsRecordExists(name))
+            {
+                bool inserted = categoryDao.Insert(category);
 
-            categoryTable.Rows.Add(categorySrNo, name);
+                if (!inserted)
+                {
+                    MessageBox.Show("Something occur while insertion.", "Insertion Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                categoryTable.Rows.Add(categorySrNo, name);
+                categorySrNo++;
+                categoryNameField.Clear();
+            }
+            else
+            {
+                MessageBox.Show("Already exist.", "Insertion Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
-            categorySrNo++;
 
-            categoryNameField.Clear();
+
         }
 
         private void AddProductTypeButton_Click(object sender, EventArgs e)
@@ -1273,10 +1321,7 @@ namespace StoreBillingSystem
             typeAbbrNameField.SelectionStart = typeAbbrNameField.Text.Length; // Set the cursor at the end
         }
 
-        private void TypeAbbrNameField_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            e.KeyChar = Char.ToUpper(e.KeyChar);
-        }
+      
 
         private void TypeFullNameField_TextChanged(object sender, EventArgs e)
         {

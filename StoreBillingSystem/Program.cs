@@ -13,6 +13,8 @@ namespace StoreBillingSystem
             //Open sqlite connection
             DatabaseManager.GetConnection();
             Console.WriteLine("Database connection established .....");
+
+            StoreDbTableManager manager = StoreDbTableManager.Instance;
             //Application.EnableVisualStyles();
             //Application.Run(new MainClass());
             // Console.WriteLine("Hello World!");

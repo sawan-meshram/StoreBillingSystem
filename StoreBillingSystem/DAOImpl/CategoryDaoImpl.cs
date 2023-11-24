@@ -16,7 +16,7 @@ namespace StoreBillingSystem.DAOImpl
         public CategoryDaoImpl(SqliteConnection conn)
         {
             _conn = conn;
-            _tableName = StoreDbTable.Caterory.ToString();
+            _tableName = StoreDbTable.Category.ToString();
         }
 
         public bool Delete(int id)

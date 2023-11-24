@@ -6,6 +6,10 @@ namespace StoreBillingSystem.Entity
         public Category()
         {
         }
+        public Category(string name)
+        {
+            Name = name;
+        }
         public Category(int id, string name)
         {
             Id = id;

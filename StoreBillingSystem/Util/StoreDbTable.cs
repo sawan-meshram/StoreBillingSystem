@@ -3,7 +3,7 @@ namespace StoreBillingSystem.Util
 {
     public enum StoreDbTable
     {
-        Caterory,
+        Category,
         ProductType
     }
 }

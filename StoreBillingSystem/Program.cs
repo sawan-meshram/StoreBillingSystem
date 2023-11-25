@@ -10,6 +10,7 @@ namespace StoreBillingSystem
         [STAThread]
         public static void Main(string[] args)
         {
+
             //Open sqlite connection
             DatabaseManager.GetConnection();
             Console.WriteLine("Database connection established .....");
@@ -28,6 +29,9 @@ namespace StoreBillingSystem
             //Console.WriteLine(System.IO.Directory.GetCurrentDirectory());
             //Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
             //Console.WriteLine("Project Path: " + Application.StartupPath);
+
+
+
         }
 
         // Make sure to close the connection when the form is closing or when it's no longer needed.
@@ -81,6 +85,7 @@ namespace StoreBillingSystem
             flowPanel.Dock = DockStyle.Fill;
             flowPanel.BorderStyle = BorderStyle.FixedSingle;
 
+
             var button = new Button();
             button.Margin = new Padding(10, 10, 0, 0);
 
@@ -89,8 +94,10 @@ namespace StoreBillingSystem
             button.Click += ExitApplication; //(sender, e) => Close();
 
             flowPanel.Controls.Add(button);
-            Controls.Add(flowPanel);
 
+
+
+            Controls.Add(flowPanel);
 
             CenterToScreen();
         }

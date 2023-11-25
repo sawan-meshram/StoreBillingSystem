@@ -6,6 +6,12 @@ namespace StoreBillingSystem.Entity
         public ProductType()
         {
         }
+        public ProductType(string name, string abbr)
+        {
+            Name = name;
+            Abbr = abbr;
+        }
+
 
         public ProductType(int id, string name, string abbr)
         {

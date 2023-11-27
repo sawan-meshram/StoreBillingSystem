@@ -37,7 +37,7 @@ namespace StoreBillingSystem
 
 
             productTypesComboBox.DataSource = productTypeList;
-            productTypesComboBox.DisplayMember = "Abbr";
+            productTypesComboBox.DisplayMember = "Name";
             productTypesComboBox.ValueMember = "Id";
 
             //to retrive the selected Category
@@ -56,7 +56,7 @@ namespace StoreBillingSystem
 
 
         private Font labelFont = new Font("Arial", 11, FontStyle.Bold);
-        private Font textfieldFont = new Font("Arial", 12);
+        private Font textfieldFont = new Font("Arial", 11);
 
         private Panel topPanel;
 
@@ -227,13 +227,15 @@ namespace StoreBillingSystem
         private DateTimePicker manufactureDate;
         private DateTimePicker expiryDate;
 
+        private CheckBox allowMfgExpBatchCheckBox;
         private Label separator_1;
         private Label separator_2;
         private Label separator_3;
 
         private string productPlaceHolder = Util.U.ToTitleCase("Enter product here...");
         private string pricePlaceHolder = "0.00";
-        private string batchNumberPlaceHolder = Util.U.ToTitleCase("Enter batch number");
+        private string qtyPercentPlaceHolder = "0.0";
+        private string batchNumberPlaceHolder = Util.U.ToTitleCase("Enter batch number here...");
 
 
         private GroupBox GetStockForm()
@@ -263,37 +265,38 @@ namespace StoreBillingSystem
             TableLayoutPanel table = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                CellBorderStyle = TableLayoutPanelCellBorderStyle.Single,
+                CellBorderStyle = TableLayoutPanelCellBorderStyle.None,
                 //
                 //
                 //Margin = new Padding(50),
                 //BackColor = Color.YellowGreen,
                 ColumnCount = 9, //7
-                RowCount = 19,
+                RowCount = 20,
                 AutoScroll = true
             };
 
 
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F)); //row-0
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-1
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-2
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-3
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-4
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-5
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-6
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F)); //row-7 Horizontal Separator
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 10F)); //row-0
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-1 //Id, purchase date
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-2 // name
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-3 //category
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-4 //type
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 10F)); //row-5 Horizontal Separator
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-6 //qty, purchase price
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-7 //purchase gst
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-8
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-9
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-10
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-11
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F)); //row-12 Horizontal Separator
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-13
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-14
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-15
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F)); //row-16 Horizontal Separato
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-17
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 10F)); //row-12 Horizontal Separator
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-13 //GST
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-14 //Allow Mfg & Exp
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-14 //Mfg & Exp
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-15 //batch num
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 10F)); //row-16 Horizontal Separato
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-17 //add & clear button
 
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150F)); //name
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160F)); //name
             table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 10F)); //asterisks
             table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 300F));
             table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150F)); //space
@@ -433,85 +436,7 @@ namespace StoreBillingSystem
             };
             table.Controls.Add(productTypesComboBox, 2, 4);
 
-            //Product Qty
-            table.Controls.Add(new Label
-            {
-                Text = "Qty. :",
-                Font = labelFont,
-                Dock = DockStyle.Fill,
-                ForeColor = Color.Black,
-                TextAlign = ContentAlignment.MiddleRight,
-            }, 4, 4);
-
-            qtyText = new TextBox
-            {
-                Dock = DockStyle.Fill,
-                Font = textfieldFont,
-                Margin = new Padding(5),
-                Text = "0"
-            };
-            table.Controls.Add(qtyText, 6, 4);
-
             //Row-5
-            //Purchase Price
-            table.Controls.Add(new Label
-            {
-                Text = "Purchase Price :",
-                Font = labelFont,
-                Dock = DockStyle.Fill,
-                ForeColor = Color.Black,
-                TextAlign = ContentAlignment.MiddleRight,
-            }, 0, 5);
-
-            purchasePriceText = new TextBox
-            {
-                Dock = DockStyle.Fill,
-                Font = textfieldFont,
-                Margin = new Padding(5),
-                Text = "0.00"
-            };
-            table.Controls.Add(purchasePriceText, 2, 5);
-
-            //Row-6
-            //purchase CGst (%)
-            table.Controls.Add(new Label
-            {
-                Text = "Purchase CGST (%) :",
-                Font = labelFont,
-                Dock = DockStyle.Fill,
-                ForeColor = Color.Black,
-                TextAlign = ContentAlignment.MiddleRight,
-            }, 0, 6);
-
-            purchaseCGstPercentText = new TextBox
-            {
-                Dock = DockStyle.Fill,
-                Font = textfieldFont,
-                Margin = new Padding(5),
-                Text = "0"
-            };
-            table.Controls.Add(purchaseCGstPercentText, 2, 6);
-
-            //purchase SGst (%)
-            table.Controls.Add(new Label
-            {
-                Text = "Purchase SGST (%) :",
-                Font = labelFont,
-                Dock = DockStyle.Fill,
-                ForeColor = Color.Black,
-                TextAlign = ContentAlignment.MiddleRight,
-            }, 4, 6);
-
-            purchaseSGstPercentText = new TextBox
-            {
-                Dock = DockStyle.Fill,
-                Font = textfieldFont,
-                Margin = new Padding(5),
-                Text = "0"
-            };
-            table.Controls.Add(purchaseSGstPercentText, 6, 6);
-
-            //Row-7
             //Horizontal Separator
             separator_1 = new Label
             {
@@ -522,8 +447,91 @@ namespace StoreBillingSystem
                 ForeColor = Color.Black,
                 TextAlign = ContentAlignment.MiddleRight,
             };
-            table.Controls.Add(separator_1, 0, 7);
+            table.Controls.Add(separator_1, 0, 5);
 
+            //Row-6
+            //Product Qty
+            table.Controls.Add(new Label
+            {
+                Text = "Qty. :",
+                Font = labelFont,
+                Dock = DockStyle.Fill,
+                ForeColor = Color.Black,
+                TextAlign = ContentAlignment.MiddleRight,
+            }, 0, 6);
+
+            qtyText = new TextBox
+            {
+                Dock = DockStyle.Fill,
+                Font = textfieldFont,
+                Margin = new Padding(5),
+                Text = qtyPercentPlaceHolder,
+                ForeColor = Color.Gray
+            };
+            table.Controls.Add(qtyText, 2, 6);
+
+            //Purchase Price
+            table.Controls.Add(new Label
+            {
+                Text = "Purchase Price :",
+                Font = labelFont,
+                Dock = DockStyle.Fill,
+                ForeColor = Color.Black,
+                TextAlign = ContentAlignment.MiddleRight,
+            }, 4, 6);
+
+            purchasePriceText = new TextBox
+            {
+                Dock = DockStyle.Fill,
+                Font = textfieldFont,
+                Margin = new Padding(5),
+                Text = pricePlaceHolder,
+                ForeColor = Color.Gray
+            };
+            table.Controls.Add(purchasePriceText, 6, 6);
+
+            //Row-7
+            //purchase CGst (%)
+            table.Controls.Add(new Label
+            {
+                Text = "Purchase CGST (%) :",
+                Font = labelFont,
+                Dock = DockStyle.Fill,
+                ForeColor = Color.Black,
+                TextAlign = ContentAlignment.MiddleRight,
+            }, 0, 7);
+
+            purchaseCGstPercentText = new TextBox
+            {
+                Dock = DockStyle.Fill,
+                Font = textfieldFont,
+                Margin = new Padding(5),
+                Text = qtyPercentPlaceHolder,
+                ForeColor = Color.Gray
+            };
+            table.Controls.Add(purchaseCGstPercentText, 2, 7);
+
+            //purchase SGst (%)
+            table.Controls.Add(new Label
+            {
+                Text = "Purchase SGST (%) :",
+                Font = labelFont,
+                Dock = DockStyle.Fill,
+                ForeColor = Color.Black,
+                TextAlign = ContentAlignment.MiddleRight,
+            }, 4, 7);
+
+            purchaseSGstPercentText = new TextBox
+            {
+                Dock = DockStyle.Fill,
+                Font = textfieldFont,
+                Margin = new Padding(5),
+                Text = qtyPercentPlaceHolder,
+                ForeColor = Color.Gray
+            };
+            table.Controls.Add(purchaseSGstPercentText, 6, 7);
+
+           
             //Row-8
             //Selling Price A
             table.Controls.Add(new Label
@@ -540,7 +548,8 @@ namespace StoreBillingSystem
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
                 Margin = new Padding(5),
-                Text = "0.00"
+                Text = pricePlaceHolder,
+                ForeColor = Color.Gray
             };
             table.Controls.Add(sellingPriceText_1, 2, 8);
 
@@ -559,7 +568,8 @@ namespace StoreBillingSystem
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
                 Margin = new Padding(5),
-                Text = "0.00"
+                Text = pricePlaceHolder,
+                ForeColor = Color.Gray
             };
             table.Controls.Add(discountText_1, 6, 8);
 
@@ -580,7 +590,8 @@ namespace StoreBillingSystem
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
                 Margin = new Padding(5),
-                Text = "0.00"
+                Text = pricePlaceHolder,
+                ForeColor = Color.Gray
             };
             table.Controls.Add(sellingPriceText_2, 2, 9);
 
@@ -599,7 +610,8 @@ namespace StoreBillingSystem
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
                 Margin = new Padding(5),
-                Text = "0.00"
+                Text = pricePlaceHolder,
+                ForeColor = Color.Gray
             };
             table.Controls.Add(discountText_2, 6, 9);
 
@@ -619,7 +631,8 @@ namespace StoreBillingSystem
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
                 Margin = new Padding(5),
-                Text = "0.00"
+                Text = pricePlaceHolder,
+                ForeColor = Color.Gray
             };
             table.Controls.Add(sellingPriceText_3, 2, 10);
 
@@ -638,7 +651,8 @@ namespace StoreBillingSystem
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
                 Margin = new Padding(5),
-                Text = "0.00"
+                Text = pricePlaceHolder,
+                ForeColor = Color.Gray
             };
             table.Controls.Add(discountText_3, 6, 10);
 
@@ -658,7 +672,8 @@ namespace StoreBillingSystem
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
                 Margin = new Padding(5),
-                Text = "0.00"
+                Text = pricePlaceHolder,
+                ForeColor = Color.Gray
             };
             table.Controls.Add(sellingPriceText_4, 2, 11);
 
@@ -677,7 +692,8 @@ namespace StoreBillingSystem
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
                 Margin = new Padding(5),
-                Text = "0.00"
+                Text = pricePlaceHolder,
+                ForeColor = Color.Gray
             };
             table.Controls.Add(discountText_4, 6, 11);
 
@@ -710,7 +726,8 @@ namespace StoreBillingSystem
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
                 Margin = new Padding(5),
-                Text = "0"
+                Text = qtyPercentPlaceHolder,
+                ForeColor = Color.Gray
             };
             table.Controls.Add(cgstText, 2, 13);
 
@@ -729,11 +746,29 @@ namespace StoreBillingSystem
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
                 Margin = new Padding(5),
-                Text = "0"
+                Text = qtyPercentPlaceHolder,
+                ForeColor = Color.Gray
             };
             table.Controls.Add(sgstText, 6, 13);
 
             //Row-14
+            table.Controls.Add(new Label
+            {
+                Text = "Allow Mfg_Exp_Batch :",
+                Font = labelFont,
+                Dock = DockStyle.Fill,
+                ForeColor = Color.Black,
+                TextAlign = ContentAlignment.MiddleRight,
+            }, 0, 14);
+
+            allowMfgExpBatchCheckBox = new CheckBox
+            {
+                Dock = DockStyle.Fill,
+                Margin = new Padding(5),
+            };
+            table.Controls.Add(allowMfgExpBatchCheckBox, 2, 14);
+
+            //Row-15
             //Manufacture date
             table.Controls.Add(new Label
             {
@@ -742,7 +777,7 @@ namespace StoreBillingSystem
                 Dock = DockStyle.Fill,
                 ForeColor = Color.Black,
                 TextAlign = ContentAlignment.MiddleRight,
-            }, 0, 14);
+            }, 0, 15);
 
             manufactureDate = new DateTimePicker
             {
@@ -750,8 +785,9 @@ namespace StoreBillingSystem
                 Font = textfieldFont,
                 Margin = new Padding(5),
                 Format = DateTimePickerFormat.Short,
+                Enabled = false
             };
-            table.Controls.Add(manufactureDate, 2, 14);
+            table.Controls.Add(manufactureDate, 2, 15);
 
             //Expiry date
             table.Controls.Add(new Label
@@ -761,7 +797,7 @@ namespace StoreBillingSystem
                 Dock = DockStyle.Fill,
                 ForeColor = Color.Black,
                 TextAlign = ContentAlignment.MiddleRight,
-            }, 4, 14);
+            }, 4, 15);
 
             expiryDate = new DateTimePicker
             {
@@ -769,10 +805,11 @@ namespace StoreBillingSystem
                 Font = textfieldFont,
                 Margin = new Padding(5),
                 Format = DateTimePickerFormat.Short,
+                Enabled = false,
             };
-            table.Controls.Add(expiryDate, 6, 14);
+            table.Controls.Add(expiryDate, 6, 15);
 
-            //Row-15
+            //Row-16
             //Batch Number
             table.Controls.Add(new Label
             {
@@ -781,7 +818,7 @@ namespace StoreBillingSystem
                 Dock = DockStyle.Fill,
                 ForeColor = Color.Black,
                 TextAlign = ContentAlignment.MiddleRight,
-            }, 0, 15);
+            }, 0, 16);
 
             batchNumberText = new TextBox
             {
@@ -789,12 +826,13 @@ namespace StoreBillingSystem
                 Font = textfieldFont,
                 ForeColor = Color.Gray,
                 Margin = new Padding(5),
-                Text = batchNumberPlaceHolder
+                Text = batchNumberPlaceHolder,
+                Enabled = false
             };
 
-            table.Controls.Add(batchNumberText, 2, 15);
+            table.Controls.Add(batchNumberText, 2, 16);
 
-            //Row-16
+            //Row-17
             //Horizontal Separator
             separator_3 = new Label
             {
@@ -805,9 +843,9 @@ namespace StoreBillingSystem
                 ForeColor = Color.Black,
                 TextAlign = ContentAlignment.MiddleRight,
             };
-            table.Controls.Add(separator_3, 0, 16);
+            table.Controls.Add(separator_3, 0, 17);
 
-            //Row-17
+            //Row-18
             //Clear Button
             Button clearProductButton = new Button
             {
@@ -818,7 +856,7 @@ namespace StoreBillingSystem
                 BackColor = Color.Blue,
                 Margin = new Padding(5)
             };
-            table.Controls.Add(clearProductButton, 3, 17);
+            table.Controls.Add(clearProductButton, 3, 18);
 
             Button addProductButton = new Button
             {
@@ -829,7 +867,7 @@ namespace StoreBillingSystem
                 BackColor = Color.Blue,
                 Margin = new Padding(5)
             };
-            table.Controls.Add(addProductButton, 4, 17);
+            table.Controls.Add(addProductButton, 4, 18);
 
             //Row-18 - Blank Row
 
@@ -846,6 +884,16 @@ namespace StoreBillingSystem
             box.Controls.Add(table);
 
 
+            InitAddProductFormEvent();
+
+            //Button event
+            addProductButton.Click += AddProductButton_Click;
+
+            return box;
+        }
+
+        private void InitAddProductFormEvent()
+        {
             //Numeric text on text box
             qtyText.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
             purchasePriceText.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
@@ -863,60 +911,61 @@ namespace StoreBillingSystem
             purchaseSGstPercentText.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
 
 
-            //Button event
-            addProductButton.Click += AddProductButton_Click;
-
 
             //Capitalise text on text box
-            productNameText.TextChanged += ProductNameText_TextChanged;
-            batchNumberText.TextChanged += BatchNumberText_TextChanged;
+            productNameText.TextChanged += (sender, e) => TextBoxKeyEvent.CapitalizeText_TextChanged(productNameText);
 
             // placeholder on text box
-            productNameText.Enter += ProductNameText_GotFocus;
-            productNameText.Leave += ProductNameText_LostFocus;
+            productNameText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(productNameText, productPlaceHolder);
+            productNameText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(productNameText, productPlaceHolder);
 
-            batchNumberText.Enter += BatchNumberText_GotFocus;
-            batchNumberText.Leave += BatchNumberText_LostFocus;
-            return box;
+            batchNumberText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(batchNumberText, batchNumberPlaceHolder);
+            batchNumberText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(batchNumberText, batchNumberPlaceHolder);
+
+            purchasePriceText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(purchasePriceText, pricePlaceHolder);
+            purchasePriceText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(purchasePriceText, pricePlaceHolder);
+
+            sellingPriceText_1.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(sellingPriceText_1, pricePlaceHolder);
+            sellingPriceText_1.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(sellingPriceText_1, pricePlaceHolder);
+            sellingPriceText_2.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(sellingPriceText_2, pricePlaceHolder);
+            sellingPriceText_2.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(sellingPriceText_2, pricePlaceHolder);
+            sellingPriceText_3.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(sellingPriceText_3, pricePlaceHolder);
+            sellingPriceText_3.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(sellingPriceText_3, pricePlaceHolder);
+            sellingPriceText_4.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(sellingPriceText_4, pricePlaceHolder);
+            sellingPriceText_4.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(sellingPriceText_4, pricePlaceHolder);
+
+            discountText_1.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(discountText_1, pricePlaceHolder);
+            discountText_1.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(discountText_1, pricePlaceHolder);
+            discountText_2.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(discountText_2, pricePlaceHolder);
+            discountText_2.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(discountText_2, pricePlaceHolder);
+            discountText_3.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(discountText_3, pricePlaceHolder);
+            discountText_3.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(discountText_3, pricePlaceHolder);
+            discountText_4.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(discountText_4, pricePlaceHolder);
+            discountText_4.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(discountText_4, pricePlaceHolder);
+
+            qtyText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(qtyText, qtyPercentPlaceHolder);
+            qtyText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(qtyText, qtyPercentPlaceHolder);
+            cgstText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(cgstText, qtyPercentPlaceHolder);
+            cgstText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(cgstText, qtyPercentPlaceHolder);
+            sgstText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(sgstText, qtyPercentPlaceHolder);
+            sgstText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(sgstText, qtyPercentPlaceHolder);
+            purchaseCGstPercentText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(purchaseCGstPercentText, qtyPercentPlaceHolder);
+            purchaseCGstPercentText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(purchaseCGstPercentText, qtyPercentPlaceHolder);
+            purchaseSGstPercentText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(purchaseSGstPercentText, qtyPercentPlaceHolder);
+            purchaseSGstPercentText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(purchaseSGstPercentText, qtyPercentPlaceHolder);
+
+            //Enable & Disable field
+            allowMfgExpBatchCheckBox.CheckedChanged += AllowMfgExpBatchCheckBox_CheckedChanged;
         }
 
-        private void ProductNameText_GotFocus(object sender, EventArgs e)
+
+        private void AllowMfgExpBatchCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            if (productNameText.Text.ToLower() == productPlaceHolder.ToLower())
-            {
-                productNameText.Text = "";
-                productNameText.ForeColor = Color.Black;
-            }
+            manufactureDate.Enabled = allowMfgExpBatchCheckBox.Checked;
+            expiryDate.Enabled = allowMfgExpBatchCheckBox.Checked;
+            batchNumberText.Enabled = allowMfgExpBatchCheckBox.Checked;
         }
 
-        private void ProductNameText_LostFocus(object sender, EventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(productNameText.Text))
-            {
-                productNameText.Text = productPlaceHolder;
-                productNameText.ForeColor = Color.Gray;
-            }
-        }
-
-        private void BatchNumberText_GotFocus(object sender, EventArgs e)
-        {
-            // Clear the placeholder text when the TextBox gets focus
-            if (batchNumberText.Text.ToLower() == batchNumberPlaceHolder.ToLower())
-            {
-                batchNumberText.Text = string.Empty;
-                batchNumberText.ForeColor = Color.Black; // Set text color to default
-            }
-        }
-
-        private void BatchNumberText_LostFocus(object sender, EventArgs e)
-        {
-            // Set the placeholder text when the TextBox loses focus and is empty
-            if (string.IsNullOrWhiteSpace(batchNumberText.Text))
-            {
-                batchNumberText.Text = batchNumberPlaceHolder;
-                batchNumberText.ForeColor = Color.Gray; // Set text color to placeholder color
-            }
-        }
 
         private void AddProductButton_Click(object sender, EventArgs e)
         {
@@ -925,35 +974,82 @@ namespace StoreBillingSystem
             string productId = productIdText.Text.Trim();
             string productName = productNameText.Text.Trim();
             Console.WriteLine("productName :" + productName);
-            if (string.IsNullOrEmpty(productName))
+            if (string.IsNullOrWhiteSpace(productName))
             {
+                MessageBox.Show("Product Name can be empty or null.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
             }
+            string batchNumber = batchNumberText.Text.Trim();
+            var mfgDate = manufactureDate.Value;
+            var expDate = expiryDate.Value;
+
+            if (allowMfgExpBatchCheckBox.Checked)
+            {
+                if (string.IsNullOrWhiteSpace(batchNumber))
+                {
+                    MessageBox.Show("Batch Number can be empty or null.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                }
+                if (mfgDate.CompareTo(expDate) != -1)
+                {
+                    MessageBox.Show("Manufacture date must be less than to expiry date.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                }
+            }
+
+            double sellPriceA = double.Parse(sellingPriceText_1.Text.Trim());
+            double sellPriceB = double.Parse(sellingPriceText_2.Text.Trim());
+            double sellPriceC = double.Parse(sellingPriceText_3.Text.Trim());
+            double sellPriceD = double.Parse(sellingPriceText_4.Text.Trim());
+
+            double discountA = double.Parse(discountText_1.Text.Trim());
+            double discountB = double.Parse(discountText_2.Text.Trim());
+            double discountC = double.Parse(discountText_3.Text.Trim());
+            double discountD = double.Parse(discountText_4.Text.Trim());
+
+            float sellingCGST = float.Parse(cgstText.Text.Trim());
+            float sellingSGST = float.Parse(sgstText.Text.Trim());
+
+            if(discountA >= sellPriceA)
+            {
+                MessageBox.Show("Discount price 'A' can't be greater that or equal to selling price 'A'.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            if (discountB >= sellPriceB)
+            {
+                MessageBox.Show("Discount price 'B' can't be greater that or equal to selling price 'B'.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            if (discountC >= sellPriceC)
+            {
+                MessageBox.Show("Discount price 'C' can't be greater that or equal to selling price 'C'.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            if (discountD >= sellPriceD)
+            {
+                MessageBox.Show("Discount price 'D' can't be greater that or equal to selling price 'D'.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
 
             var category = (Category)categoryTypesComboBox.SelectedItem;
             var productType = (ProductType)productTypesComboBox.SelectedItem;
 
+            float qty = float.Parse(qtyText.Text.Trim());
+            double purchasePrice = double.Parse(purchasePriceText.Text.Trim());
             var purchaseDateTime = purchaseDate.Value;
-            purchasePriceText.Text.Trim();
+            float purchaseCGST = float.Parse(purchaseCGstPercentText.Text.Trim());
+            float purchaseSGST = float.Parse(purchaseSGstPercentText.Text.Trim());
 
-            var mfgDate = manufactureDate.Value;
-            var expDate = expiryDate.Value;
+            Product product = new Product(productName, category, productType, qty);
+            ProductPurchase purchase = new ProductPurchase(product, qty, purchasePrice, purchaseCGST, purchaseSGST, purchaseDateTime);
+            if (allowMfgExpBatchCheckBox.Checked)
+            {
+                purchase.MfgExpBatch(mfgDate, expDate, batchNumber);
+            }
 
-            qtyText.Text.Trim();
-            purchasePriceText.Text.Trim();
-            sellingPriceText_1.Text.Trim();
-            sellingPriceText_2.Text.Trim();
-            sellingPriceText_3.Text.Trim();
-            sellingPriceText_4.Text.Trim();
+            ProductSelling selling = new ProductSelling(product, sellPriceA, discountA, sellPriceB, discountB, sellPriceC, discountC, sellPriceD, discountD, sellingCGST, sellingSGST);
 
-            discountText_1.Text.Trim();
-            discountText_2.Text.Trim();
-            discountText_3.Text.Trim();
-            discountText_4.Text.Trim();
-            cgstText.Text.Trim();
-            sgstText.Text.Trim();
-            purchaseCGstPercentText.Text.Trim();
-            purchaseSGstPercentText.Text.Trim();
-            batchNumberText.Text.Trim();
 
         }
 
@@ -1156,7 +1252,8 @@ namespace StoreBillingSystem
             // Attach the CellFormatting event handler
             //categoryTable.CellFormatting += CategoryTable_CellFormatting;
 
-            categoryNameField.TextChanged += CategoryNameField_TextChanged;
+            categoryNameField.TextChanged += (sender, e) => TextBoxKeyEvent.CapitalizeText_TextChanged(categoryNameField);
+
             return form;
         }
 
@@ -1364,8 +1461,8 @@ namespace StoreBillingSystem
             // Attach the CellFormatting event handler
             //productTypeTable.CellFormatting += ProductTypeTable_CellFormatting;
 
-            typeFullNameField.TextChanged += TypeFullNameField_TextChanged;
-            typeAbbrNameField.TextChanged += TypeAbbrNameField_TextChanged;
+            typeFullNameField.TextChanged += (sender, e) => TextBoxKeyEvent.CapitalizeText_TextChanged(typeFullNameField);
+            typeAbbrNameField.TextChanged += (sender, e) => TextBoxKeyEvent.UpperText_TextChanged(typeAbbrNameField);
             typeAbbrNameField.KeyPress += TextBoxKeyEvent.UppercaseTextBox_KeyPress;
             return form;
         }
@@ -1483,48 +1580,7 @@ namespace StoreBillingSystem
         }
 
 
-        private void ProductNameText_TextChanged(object sender, EventArgs e)
-        {
-            productNameText.Text = CapitalizeEachWord(productNameText.Text);
-            productNameText.SelectionStart = productNameText.Text.Length; // Set the cursor at the end
-        }
 
-        private void TypeAbbrNameField_TextChanged(object sender, EventArgs e)
-        {
-            typeAbbrNameField.Text = typeAbbrNameField.Text.ToUpper();
-            typeAbbrNameField.SelectionStart = typeAbbrNameField.Text.Length; // Set the cursor at the end
-        }
-
-
-        private void BatchNumberText_TextChanged(object sender, EventArgs e)
-        {
-            batchNumberText.Text = batchNumberText.Text.ToUpper();
-            batchNumberText.SelectionStart = batchNumberText.Text.Length; // Set the cursor at the end
-        }
-
-      
-
-        private void TypeFullNameField_TextChanged(object sender, EventArgs e)
-        {
-            typeFullNameField.Text = CapitalizeEachWord(typeFullNameField.Text);
-            typeFullNameField.SelectionStart = typeFullNameField.Text.Length; // Set the cursor at the end
-        }
-
-        private void CategoryNameField_TextChanged(object sender, EventArgs e)
-        {
-            categoryNameField.Text = CapitalizeEachWord(categoryNameField.Text);
-            categoryNameField.SelectionStart = categoryNameField.Text.Length; // Set the cursor at the end
-        }
-
-        private string CapitalizeEachWord(string input)
-        {
-            if (!string.IsNullOrEmpty(input))
-            {
-                return Util.U.ToTitleCase(input);
-            }
-
-            return input;
-        }
 
     }
 }

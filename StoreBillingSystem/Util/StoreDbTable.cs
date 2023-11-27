@@ -4,6 +4,9 @@ namespace StoreBillingSystem.Util
     public enum StoreDbTable
     {
         Category,
-        ProductType
+        ProductType,
+        Product,
+        ProductPurchase,
+        ProductSelling
     }
 }

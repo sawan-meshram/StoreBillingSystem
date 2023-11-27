@@ -58,6 +58,14 @@
     <Compile Include="Util\StoreDbTable.cs" />
     <Compile Include="Entity\Product.cs" />
     <Compile Include="Events\TextBoxKeyEvent.cs" />
+    <Compile Include="Entity\ProductPurchase.cs" />
+    <Compile Include="Entity\ProductSelling.cs" />
+    <Compile Include="DAO\IProductDao.cs" />
+    <Compile Include="DAO\IProductPurchaseDao.cs" />
+    <Compile Include="DAO\IProductSellingDao.cs" />
+    <Compile Include="DAOImpl\ProductDaoImpl.cs" />
+    <Compile Include="DAOImpl\ProductSellingDaoImpl.cs" />
+    <Compile Include="DAOImpl\ProductPurchaseDaoImpl.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Database\" />

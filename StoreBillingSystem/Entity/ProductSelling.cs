@@ -12,25 +12,22 @@ namespace StoreBillingSystem.Entity
             Product = product;
         }
 
-        public ProductSelling(Product product, float sellingCGSTInPercent, float sellingSGSTInPercent)
+        public ProductSelling(Product product, float sellingCGSTInPercent, float sellingSGSTInPercent) : this(product)
         {
-            Product = product;
             GST(sellingCGSTInPercent, sellingSGSTInPercent);
         }
 
         public ProductSelling(Product product, double sellingPriceA, double discountPriceA, double sellingPriceB, double discountPriceB,
-            double sellingPriceC, double discountPriceC, double sellingPriceD, double discountPriceD)
+            double sellingPriceC, double discountPriceC, double sellingPriceD, double discountPriceD) : this(product)
         {
-            Product = product;
             SellingPriceDiscount(sellingPriceA, discountPriceA, sellingPriceB, discountPriceB, sellingPriceC, discountPriceC, sellingPriceD, discountPriceD);
         }
 
         public ProductSelling(Product product, double sellingPriceA, double discountPriceA, double sellingPriceB, double discountPriceB,
             double sellingPriceC, double discountPriceC, double sellingPriceD, double discountPriceD,
-            float sellingCGSTInPercent, float sellingSGSTInPercent)
+            float sellingCGSTInPercent, float sellingSGSTInPercent) 
+            : this (product, sellingPriceA, discountPriceA, sellingPriceB, discountPriceB, sellingPriceC, discountPriceC, sellingPriceD, discountPriceD)
         {
-            Product = product;
-            SellingPriceDiscount(sellingPriceA, discountPriceA, sellingPriceB, discountPriceB, sellingPriceC, discountPriceC, sellingPriceD, discountPriceD);
             GST(sellingCGSTInPercent, sellingSGSTInPercent);
         }
 
@@ -86,6 +83,47 @@ namespace StoreBillingSystem.Entity
         {
             SellingPrice_D = sellingPrice;
             DiscountPrice_D = discountPrice;
+        }
+
+
+        /// <summary>
+        /// The calculate the total selling price.
+        /// </summary>
+        /// <returns>The total selling price.</returns>
+        /// <param name="sellingPrice">Selling price.</param>
+        /// <param name="discountPrice">Discount price.</param>
+        public double GetTotalSellingPrice(double sellingPrice, double discountPrice)
+        {
+            return sellingPrice - discountPrice;
+        }
+
+        /// <summary>
+        /// This calculate the total tax gst price.
+        /// </summary>
+        /// <returns>Total selling GST price</returns>
+        public double GetTotalTaxableSellingGSTInPrice(double sellingPrice, double discountPrice)
+        {
+            //Tax Value = Total Value - (Total Value / (1 + Tax Rate))
+            double totalPrice = GetTotalSellingPrice(sellingPrice, discountPrice);
+            return totalPrice - totalPrice / (1 + (GetTotalGSTInPercent() / 100));
+        }
+
+        /// <summary>
+        /// This calculates the total taxable purchase price (exclude GST).
+        /// </summary>
+        /// <returns>Total Selling Price exclude GST in it.</returns>
+        public double GetTotalTaxableSellingPrice(double sellingPrice, double discountPrice)
+        {
+            return GetTotalSellingPrice(sellingPrice, discountPrice) - GetTotalTaxableSellingGSTInPrice(sellingPrice, discountPrice);
+        }
+
+        /// <summary>
+        /// This calculates the total gst in percentage.
+        /// </summary>
+        /// <returns>The total GST in Percentage</returns>
+        public float GetTotalGSTInPercent()
+        {
+            return CGSTInPercent + SGSTInPercent;
         }
 
     }

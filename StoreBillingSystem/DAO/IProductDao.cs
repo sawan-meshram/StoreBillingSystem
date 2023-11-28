@@ -6,10 +6,11 @@ namespace StoreBillingSystem.DAO
     public interface IProductDao
     {
         IList<Product> ReadAll();
-        Product Read(int id);
+        Product Read(long id);
         bool Insert(Product product);
         bool Update(Product product);
-        bool Delete(int id);
+        bool UpdateQty(long id, float qty);
+        bool Delete(long id);
         bool IsRecordExists(string name);
     }
 }

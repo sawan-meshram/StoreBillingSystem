@@ -12,18 +12,22 @@ namespace StoreBillingSystem.DAOImpl
     {
         private SqliteConnection _conn;
         private string _tableName;
-        private string _refCategoryTableName;
-        private string _refProductTypeTableName;
+        //private string _refCategoryTableName;
+        //private string _refProductTypeTableName;
+        private ICategoryDao _categoryDao;
+        private IProductTypeDao _productTypeDao;
 
         public ProductDaoImpl(SqliteConnection conn)
         {
             _conn = conn;
             _tableName = StoreDbTable.Product.ToString();
-            _refCategoryTableName = StoreDbTable.Category.ToString();
-            _refProductTypeTableName = StoreDbTable.ProductType.ToString();
+            //_refCategoryTableName = StoreDbTable.Category.ToString();
+            //_refProductTypeTableName = StoreDbTable.ProductType.ToString();
+            _categoryDao = new CategoryDaoImpl(conn);
+            _productTypeDao = new ProductTypeDaoImpl(conn);
         }
 
-        public bool Delete(int id)
+        public bool Delete(long id)
         {
             // Create the SQL command to delete the record
             string deleteQuery = $"DELETE FROM {_tableName} WHERE ID = @Id";
@@ -67,7 +71,7 @@ namespace StoreBillingSystem.DAOImpl
                     long generatedId = (long)command.ExecuteScalar();
                     Console.WriteLine($"Auto-generated ID: {generatedId}");
 
-                    product.Id = (int)generatedId;
+                    product.Id = generatedId;
 
                     transaction.Commit();
                     return true;
@@ -92,16 +96,19 @@ namespace StoreBillingSystem.DAOImpl
             }
         }
 
-        public Product Read(int id)
+        public Product Read(long id)
         {
-
+            /*
             string query = $"SELECT {_tableName}.*, {_refCategoryTableName}.*, {_refProductTypeTableName}.* " +
                            $"FROM {_tableName} " +
                            $"INNER JOIN {_refCategoryTableName} ON {_tableName}.Category_ID = {_refCategoryTableName}.ID " +
                            $"INNER JOIN {_refProductTypeTableName} ON {_tableName}.ProductType_ID = {_refProductTypeTableName}.ID " +
                            $"WHERE {_tableName}.ID = @Id";
+            */
+            string query = $"SELECT * FROM {_tableName} WHERE ID = @Id";
 
             Product product = null;
+
             using (SqliteCommand command = new SqliteCommand(query, _conn))
             {
                 command.Parameters.AddWithValue("@Id", id);
@@ -112,9 +119,15 @@ namespace StoreBillingSystem.DAOImpl
                     {
                         product = new Product()
                         {
+                            Id = reader.GetInt64(reader.GetOrdinal("ID")),
+                            Name = reader.GetString(reader.GetOrdinal("NAME")),
+                            TotalQty = reader.GetFloat(reader.GetOrdinal("QTY"))
+
+                            /*
                             Id = reader.GetInt64(reader.GetOrdinal($"{_tableName}.ID")),
                             Name = reader.GetString(reader.GetOrdinal($"{_tableName}.NAME")),
                             TotalQty = reader.GetFloat(reader.GetOrdinal($"{_tableName}.QTY")),
+
                             Category = new Category
                             (
                                 reader.GetInt32(reader.GetOrdinal($"{_refCategoryTableName}.ID")), 
@@ -125,11 +138,14 @@ namespace StoreBillingSystem.DAOImpl
                                 reader.GetInt32(reader.GetOrdinal($"{_refProductTypeTableName}.ID")),
                                 reader.GetString(reader.GetOrdinal($"{_refProductTypeTableName}.NAME")),
                                 reader.GetString(reader.GetOrdinal($"{_refProductTypeTableName}.ABBR"))
-                            )
+                            )*/
                         };
+                        product.Category = _categoryDao.Read(reader.GetInt32(reader.GetOrdinal("Category_ID")));
+                        product.ProductType = _productTypeDao.Read(reader.GetInt32(reader.GetOrdinal("ProductType_ID")));
                     }
                 }
             }
+
             return product;
         }
 
@@ -137,22 +153,22 @@ namespace StoreBillingSystem.DAOImpl
         {
             IList<Product> products = new List<Product>();
 
+            string query = $"SELECT * FROM {_tableName}";
 
-
+            /*
             string query = $"SELECT {_tableName}.*, {_refCategoryTableName}.*, {_refProductTypeTableName}.* " +
                           $"FROM {_tableName} " +
                           $"INNER JOIN {_refCategoryTableName} ON {_tableName}.Category_ID = {_refCategoryTableName}.ID " +
                           $"INNER JOIN {_refProductTypeTableName} ON {_tableName}.ProductType_ID = {_refProductTypeTableName}.ID";
-
+            */
 
             using (SqliteCommand command = new SqliteCommand(query, _conn))
             {
-                command.CommandText = $"SELECT * FROM {_tableName}";
-
                 using (SqliteDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
+                        /*
                         products.Add(
                             new Product(){
                                 Id = reader.GetInt64(reader.GetOrdinal($"{_tableName}.ID")),
@@ -169,6 +185,19 @@ namespace StoreBillingSystem.DAOImpl
                                 )
                             }
                         );
+                        */
+
+                        Product product = new Product()
+                        {
+                            Id = reader.GetInt64(reader.GetOrdinal("ID")),
+                            Name = reader.GetString(reader.GetOrdinal("NAME")),
+                            TotalQty = reader.GetFloat(reader.GetOrdinal("QTY"))
+                        };
+                       
+                        product.Category = _categoryDao.Read(reader.GetInt32(reader.GetOrdinal("Category_ID")));
+                        product.ProductType = _productTypeDao.Read(reader.GetInt32(reader.GetOrdinal("ProductType_ID")));
+
+
                     }
                 }
             }
@@ -190,6 +219,32 @@ namespace StoreBillingSystem.DAOImpl
                     command.Parameters.AddWithValue("@CategoryID", product.Category.Id);
                     command.Parameters.AddWithValue("@ProductTypeID", product.ProductType.Id);
                     command.Parameters.AddWithValue("@Id", product.Id);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+
+                    transaction.Commit();
+
+                    if (rowsAffected > 0)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public bool UpdateQty(long id, float qty)
+        {
+            using (SqliteCommand command = _conn.CreateCommand())
+            {
+
+                // Insert multiple records using a transaction
+                using (SqliteTransaction transaction = _conn.BeginTransaction())
+                {
+                    // Insert a single record
+                    command.CommandText = $"UPDATE {_tableName} SET QTY=@Qty WHERE ID = @Id";
+                    command.Parameters.AddWithValue("@Qty", qty);
+                    command.Parameters.AddWithValue("@Id", id);
 
                     int rowsAffected = command.ExecuteNonQuery();
 

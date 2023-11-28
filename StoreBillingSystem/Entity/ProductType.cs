@@ -13,11 +13,9 @@ namespace StoreBillingSystem.Entity
         }
 
 
-        public ProductType(int id, string name, string abbr)
+        public ProductType(int id, string name, string abbr) : this(name, abbr)
         {
             Id = id;
-            Name = name;
-            Abbr = abbr;
         }
 
         public int Id { get; set; }

@@ -10,10 +10,9 @@ namespace StoreBillingSystem.Entity
         {
             Name = name;
         }
-        public Category(int id, string name)
+        public Category(int id, string name) : this(name)
         {
             Id = id;
-            Name = name;
         }
 
         public int Id { get; set; }

@@ -7,9 +7,9 @@ namespace StoreBillingSystem.DAO
     public interface IProductSellingDao
     {
         IList<ProductSelling> ReadAll();
-        ProductSelling Read(int id);
-        bool Insert(ProductSelling category);
-        bool Update(ProductSelling category);
-        bool Delete(int id);
+        ProductSelling Read(long id);
+        bool Insert(ProductSelling selling);
+        bool Update(ProductSelling selling);
+        bool Delete(long id);
     }
 }

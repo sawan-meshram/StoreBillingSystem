@@ -1,5 +1,5 @@
 ﻿<Properties StartupConfiguration="{264F6592-08B9-4A69-BB0A-FD7ED2E62E2A}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/WaterDistrictDemo.aspx">
+  <MonoDevelop.Ide.Workbench ActiveDocument="StoreBillingSystem/ProductForm.cs">
     <Files>
       <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/Model/WaterDistrictModel.cs" Line="2" Column="30" />
       <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/Util/RouteConfig.cs" Line="13" Column="66" />
@@ -10,21 +10,18 @@
       <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/Login.aspx" Line="100" Column="10" />
       <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/ForgotPassword.aspx.cs" Line="27" Column="50" />
       <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/PasswordReset.aspx.cs" Line="15" Column="33" />
-      <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/WaterDistrictDemo.aspx" Line="7378" Column="64" />
+      <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/WaterDistrictDemo.aspx" Line="12" Column="56" />
       <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/Controller/GetIncludeExcludeAreaOnSearch.cs" Line="44" Column="1" />
       <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/Model/ShatamGeometry.cs" Line="26" Column="1" />
+      <File FileName="StoreBillingSystem/Program.cs" Line="67" Column="45" />
+      <File FileName="StoreBillingSystem/ProductForm.cs" Line="1012" Column="13" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="EagleAerialCIIWater" expanded="True">
             <Node name="EagleAerialCIIWater" expanded="True">
-              <Node name="App_Start" expanded="True" />
-              <Node name="Controller" expanded="True" />
-              <Node name="Model" expanded="True" />
-              <Node name="View" expanded="True">
-                <Node name="WaterDistrictDemo.aspx" selected="True" />
-              </Node>
+              <Node name="View" expanded="True" />
             </Node>
           </Node>
           <Node name="StoreBillingSystem" expanded="True">
@@ -33,6 +30,9 @@
               <Node name="DAOImpl" expanded="True" />
               <Node name="Database" expanded="True" />
               <Node name="Entity" expanded="True" />
+              <Node name="Events" expanded="True" />
+              <Node name="Util" expanded="True" />
+              <Node name="ProductForm.cs" selected="True" />
             </Node>
           </Node>
         </State>
@@ -41,7 +41,7 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.ItemProperties.StoreBillingSystem PreferredExecutionTarget="MonoDevelop.Default" />
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Breakpoint file="/home/shatam-25/Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/Controller/TextDB.cs" line="293" column="1" />

@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using Mono.Data.Sqlite;
 
 using StoreBillingSystem.Entity;
 using StoreBillingSystem.DAO;
@@ -23,37 +24,43 @@ namespace StoreBillingSystem
             InitComponentsData();
         }
 
+        private ICategoryDao categoryDao;
+        private IProductTypeDao productTypeDao;
+        private IProductDao productDao;
+        private IProductSellingDao productSellingDao;
+        private IProductPurchaseDao productPurchaseDao;
+
+        private IList<Category> categoryList;
+        private IList<ProductType> productTypeList;
+
         private void InitComponentsData()
         {
-            categoryDao = new CategoryDaoImpl(DatabaseManager.GetConnection());
+            SqliteConnection connection = DatabaseManager.GetConnection();
+
+            productDao = new ProductDaoImpl(connection);
+
+            //Set New product Id
+            productIdText.Text = productDao.GetNewProductId().ToString();
+
+            productSellingDao = new ProductSellingDaoImpl(connection);
+            productPurchaseDao = new ProductPurchaseDaoImpl(connection);
+
+            categoryDao = new CategoryDaoImpl(connection);
             categoryList = categoryDao.ReadAll();
 
-            productTypeDao = new ProductTypeDaoImpl(DatabaseManager.GetConnection());
+            productTypeDao = new ProductTypeDaoImpl(connection);
             productTypeList = productTypeDao.ReadAll();
 
-            categoryTypesComboBox.DataSource = categoryList;
-            categoryTypesComboBox.DisplayMember = "Name";
-            categoryTypesComboBox.ValueMember = "Id";
-
-
-            productTypesComboBox.DataSource = productTypeList;
-            productTypesComboBox.DisplayMember = "Name";
-            productTypesComboBox.ValueMember = "Id";
+            BindCategoryTypeToComboBox();
+            BindProductTypeToComboBox();
 
             //to retrive the selected Category
             /*
             Category category = (Category)categoryTypesComboBox.SelectedItem;
             string name = category.Name;
             int id = category.Id;
-            */           
+            */
         }
-
-        private ICategoryDao categoryDao;
-        private IProductTypeDao productTypeDao;
-
-        private IList<Category> categoryList;
-        private IList<ProductType> productTypeList;
-
 
         private Font labelFont = new Font("Arial", 11, FontStyle.Bold);
         private Font textfieldFont = new Font("Arial", 11);
@@ -324,7 +331,8 @@ namespace StoreBillingSystem
             {
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
-                Margin = new Padding(5)
+                Margin = new Padding(5),
+                ReadOnly = true
             };
             table.Controls.Add(productIdText, 2, 1);
 
@@ -403,7 +411,8 @@ namespace StoreBillingSystem
             {
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
-                Margin = new Padding(5)
+                Margin = new Padding(5),
+                DropDownStyle = ComboBoxStyle.DropDownList
             };
             table.Controls.Add(categoryTypesComboBox, 2, 3);
 
@@ -432,7 +441,8 @@ namespace StoreBillingSystem
             {
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
-                Margin = new Padding(5)
+                Margin = new Padding(5),
+                DropDownStyle = ComboBoxStyle.DropDownList
             };
             table.Controls.Add(productTypesComboBox, 2, 4);
 
@@ -827,6 +837,7 @@ namespace StoreBillingSystem
                 ForeColor = Color.Gray,
                 Margin = new Padding(5),
                 Text = batchNumberPlaceHolder,
+                //ReadOnly = true,
                 Enabled = false
             };
 
@@ -887,7 +898,8 @@ namespace StoreBillingSystem
             InitAddProductFormEvent();
 
             //Button event
-            addProductButton.Click += AddProductButton_Click;
+            clearProductButton.Click += (sender, e) => ClearProductForm();
+            addProductButton.Click += (sender, e) => AddProduct();
 
             return box;
         }
@@ -914,12 +926,18 @@ namespace StoreBillingSystem
 
             //Capitalise text on text box
             productNameText.TextChanged += (sender, e) => TextBoxKeyEvent.CapitalizeText_TextChanged(productNameText);
+            batchNumberText.KeyPress += TextBoxKeyEvent.UppercaseTextBox_KeyPress;
 
             // placeholder on text box
             productNameText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(productNameText, productPlaceHolder);
             productNameText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(productNameText, productPlaceHolder);
 
-            batchNumberText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(batchNumberText, batchNumberPlaceHolder);
+            batchNumberText.Enter += (sender, e) =>
+            {
+                TextBoxKeyEvent.PlaceHolderText_GotFocus(batchNumberText, batchNumberPlaceHolder);
+                TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(batchNumberText, Color.LightGray);
+            };
+
             batchNumberText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(batchNumberText, batchNumberPlaceHolder);
 
             purchasePriceText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(purchasePriceText, pricePlaceHolder);
@@ -956,6 +974,8 @@ namespace StoreBillingSystem
 
             //Enable & Disable field
             allowMfgExpBatchCheckBox.CheckedChanged += AllowMfgExpBatchCheckBox_CheckedChanged;
+
+            productIdText.Enter += (sender, e) => TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(productIdText, Color.LightGray);
         }
 
 
@@ -967,21 +987,28 @@ namespace StoreBillingSystem
         }
 
 
-        private void AddProductButton_Click(object sender, EventArgs e)
+        private void AddProduct()
         {
             Console.WriteLine("Inside form");
 
             string productId = productIdText.Text.Trim();
             string productName = productNameText.Text.Trim();
+
             Console.WriteLine("productName :" + productName);
             if (string.IsNullOrWhiteSpace(productName))
             {
                 MessageBox.Show("Product Name can be empty or null.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
+            if(productDao.IsRecordExists(productName))
+            {
+                MessageBox.Show("Given product name is duplicate.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
             string batchNumber = batchNumberText.Text.Trim();
-            var mfgDate = manufactureDate.Value;
-            var expDate = expiryDate.Value;
+            DateTime mfgDate = manufactureDate.Value;
+            DateTime expDate = expiryDate.Value;
 
             if (allowMfgExpBatchCheckBox.Checked)
             {
@@ -997,6 +1024,21 @@ namespace StoreBillingSystem
                 }
             }
 
+            float qty = float.Parse(qtyText.Text.Trim());
+            double purchasePrice = double.Parse(purchasePriceText.Text.Trim());
+
+            if(qty == 0 && purchasePrice > 0)
+            {
+                MessageBox.Show("If no qty provided, then provide either qty or set purchase price to '0' or empty.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            if (qty > 0 && purchasePrice == 0)
+            {
+                MessageBox.Show("If no purchase price provided, then provide either purchase price or set qty to '0' or empty.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
+
             double sellPriceA = double.Parse(sellingPriceText_1.Text.Trim());
             double sellPriceB = double.Parse(sellingPriceText_2.Text.Trim());
             double sellPriceC = double.Parse(sellingPriceText_3.Text.Trim());
@@ -1007,50 +1049,132 @@ namespace StoreBillingSystem
             double discountC = double.Parse(discountText_3.Text.Trim());
             double discountD = double.Parse(discountText_4.Text.Trim());
 
+            if ((qty == 0 && purchasePrice == 0) && 
+                (sellPriceA > 0 || sellPriceB > 0 || sellPriceC > 0 || sellPriceD > 0 || discountA > 0 || discountB > 0 || discountC > 0 || discountD > 0))
+            {
+                MessageBox.Show("If no qty & purchase price provided, then can't set selling & discount prices.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
             float sellingCGST = float.Parse(cgstText.Text.Trim());
             float sellingSGST = float.Parse(sgstText.Text.Trim());
 
-            if(discountA >= sellPriceA)
-            {
-                MessageBox.Show("Discount price 'A' can't be greater that or equal to selling price 'A'.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                return;
+            if (sellPriceA != 0) {
+                if(discountA != 0 && discountA >= sellPriceA) {
+                    MessageBox.Show("Discount price 'A' can't be greater than or equal to selling price 'A'.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                } else if (sellPriceA < purchasePrice){
+                    MessageBox.Show("Selling price 'A' can't be less than purchase price.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                } else if((sellPriceA - discountA) - purchasePrice < 0) {
+                    MessageBox.Show("Verify selling & discount price 'A' to avoid losses compared to the purchase price. [Note=> Loss = (Sell Price - Discount Price) - Purchase Price]", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                }   
             }
-            if (discountB >= sellPriceB)
-            {
-                MessageBox.Show("Discount price 'B' can't be greater that or equal to selling price 'B'.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                return;
+            if (discountB != 0) {
+                if (sellPriceB != 0 && discountB >= sellPriceB) {
+                    MessageBox.Show("Discount price 'B' can't be greater than or equal to selling price 'B'.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                } else if (sellPriceB < purchasePrice) {
+                    MessageBox.Show("Selling price 'B' can't be less than purchase price.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                } else if ((sellPriceB - discountB) - purchasePrice < 0) {
+                    MessageBox.Show("Verify selling & discount price 'B' to avoid losses compared to the purchase price. [Note=> Loss = (Sell Price - Discount Price) - Purchase Price]", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                }
             }
-            if (discountC >= sellPriceC)
-            {
-                MessageBox.Show("Discount price 'C' can't be greater that or equal to selling price 'C'.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                return;
+            if (discountC != 0) {
+                if (sellPriceC != 0 && discountC >= sellPriceC) {
+                    MessageBox.Show("Discount price 'C' can't be greater than or equal to selling price 'C'.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                } else if (sellPriceC < purchasePrice) {
+                    MessageBox.Show("Selling price 'C' can't be less than purchase price.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                } else if ((sellPriceC - discountC) - purchasePrice < 0) {
+                    MessageBox.Show("Verify selling & discount price 'C' to avoid losses compared to the purchase price. [Note=> Loss = (Sell Price - Discount Price) - Purchase Price]", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                }
             }
-            if (discountD >= sellPriceD)
-            {
-                MessageBox.Show("Discount price 'D' can't be greater that or equal to selling price 'D'.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                return;
+            if (discountD != 0) {
+                if (sellPriceD != 0 && discountD >= sellPriceD) {
+                    MessageBox.Show("Discount price 'D' can't be greater than or equal to selling price 'D'.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                } else if (discountD < purchasePrice) {
+                    MessageBox.Show("Selling price 'D' can't be less than purchase price.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                } else if ((discountD - sellPriceD) - purchasePrice < 0) {
+                    MessageBox.Show("Verify selling & discount price 'D' to avoid losses compared to the purchase price. [Note=> Loss = (Sell Price - Discount Price) - Purchase Price]", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                }
             }
 
 
             var category = (Category)categoryTypesComboBox.SelectedItem;
             var productType = (ProductType)productTypesComboBox.SelectedItem;
 
-            float qty = float.Parse(qtyText.Text.Trim());
-            double purchasePrice = double.Parse(purchasePriceText.Text.Trim());
+
             var purchaseDateTime = purchaseDate.Value;
             float purchaseCGST = float.Parse(purchaseCGstPercentText.Text.Trim());
             float purchaseSGST = float.Parse(purchaseSGstPercentText.Text.Trim());
 
-            Product product = new Product(productName, category, productType, qty);
-            ProductPurchase purchase = new ProductPurchase(product, qty, purchasePrice, purchaseCGST, purchaseSGST, purchaseDateTime);
+            Product product = new Product(long.Parse(productId), productName, category, productType, qty);
+            ProductPurchase purchase = new ProductPurchase(product, qty, purchasePrice, purchaseCGST, purchaseSGST, Util.U.ToDateTime(purchaseDateTime));
             if (allowMfgExpBatchCheckBox.Checked)
             {
-                purchase.MfgExpBatch(mfgDate, expDate, batchNumber);
+                purchase.MfgExpBatch(Util.U.ToDate(mfgDate), Util.U.ToDate(expDate), batchNumber);
             }
 
             ProductSelling selling = new ProductSelling(product, sellPriceA, discountA, sellPriceB, discountB, sellPriceC, discountC, sellPriceD, discountD, sellingCGST, sellingSGST);
 
+            if (productDao.Insert(product) && productSellingDao.Insert(selling) && productPurchaseDao.Insert(purchase))
+            {
+                MessageBox.Show("Product added successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
+                ClearProductForm();
+                return;
+            }
+            else
+            {
+                MessageBox.Show("Something occur while insertion.", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void BindPlaceholderToTextBox(TextBox textBox, string placeholderText, Color placeholderTextColor)
+        {
+            textBox.Text = placeholderText;
+            textBox.ForeColor = placeholderTextColor;
+        }
+
+        private void ClearProductForm()
+        {
+            productIdText.Text = productDao.GetNewProductId().ToString();
+
+            BindPlaceholderToTextBox(productNameText, productPlaceHolder, Color.Gray);
+            BindPlaceholderToTextBox(qtyText, qtyPercentPlaceHolder, Color.Gray);
+            BindPlaceholderToTextBox(purchasePriceText, pricePlaceHolder, Color.Gray);
+            BindPlaceholderToTextBox(purchaseCGstPercentText, qtyPercentPlaceHolder, Color.Gray);
+            BindPlaceholderToTextBox(purchaseSGstPercentText, qtyPercentPlaceHolder, Color.Gray);
+            BindPlaceholderToTextBox(sellingPriceText_1, pricePlaceHolder, Color.Gray);
+            BindPlaceholderToTextBox(discountText_1, pricePlaceHolder, Color.Gray);
+            BindPlaceholderToTextBox(sellingPriceText_2, pricePlaceHolder, Color.Gray);
+            BindPlaceholderToTextBox(discountText_2, pricePlaceHolder, Color.Gray);
+            BindPlaceholderToTextBox(sellingPriceText_3, pricePlaceHolder, Color.Gray);
+            BindPlaceholderToTextBox(discountText_3, pricePlaceHolder, Color.Gray);
+            BindPlaceholderToTextBox(sellingPriceText_4, pricePlaceHolder, Color.Gray);
+            BindPlaceholderToTextBox(discountText_4, pricePlaceHolder, Color.Gray);
+            BindPlaceholderToTextBox(cgstText, qtyPercentPlaceHolder, Color.Gray);
+            BindPlaceholderToTextBox(sgstText, qtyPercentPlaceHolder, Color.Gray);
+
+            allowMfgExpBatchCheckBox.Checked = false;
+
+            categoryTypesComboBox.SelectedIndex = 0;
+            productTypesComboBox.SelectedIndex = 0;
+
+            BindPlaceholderToTextBox(batchNumberText, batchNumberPlaceHolder, Color.Gray);
+
+            expiryDate.Value = DateTime.Now;
+            manufactureDate.Value = DateTime.Now;
+            purchaseDate.Value = DateTime.Now;
         }
 
         private void CategoryButton_Click(object sender, EventArgs e)
@@ -1233,7 +1357,8 @@ namespace StoreBillingSystem
             //Binf list with datagridview
             categoryTable.Columns[0].DataPropertyName = "Id";
             categoryTable.Columns[1].DataPropertyName = "Name";
-            categoryTable.DataSource = categoryList;
+            //categoryTable.DataSource = categoryList;
+            BindCategoryTypeToDataGridView();
 
             table.Controls.Add(categoryTable, 0, 3);
 
@@ -1443,6 +1568,13 @@ namespace StoreBillingSystem
             productTypeTable.AllowUserToAddRows = false;
             productTypeTable.AutoGenerateColumns = false;
             productTypeTable.RowHeadersVisible = false;
+            //Binf list with datagridview
+            productTypeTable.Columns[0].DataPropertyName = "Id";
+            productTypeTable.Columns[1].DataPropertyName = "Abbr";
+            productTypeTable.Columns[2].DataPropertyName = "Name";
+
+            //productTypeTable.DataSource = productTypeList;
+            BindProductTypeToDataGridView();
 
             table.Controls.Add(productTypeTable, 0, 3);
 
@@ -1504,8 +1636,11 @@ namespace StoreBillingSystem
                 }
                 categoryList.Add(category);
                 //categoryTable.Rows.Add(category.Id, category.Name);
-                categoryTable.DataSource = null;
-                categoryTable.DataSource = categoryList;
+                //Datagridview
+                BindCategoryTypeToDataGridView();
+
+                //checkbox
+                BindCategoryTypeToComboBox();
 
                 //categorySrNo++;
                 categoryNameField.Clear();
@@ -1542,8 +1677,10 @@ namespace StoreBillingSystem
                 }
                 productTypeList.Add(productType);
                 //productTypeTable.Rows.Add(productType.Id, productType.Abbr, productType.Name);
-                productTypeTable.DataSource = null;
-                productTypeTable.DataSource = productTypeList;
+                BindProductTypeToDataGridView();
+
+                //Combobox
+                BindProductTypeToComboBox();
 
                 //categorySrNo++;
                 typeFullNameField.Clear();
@@ -1579,7 +1716,33 @@ namespace StoreBillingSystem
             }
         }
 
+        private void BindCategoryTypeToDataGridView()
+        {
+            categoryTable.DataSource = null;
+            categoryTable.DataSource = categoryList;
+        }
 
+        private void BindCategoryTypeToComboBox()
+        {
+            categoryTypesComboBox.DataSource = null;
+            categoryTypesComboBox.DataSource = categoryList;
+            categoryTypesComboBox.DisplayMember = "Name";
+            categoryTypesComboBox.ValueMember = "Id";
+        }
+
+        private void BindProductTypeToDataGridView()
+        {
+            productTypeTable.DataSource = null;
+            productTypeTable.DataSource = productTypeList;
+        }
+
+        private void BindProductTypeToComboBox()
+        {
+            productTypesComboBox.DataSource = null;
+            productTypesComboBox.DataSource = productTypeList;
+            productTypesComboBox.DisplayMember = "Name";
+            productTypesComboBox.ValueMember = "Id";
+        }
 
 
     }

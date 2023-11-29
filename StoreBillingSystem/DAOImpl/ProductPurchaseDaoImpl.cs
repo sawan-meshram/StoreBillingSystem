@@ -97,13 +97,13 @@ namespace StoreBillingSystem.DAOImpl
                         purchase = new ProductPurchase()
                         {
                             Id = reader.GetInt64(reader.GetOrdinal("ID")),
-                            PurchaseDate = reader.GetDateTime(reader.GetOrdinal("PURCHASE_DATE")),
+                            PurchaseDate = reader.GetString(reader.GetOrdinal("PURCHASE_DATE")),
                             Qty = reader.GetFloat(reader.GetOrdinal("QTY")),
                             PurchasePrice = reader.GetDouble(reader.GetOrdinal("PRICE")),
                             PurchaseCGSTInPercent = reader.GetFloat(reader.GetOrdinal("CGST_PERCENT")),
                             PurchaseSGSTInPercent = reader.GetFloat(reader.GetOrdinal("SGST_PERCENT")),
-                            MfgDate = reader.GetDateTime(reader.GetOrdinal("MFG_DATE")),
-                            ExpDate = reader.GetDateTime(reader.GetOrdinal("EXP_DATE")),
+                            MfgDate = reader.GetString(reader.GetOrdinal("MFG_DATE")),
+                            ExpDate = reader.GetString(reader.GetOrdinal("EXP_DATE")),
                             BatchNumber = reader.GetString(reader.GetOrdinal("BATCH")),
                         };
 
@@ -130,13 +130,13 @@ namespace StoreBillingSystem.DAOImpl
                         ProductPurchase purchase = new ProductPurchase()
                         {
                             Id = reader.GetInt64(reader.GetOrdinal("ID")),
-                            PurchaseDate = reader.GetDateTime(reader.GetOrdinal("PURCHASE_DATE")),
+                            PurchaseDate = reader.GetString(reader.GetOrdinal("PURCHASE_DATE")),
                             Qty = reader.GetFloat(reader.GetOrdinal("QTY")),
                             PurchasePrice = reader.GetDouble(reader.GetOrdinal("PRICE")),
                             PurchaseCGSTInPercent = reader.GetFloat(reader.GetOrdinal("CGST_PERCENT")),
                             PurchaseSGSTInPercent = reader.GetFloat(reader.GetOrdinal("SGST_PERCENT")),
-                            MfgDate = reader.GetDateTime(reader.GetOrdinal("MFG_DATE")),
-                            ExpDate = reader.GetDateTime(reader.GetOrdinal("EXP_DATE")),
+                            MfgDate = reader.GetString(reader.GetOrdinal("MFG_DATE")),
+                            ExpDate = reader.GetString(reader.GetOrdinal("EXP_DATE")),
                             BatchNumber = reader.GetString(reader.GetOrdinal("BATCH")),
                         };
                         purchase.Product = _productDao.Read(reader.GetInt64(reader.GetOrdinal("Product_ID")));

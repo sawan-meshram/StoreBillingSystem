@@ -17,6 +17,12 @@ namespace StoreBillingSystem.Entity
             TotalQty = qty;
         }
 
+        public Product(long id, string name, Category category, ProductType productType, float qty) : this(name, category, productType, qty)
+        {
+            Id = id;
+        }
+
+
         public long Id { get; set; }
 
         public string Name { get; set; }

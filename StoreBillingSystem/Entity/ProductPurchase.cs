@@ -12,7 +12,7 @@ namespace StoreBillingSystem.Entity
             Product = product;
         }
 
-        public ProductPurchase(Product product, float qty, double purchasePrice, DateTime purchaseDate) : this(product)
+        public ProductPurchase(Product product, float qty, double purchasePrice, string purchaseDate) : this(product)
         {
             Qty = qty;
             PurchasePrice = purchasePrice;
@@ -20,7 +20,7 @@ namespace StoreBillingSystem.Entity
         }
 
         public ProductPurchase(Product product, float qty, double purchasePrice, float purchaseCGSTInPercent, float purchaseSGSTInPercent, 
-            DateTime purchaseDate) : this (product, qty, purchasePrice, purchaseDate)
+            string purchaseDate) : this (product, qty, purchasePrice, purchaseDate)
         {
             GST(purchaseCGSTInPercent, purchaseSGSTInPercent);
         }
@@ -28,14 +28,14 @@ namespace StoreBillingSystem.Entity
         public Product Product { get; set; }
 
         public long Id { get; set; }
-        public DateTime PurchaseDate { get; set; }
+        public string PurchaseDate { get; set; }
         public float Qty { get; set; }
         public double PurchasePrice { get; set; }
         public float PurchaseCGSTInPercent { get; set; }
         public float PurchaseSGSTInPercent { get; set; }
 
-        public DateTime MfgDate { get; set; }
-        public DateTime ExpDate { get; set; }
+        public string MfgDate { get; set; }
+        public string ExpDate { get; set; }
 
         public string BatchNumber { get; set; }
 
@@ -46,7 +46,7 @@ namespace StoreBillingSystem.Entity
             PurchaseSGSTInPercent = purchaseSGSTInPercent;
         }
 
-        public void MfgExpBatch(DateTime mfgDate, DateTime expDate, string batchNumber)
+        public void MfgExpBatch(string mfgDate, string expDate, string batchNumber)
         {
             MfgDate = mfgDate;
             ExpDate = expDate;
@@ -77,8 +77,10 @@ namespace StoreBillingSystem.Entity
         /// <returns>Total purchase GST price</returns>
         public double GetTotalTaxablePurchaseGSTInPrice()
         {
+            //Tax Value= (Total Value / 1 + Tax Rate) * Tax Rate
+            //OR
             //Tax Value = Total Value - (Total Value / (1 + Tax Rate))
-            return GetTotalPurchasePrice() - (GetTotalPurchasePrice() / (1 + (GetTotalGST() / 100)));
+            return GetTotalPurchasePrice() - (GetTotalPurchasePrice() / (1 + (GetTotalGSTInPercent() / 100)));
         }
 
         /// <summary>

@@ -32,6 +32,9 @@ namespace StoreBillingSystem.Database
         {
             CreateCategoryTable();
             CreateProductTypeTable();
+            CreateProductTable();
+            CreateProductPurchaseTable();
+            CreateProductSellingTable();
         }
 
         private void CreateCategoryTable()

@@ -12,5 +12,6 @@ namespace StoreBillingSystem.DAO
         bool UpdateQty(long id, float qty);
         bool Delete(long id);
         bool IsRecordExists(string name);
+        long GetNewProductId();
     }
 }

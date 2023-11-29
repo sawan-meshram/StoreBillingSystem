@@ -53,6 +53,28 @@ namespace StoreBillingSystem.DAOImpl
             return false;
         }
 
+        public long GetNewProductId()
+        {
+            string query = $"SELECT MAX(ID) FROM {_tableName}";
+            long newProductId = 0;
+            using (SqliteCommand command = new SqliteCommand(query, _conn))
+            {
+
+                object result = command.ExecuteScalar();
+
+                if (result != null && result != DBNull.Value)
+                {
+                    // If there are existing ProductIds, increment the maximum one
+                    newProductId = Convert.ToInt64(result) + 1;
+                }
+                else
+                {
+                    newProductId = 1;
+                }
+            }
+            return newProductId;
+        }
+
         public bool Insert(Product product)
         {
             using (SqliteCommand command = _conn.CreateCommand())
@@ -62,7 +84,8 @@ namespace StoreBillingSystem.DAOImpl
                 using (SqliteTransaction transaction = _conn.BeginTransaction())
                 {
                     // Insert a single record
-                    command.CommandText = $"INSERT INTO {_tableName} (NAME, QTY, Category_ID, ProductType_ID) VALUES (@Name, @Qty, @CategoryId, @ProductTypeId); SELECT last_insert_rowid()";
+                    command.CommandText = $"INSERT INTO {_tableName} (ID, NAME, QTY, Category_ID, ProductType_ID) VALUES (@Id, @Name, @Qty, @CategoryId, @ProductTypeId); SELECT last_insert_rowid()";
+                    command.Parameters.AddWithValue("@Id", product.Id);
                     command.Parameters.AddWithValue("@Name", product.Name);
                     command.Parameters.AddWithValue("@Qty", product.TotalQty);
                     command.Parameters.AddWithValue("@CategoryId", product.Category.Id);

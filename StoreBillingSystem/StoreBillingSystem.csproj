@@ -66,6 +66,9 @@
     <Compile Include="DAOImpl\ProductDaoImpl.cs" />
     <Compile Include="DAOImpl\ProductSellingDaoImpl.cs" />
     <Compile Include="DAOImpl\ProductPurchaseDaoImpl.cs" />
+    <Compile Include="DAO\ICustomerDao.cs" />
+    <Compile Include="Entity\Customer.cs" />
+    <Compile Include="DAOImpl\CustomerDaoImpl.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Database\" />

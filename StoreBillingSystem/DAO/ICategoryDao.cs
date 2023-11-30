@@ -11,5 +11,6 @@ namespace StoreBillingSystem.DAO
         bool Update(Category category);
         bool Delete(int id);
         bool IsRecordExists(string name);
+
     }
 }

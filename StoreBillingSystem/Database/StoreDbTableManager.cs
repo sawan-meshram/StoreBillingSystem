@@ -35,6 +35,7 @@ namespace StoreBillingSystem.Database
             CreateProductTable();
             CreateProductPurchaseTable();
             CreateProductSellingTable();
+            CreateCustomerTable();
         }
 
         private void CreateCategoryTable()
@@ -150,6 +151,25 @@ namespace StoreBillingSystem.Database
                 // Execute the SQL command.
                 int row = command.ExecuteNonQuery();
                 if (row == 1) Console.WriteLine("'ProductSelling' Table Created...");
+            }
+        }
+
+
+        private void CreateCustomerTable()
+        {
+            using (SqliteCommand command = _conn.CreateCommand())
+            {
+                // Specify the SQL command to create a table.
+                command.CommandText = @"CREATE TABLE IF NOT EXISTS Customer (
+                    ID INTEGER PRIMARY KEY AUTOINCREMENT, 
+                    NAME TEXT NOT NULL,
+                    ADDRESS TEXT NOT NULL,
+                    PHONE INTEGER UNIQUE,
+                    REGISTER_DATE TEXT NULL);";
+
+                // Execute the SQL command.
+                int row = command.ExecuteNonQuery();
+                if (row == 1) Console.WriteLine("'Customer' Table Created...");
             }
         }
     }

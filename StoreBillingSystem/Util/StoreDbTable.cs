@@ -7,6 +7,7 @@ namespace StoreBillingSystem.Util
         ProductType,
         Product,
         ProductPurchase,
-        ProductSelling
+        ProductSelling,
+        Customer
     }
 }

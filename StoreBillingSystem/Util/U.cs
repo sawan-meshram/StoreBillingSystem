@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Drawing;
 
 namespace StoreBillingSystem.Util
 {
@@ -7,7 +8,14 @@ namespace StoreBillingSystem.Util
     {
         private U()
         {
+
         }
+
+        public static readonly Font StoreLabelFont = new Font("Arial", 11, FontStyle.Bold);
+        public static readonly Font StoreTextBoxFont = new Font("Arial", 11);
+        public static readonly Font StoreTitleFont = new Font("Arial", 16, FontStyle.Bold);
+       
+
 
         //Convert string to capitalise except the upper case
         public static string ToTitleCase(string title)

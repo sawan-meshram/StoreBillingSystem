@@ -13,5 +13,6 @@ namespace StoreBillingSystem.DAO
         bool Delete(long id);
         bool IsRecordExists(string name);
         long GetNewProductId();
+        IList<string> ProductNames();
     }
 }

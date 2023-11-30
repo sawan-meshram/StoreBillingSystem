@@ -119,6 +119,25 @@ namespace StoreBillingSystem.DAOImpl
             }
         }
 
+        public IList<string> ProductNames()
+        {
+            IList<string> productNames = new List<string>();
+
+            string query = $"SELECT NAME FROM {_tableName}";
+
+            using (SqliteCommand command = new SqliteCommand(query, _conn))
+            {
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        productNames.Add(reader.GetString(reader.GetOrdinal("NAME")));
+                    }
+                }
+            }
+            return productNames;
+        }
+
         public Product Read(long id)
         {
             /*
@@ -220,7 +239,7 @@ namespace StoreBillingSystem.DAOImpl
                         product.Category = _categoryDao.Read(reader.GetInt32(reader.GetOrdinal("Category_ID")));
                         product.ProductType = _productTypeDao.Read(reader.GetInt32(reader.GetOrdinal("ProductType_ID")));
 
-
+                        products.Add(product);
                     }
                 }
             }

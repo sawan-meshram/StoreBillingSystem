@@ -32,6 +32,8 @@ namespace StoreBillingSystem
 
         private IList<Category> categoryList;
         private IList<ProductType> productTypeList;
+        private List<string> productNames;
+        private AutoCompleteStringCollection productNameAutoSuggestion;
 
         private void InitComponentsData()
         {
@@ -54,6 +56,10 @@ namespace StoreBillingSystem
             BindCategoryTypeToComboBox();
             BindProductTypeToComboBox();
 
+            productNameAutoSuggestion = new AutoCompleteStringCollection();
+            productNames = (List<string>) productDao.ProductNames();
+
+            BindAutoSuggestionToProductNameTextBox();
             //to retrive the selected Category
             /*
             Category category = (Category)categoryTypesComboBox.SelectedItem;
@@ -62,8 +68,8 @@ namespace StoreBillingSystem
             */
         }
 
-        private Font labelFont = new Font("Arial", 11, FontStyle.Bold);
-        private Font textfieldFont = new Font("Arial", 11);
+        private Font labelFont = Util.U.StoreLabelFont;
+        private Font textfieldFont = Util.U.StoreTextBoxFont;
 
         private Panel topPanel;
 
@@ -256,7 +262,7 @@ namespace StoreBillingSystem
             {
                 Text = "Product Filling",
                 Dock = DockStyle.Fill,
-                Font = new Font("Arial", 16, FontStyle.Bold),
+                Font = Util.U.StoreTitleFont,
                 ForeColor = Color.Blue,
                 BackColor = Color.YellowGreen,
 
@@ -907,20 +913,20 @@ namespace StoreBillingSystem
         private void InitAddProductFormEvent()
         {
             //Numeric text on text box
-            qtyText.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
-            purchasePriceText.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
-            sellingPriceText_1.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
-            sellingPriceText_2.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
-            sellingPriceText_3.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
-            sellingPriceText_4.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
-            discountText_1.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
-            discountText_2.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
-            discountText_3.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
-            discountText_4.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
-            cgstText.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
-            sgstText.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
-            purchaseCGstPercentText.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
-            purchaseSGstPercentText.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
+            qtyText.KeyPress += TextBoxKeyEvent.DecimalNumbericTextBox_KeyPress;
+            purchasePriceText.KeyPress += TextBoxKeyEvent.DecimalNumbericTextBox_KeyPress;
+            sellingPriceText_1.KeyPress += TextBoxKeyEvent.DecimalNumbericTextBox_KeyPress;
+            sellingPriceText_2.KeyPress += TextBoxKeyEvent.DecimalNumbericTextBox_KeyPress;
+            sellingPriceText_3.KeyPress += TextBoxKeyEvent.DecimalNumbericTextBox_KeyPress;
+            sellingPriceText_4.KeyPress += TextBoxKeyEvent.DecimalNumbericTextBox_KeyPress;
+            discountText_1.KeyPress += TextBoxKeyEvent.DecimalNumbericTextBox_KeyPress;
+            discountText_2.KeyPress += TextBoxKeyEvent.DecimalNumbericTextBox_KeyPress;
+            discountText_3.KeyPress += TextBoxKeyEvent.DecimalNumbericTextBox_KeyPress;
+            discountText_4.KeyPress += TextBoxKeyEvent.DecimalNumbericTextBox_KeyPress;
+            cgstText.KeyPress += TextBoxKeyEvent.DecimalNumbericTextBox_KeyPress;
+            sgstText.KeyPress += TextBoxKeyEvent.DecimalNumbericTextBox_KeyPress;
+            purchaseCGstPercentText.KeyPress += TextBoxKeyEvent.DecimalNumbericTextBox_KeyPress;
+            purchaseSGstPercentText.KeyPress += TextBoxKeyEvent.DecimalNumbericTextBox_KeyPress;
 
 
 
@@ -994,13 +1000,15 @@ namespace StoreBillingSystem
             string productId = productIdText.Text.Trim();
             string productName = productNameText.Text.Trim();
 
+            if (productName.ToLower() == productPlaceHolder.ToLower()) productName = string.Empty;
+
             Console.WriteLine("productName :" + productName);
             if (string.IsNullOrWhiteSpace(productName))
             {
-                MessageBox.Show("Product Name can be empty or null.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("Product Name can't be empty or null.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
-            }
-            if(productDao.IsRecordExists(productName))
+            } 
+            if (productDao.IsRecordExists(productName))
             {
                 MessageBox.Show("Given product name is duplicate.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
@@ -1129,9 +1137,9 @@ namespace StoreBillingSystem
             if (productDao.Insert(product) && productSellingDao.Insert(selling) && productPurchaseDao.Insert(purchase))
             {
                 MessageBox.Show("Product added successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
+                //added autosuggestion to textbox
+                productNameAutoSuggestion.Add(product.Name);
                 ClearProductForm();
-                return;
             }
             else
             {
@@ -1139,38 +1147,34 @@ namespace StoreBillingSystem
             }
         }
 
-        private void BindPlaceholderToTextBox(TextBox textBox, string placeholderText, Color placeholderTextColor)
-        {
-            textBox.Text = placeholderText;
-            textBox.ForeColor = placeholderTextColor;
-        }
+
 
         private void ClearProductForm()
         {
             productIdText.Text = productDao.GetNewProductId().ToString();
 
-            BindPlaceholderToTextBox(productNameText, productPlaceHolder, Color.Gray);
-            BindPlaceholderToTextBox(qtyText, qtyPercentPlaceHolder, Color.Gray);
-            BindPlaceholderToTextBox(purchasePriceText, pricePlaceHolder, Color.Gray);
-            BindPlaceholderToTextBox(purchaseCGstPercentText, qtyPercentPlaceHolder, Color.Gray);
-            BindPlaceholderToTextBox(purchaseSGstPercentText, qtyPercentPlaceHolder, Color.Gray);
-            BindPlaceholderToTextBox(sellingPriceText_1, pricePlaceHolder, Color.Gray);
-            BindPlaceholderToTextBox(discountText_1, pricePlaceHolder, Color.Gray);
-            BindPlaceholderToTextBox(sellingPriceText_2, pricePlaceHolder, Color.Gray);
-            BindPlaceholderToTextBox(discountText_2, pricePlaceHolder, Color.Gray);
-            BindPlaceholderToTextBox(sellingPriceText_3, pricePlaceHolder, Color.Gray);
-            BindPlaceholderToTextBox(discountText_3, pricePlaceHolder, Color.Gray);
-            BindPlaceholderToTextBox(sellingPriceText_4, pricePlaceHolder, Color.Gray);
-            BindPlaceholderToTextBox(discountText_4, pricePlaceHolder, Color.Gray);
-            BindPlaceholderToTextBox(cgstText, qtyPercentPlaceHolder, Color.Gray);
-            BindPlaceholderToTextBox(sgstText, qtyPercentPlaceHolder, Color.Gray);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(productNameText, productPlaceHolder, Color.Gray);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(qtyText, qtyPercentPlaceHolder, Color.Gray);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(purchasePriceText, pricePlaceHolder, Color.Gray);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(purchaseCGstPercentText, qtyPercentPlaceHolder, Color.Gray);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(purchaseSGstPercentText, qtyPercentPlaceHolder, Color.Gray);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(sellingPriceText_1, pricePlaceHolder, Color.Gray);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(discountText_1, pricePlaceHolder, Color.Gray);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(sellingPriceText_2, pricePlaceHolder, Color.Gray);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(discountText_2, pricePlaceHolder, Color.Gray);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(sellingPriceText_3, pricePlaceHolder, Color.Gray);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(discountText_3, pricePlaceHolder, Color.Gray);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(sellingPriceText_4, pricePlaceHolder, Color.Gray);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(discountText_4, pricePlaceHolder, Color.Gray);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(cgstText, qtyPercentPlaceHolder, Color.Gray);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(sgstText, qtyPercentPlaceHolder, Color.Gray);
 
             allowMfgExpBatchCheckBox.Checked = false;
 
             categoryTypesComboBox.SelectedIndex = 0;
             productTypesComboBox.SelectedIndex = 0;
 
-            BindPlaceholderToTextBox(batchNumberText, batchNumberPlaceHolder, Color.Gray);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(batchNumberText, batchNumberPlaceHolder, Color.Gray);
 
             expiryDate.Value = DateTime.Now;
             manufactureDate.Value = DateTime.Now;
@@ -1744,6 +1748,13 @@ namespace StoreBillingSystem
             productTypesComboBox.ValueMember = "Id";
         }
 
+        private void BindAutoSuggestionToProductNameTextBox()
+        {
+            productNameAutoSuggestion.AddRange(productNames.ToArray());
 
+            productNameText.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            productNameText.AutoCompleteSource = AutoCompleteSource.CustomSource;
+            productNameText.AutoCompleteCustomSource = productNameAutoSuggestion;
+        }
     }
 }

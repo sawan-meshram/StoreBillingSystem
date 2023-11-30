@@ -23,8 +23,8 @@ namespace StoreBillingSystem
             //Application.Run(new MainForm());
 
             //Application.Run(new BillingForm());
-            //Application.Run(new AddCustomer());
-            Application.Run(new ProductForm());
+            Application.Run(new AddCustomer());
+            //Application.Run(new ProductForm());
 
             //Console.WriteLine(System.IO.Directory.GetCurrentDirectory());
             //Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);

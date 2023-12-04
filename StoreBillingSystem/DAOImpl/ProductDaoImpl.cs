@@ -191,6 +191,35 @@ namespace StoreBillingSystem.DAOImpl
             return product;
         }
 
+        public Product Read(string productName)
+        {
+            string query = $"SELECT * FROM {_tableName} WHERE NAME = @ProductName";
+
+            Product product = null;
+
+            using (SqliteCommand command = new SqliteCommand(query, _conn))
+            {
+                command.Parameters.AddWithValue("@ProductName", productName);
+
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        product = new Product()
+                        {
+                            Id = reader.GetInt64(reader.GetOrdinal("ID")),
+                            Name = reader.GetString(reader.GetOrdinal("NAME")),
+                            TotalQty = reader.GetFloat(reader.GetOrdinal("QTY"))
+                        };
+                        product.Category = _categoryDao.Read(reader.GetInt32(reader.GetOrdinal("Category_ID")));
+                        product.ProductType = _productTypeDao.Read(reader.GetInt32(reader.GetOrdinal("ProductType_ID")));
+                    }
+                }
+            }
+
+            return product;
+        }
+
         public IList<Product> ReadAll()
         {
             IList<Product> products = new List<Product>();

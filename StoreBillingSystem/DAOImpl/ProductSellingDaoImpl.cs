@@ -155,6 +155,41 @@ namespace StoreBillingSystem.DAOImpl
             return sellings;
         }
 
+        public ProductSelling Read(Product product)
+        {
+            string query = $"SELECT * FROM {_tableName} WHERE Product_ID = @ProductId";
+
+            ProductSelling selling = null;
+            using (SqliteCommand command = new SqliteCommand(query, _conn))
+            {
+                command.Parameters.AddWithValue("@ProductId", product.Id);
+
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        selling = new ProductSelling()
+                        {
+                            Id = reader.GetInt64(reader.GetOrdinal("ID")),
+                            SellingPrice_A = reader.GetDouble(reader.GetOrdinal("PRICE_A")),
+                            SellingPrice_B = reader.GetDouble(reader.GetOrdinal("PRICE_B")),
+                            SellingPrice_C = reader.GetDouble(reader.GetOrdinal("PRICE_C")),
+                            SellingPrice_D = reader.GetDouble(reader.GetOrdinal("PRICE_D")),
+                            DiscountPrice_A = reader.GetDouble(reader.GetOrdinal("DISCOUNT_PRICE_A")),
+                            DiscountPrice_B = reader.GetDouble(reader.GetOrdinal("DISCOUNT_PRICE_B")),
+                            DiscountPrice_C = reader.GetDouble(reader.GetOrdinal("DISCOUNT_PRICE_C")),
+                            DiscountPrice_D = reader.GetDouble(reader.GetOrdinal("DISCOUNT_PRICE_D")),
+                            CGSTInPercent = reader.GetFloat(reader.GetOrdinal("CGST_PERCENT")),
+                            SGSTInPercent = reader.GetFloat(reader.GetOrdinal("SGST_PERCENT")),
+                            Product = product
+                        };
+                    }
+                }
+            }
+
+            return selling;
+        }
+
         public bool Update(ProductSelling selling)
         {
             string query = $"UPDATE {_tableName} " +

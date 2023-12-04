@@ -7,6 +7,7 @@ namespace StoreBillingSystem.DAO
     {
         IList<Product> ReadAll();
         Product Read(long id);
+        Product Read(string productName);
         bool Insert(Product product);
         bool Update(Product product);
         bool UpdateQty(long id, float qty);

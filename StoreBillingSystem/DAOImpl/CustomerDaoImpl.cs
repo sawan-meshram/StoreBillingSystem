@@ -161,7 +161,7 @@ namespace StoreBillingSystem.DAOImpl
                 {
                     while (reader.Read())
                     {
-                        phones.Add(reader.GetString(reader.GetOrdinal("PHONE")));
+                        phones.Add(reader.GetInt64(reader.GetOrdinal("PHONE")).ToString());
                     }
                 }
             }

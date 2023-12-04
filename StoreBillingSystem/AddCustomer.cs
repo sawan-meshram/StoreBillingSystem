@@ -52,6 +52,8 @@ namespace StoreBillingSystem
             customerNameAutoSuggestion = new AutoCompleteStringCollection();
             customerNames = (List<string>)customerDao.CustomerNames();
 
+            phoneAutoSuggestion = new AutoCompleteStringCollection();
+            phones = (List<string>)customerDao.Phones();
 
             BindAutoSuggestionToCustomerNameTextBox();
             BindAutoSuggestionToPhoneTextBox();
@@ -472,7 +474,7 @@ namespace StoreBillingSystem
         {
             nameTextBox.TextChanged += (sender, e) => TextBoxKeyEvent.CapitalizeText_TextChanged(nameTextBox);
             addressTextBox.TextChanged += (sender, e) => TextBoxKeyEvent.CapitalizeText_TextChanged(addressTextBox);
-            phoneNumberTextBox.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
+            phoneNumberTextBox.KeyPress += PhoneTextBox_KeyPress;
 
             nameTextBox.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(nameTextBox, customerNamePlaceHolder);
             nameTextBox.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(nameTextBox, customerNamePlaceHolder);
@@ -482,7 +484,24 @@ namespace StoreBillingSystem
 
             phoneNumberTextBox.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(phoneNumberTextBox, customerPhonePlaceHolder);
             phoneNumberTextBox.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(phoneNumberTextBox, customerPhonePlaceHolder);
+
+            idTextBox.Enter += (sender, e) => TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(idTextBox, Color.LightGray);
+
         }
+
+        private void PhoneTextBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // Allow digits, decimal point, and the backspace key
+            if (!char.IsDigit(e.KeyChar) && e.KeyChar != (char)Keys.Back)
+            {
+                e.Handled = true; // Ignore the input
+            }
+            if (phoneNumberTextBox.Text.Length >= 10 && !char.IsControl(e.KeyChar))
+            {
+                e.Handled = true; // Cancel the key press
+            }
+        }
+
 
         private void BindAutoSuggestionToCustomerNameTextBox()
         {

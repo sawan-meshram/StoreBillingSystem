@@ -8,6 +8,7 @@ namespace StoreBillingSystem.DAO
     {
         IList<ProductSelling> ReadAll();
         ProductSelling Read(long id);
+        ProductSelling Read(Product product);
         bool Insert(ProductSelling selling);
         bool Update(ProductSelling selling);
         bool Delete(long id);

@@ -31,5 +31,9 @@ namespace StoreBillingSystem.Entity
 
         public float TotalQty { get; set; }
 
+        public override string ToString()
+        {
+            return $"Product : Id={Id}, Name={Name}, TotalQty={TotalQty}, {Category}, {ProductType}";
+        }
     }
 }

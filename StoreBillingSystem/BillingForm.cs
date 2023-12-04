@@ -1,6 +1,16 @@
 ﻿using System;
-using System.Windows.Forms;
 using System.Drawing;
+using System.Windows.Forms;
+using System.Collections.Generic;
+using Mono.Data.Sqlite;
+
+using StoreBillingSystem.Entity;
+using StoreBillingSystem.DAO;
+using StoreBillingSystem.DAOImpl;
+using StoreBillingSystem.Database;
+using StoreBillingSystem.Events;
+using StoreBillingSystem.Util;
+
 namespace StoreBillingSystem
 {
     public class BillingForm : Form
@@ -28,6 +38,8 @@ namespace StoreBillingSystem
             this.Size = new Size(1366, 768);
 
             InitComponets();
+
+            InitComponentsData();
         }
 
         private void InitComponets()
@@ -160,15 +172,176 @@ namespace StoreBillingSystem
 
         }
 
+        private void InitComponentsData()
+        {
+            SqliteConnection connection = DatabaseManager.GetConnection();
+
+            productDao = new ProductDaoImpl(connection);
+            productSellingDao = new ProductSellingDaoImpl(connection);
+
+            productNameAutoSuggestion = new AutoCompleteStringCollection();
+            productNames = (List<string>)productDao.ProductNames();
+
+            BindAutoSuggestionToProductNameTextBox();
+        }
+
+        private void BindAutoSuggestionToProductNameTextBox()
+        {
+            productNameAutoSuggestion.AddRange(productNames.ToArray());
+
+            productNameText.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            productNameText.AutoCompleteSource = AutoCompleteSource.CustomSource;
+            productNameText.AutoCompleteCustomSource = productNameAutoSuggestion;
+        }
+
+        private void ProductNameTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                // Open the dialog box when Enter key is pressed
+                SearchByProductName(productNameText.Text.Trim());
+            }
+        }
+
+        private void ProductCodeTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                // Open the dialog box when Enter key is pressed
+                SearchByProductId(productCodeText.Text.Trim());
+            }
+        }
+        private void QtyTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                Console.WriteLine("QTY Text");
+                if(string.IsNullOrWhiteSpace(qtyText.Text.Trim())) return;
+
+                //if qty contains placeholder value
+                if (qtyText.Text.Trim() == qtyPercentPlaceHolder) return;
+
+                if(billingItem != null)
+                {
+                    askingPriceText.Text = (float.Parse(qtyText.Text.Trim()) * (billingItem.SellingPrice - billingItem.DiscountPrice)).ToString();
+                    //TextBoxKeyEvent.BindPlaceholderToTextBox(productNameText, productPlaceHolder, Color.Gray);
+                    askingPriceText.ForeColor = Color.Black;
+                }
+            }
+        }
+
+        private void AskingPriceTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Tab)
+            {
+                // Open the dialog box when Enter key is pressed
+                //SearchByProductId(productCodeText.Text.Trim());
+            }
+        }
+
+        private static double calculateGramOrMilliLitre(double askedPrice, double soldPrice)
+        {
+            return askedPrice / soldPrice;
+        }
+
+        private static double calculatePrice(double askedUnit, double soldPrice)
+        {
+            return askedUnit * soldPrice;
+        }
+
+        private void SearchByProductName(string productName)
+        {
+            if (!string.IsNullOrWhiteSpace(productName))
+            {
+                Product product = productDao.Read(productName);
+                if(product != null) ProductItemForm(product);
+                else MessageBox.Show("Product name is not found.", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else MessageBox.Show("Enter product name..", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+        }
+
+        private void SearchByProductId(string productId)
+        {
+            if (!string.IsNullOrWhiteSpace(productId))
+            {
+                Product product = productDao.Read(long.Parse(productId));
+                if(product != null) ProductItemForm(product);
+                else MessageBox.Show("Product id is not found.", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else MessageBox.Show("Enter product id..", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+        }
+
+
+        private DataGridView productSellingTable;
+        private BillingItem billingItem;
+        private void ProductItemForm(Product product)
+        {
+            Console.WriteLine("product ::" + product);
+            productTypes.Items.Add(product.ProductType.Abbr);
+            productTypes.SelectedIndex = 0;
+
+            productCodeText.Text = product.Id.ToString();
+
+            ProductSelling selling = productSellingDao.Read(product);
+
+            productSellingTable = new DataGridView 
+            { 
+                Dock = DockStyle.Fill, BackgroundColor = Color.LightGray, Margin = new Padding(0), 
+            };
+
+            ProductSellingCustomDialogBox sellingCustomDialog = new ProductSellingCustomDialogBox(productSellingTable, selling);
+            if (sellingCustomDialog.ShowDialog() == DialogResult.OK)
+            {
+                // Handle OK button logic
+                Console.WriteLine("Ok");
+                DataGridViewRow selectedRow = productSellingTable.SelectedRows[0];
+                string type = selectedRow.Cells["Selling Type"].Value.ToString();
+
+                SellingType sellingType = 0;
+                if (type == SellingType.A.ToString()) sellingType = SellingType.A;
+                else if (type == SellingType.B.ToString()) sellingType = SellingType.B;
+                else if (type == SellingType.C.ToString()) sellingType = SellingType.C;
+                else if (type == SellingType.D.ToString()) sellingType = SellingType.D;
+
+                billingItem = new BillingItem(selling, sellingType);
+                /*
+                productSellingTable.Columns[0].Name = "Selling Type";
+                productSellingTable.Columns[1].Name = "Selling (Rs.)";
+                productSellingTable.Columns[2].Name = "Discount (Rs.)";
+                productSellingTable.Columns[3].Name = "Total Selling (Rs.)";
+                productSellingTable.Columns[4].Name = "GST (%)";
+                productSellingTable.Columns[5].Name = "GST (Rs.)";
+                productSellingTable.Columns[6].Name = "Total (Rs.)";
+                */
+            }
+            else
+            {
+                // Handle Cancel button logic
+                Console.WriteLine("Cancel");
+            }
+            
+
+        }
+
+
+
+        private AutoCompleteStringCollection productNameAutoSuggestion;
+        private List<string> productNames;
+        private IProductDao productDao;
+        private IProductSellingDao productSellingDao;
+
+        private string pricePlaceHolder = "0.00";
+        private string qtyPercentPlaceHolder = "0.0";
+        private string productPlaceHolder = Util.U.ToTitleCase("Enter product here...");
+
+
+
 
         private TextBox productNameText;
-        private TextBox searchCodeText;
+        private TextBox productCodeText;
         private TextBox askingPriceText;
         private TextBox qtyText;
-        private Button clearProductButton;
-        private Button addProductButton;
         private ComboBox productTypes;
-
 
         private GroupBox GetProductForm()
         {
@@ -214,7 +387,9 @@ namespace StoreBillingSystem
             {
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
-                Margin = new Padding(5)
+                Margin = new Padding(5),
+                Text = productPlaceHolder,
+                ForeColor = Color.Gray
             };
             panel.Controls.Add(productNameText, 1, 0);
             panel.SetColumnSpan(productNameText, 3);
@@ -229,16 +404,16 @@ namespace StoreBillingSystem
                 TextAlign = ContentAlignment.MiddleRight,
             }, 4, 0);
 
-            searchCodeText = new TextBox
+            productCodeText = new TextBox
             {
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
                 Margin = new Padding(5)
             };
-            panel.Controls.Add(searchCodeText, 5, 0);
+            panel.Controls.Add(productCodeText, 5, 0);
 
             //Clear Button
-            clearProductButton = new Button
+            Button clearProductButton = new Button
             {
                 Text = "Clear",
                 Dock = DockStyle.Fill,
@@ -264,7 +439,8 @@ namespace StoreBillingSystem
             {
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
-                Margin = new Padding(5)
+                Margin = new Padding(5),
+                DropDownStyle = ComboBoxStyle.DropDownList
             };
             panel.Controls.Add(productTypes, 1, 1);
 
@@ -283,7 +459,9 @@ namespace StoreBillingSystem
             {
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
-                Margin = new Padding(5)
+                Margin = new Padding(5),
+                Text = qtyPercentPlaceHolder,
+                ForeColor = Color.Gray
             };
             panel.Controls.Add(qtyText, 3, 1);
 
@@ -301,11 +479,13 @@ namespace StoreBillingSystem
             {
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
-                Margin = new Padding(5)
+                Margin = new Padding(5),
+                Text = pricePlaceHolder,
+                ForeColor = Color.Gray
             };
             panel.Controls.Add(askingPriceText,5, 1);
 
-            addProductButton = new Button
+            Button addProductButton = new Button
             {
                 Text = "Add",
                 Dock = DockStyle.Fill,
@@ -316,7 +496,49 @@ namespace StoreBillingSystem
             };
             panel.Controls.Add(addProductButton, 6, 1);
             box.Controls.Add(panel);
+
+            InitAddProductFormEvent();
+
+            clearProductButton.Click += (sender, e) => ClearProductForm();
+            addProductButton.Click += (sender, e) => AddProductForm();
             return box;
+        }
+
+        private void InitAddProductFormEvent()
+        {
+
+            productNameText.KeyDown += ProductNameTextBox_KeyDown;
+            productCodeText.KeyDown += ProductCodeTextBox_KeyDown;
+            qtyText.KeyDown += QtyTextBox_KeyDown;
+            askingPriceText.KeyDown += AskingPriceTextBox_KeyDown;
+
+            productNameText.TextChanged += (sender, e) => TextBoxKeyEvent.CapitalizeText_TextChanged(productNameText);
+
+            productNameText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(productNameText, productPlaceHolder);
+            productNameText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(productNameText, productPlaceHolder);
+
+            qtyText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(qtyText, qtyPercentPlaceHolder);
+            qtyText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(qtyText, qtyPercentPlaceHolder);
+
+            askingPriceText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(askingPriceText, pricePlaceHolder);
+            askingPriceText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(askingPriceText, pricePlaceHolder);
+
+            qtyText.KeyPress += TextBoxKeyEvent.DecimalNumbericTextBox_KeyPress;
+            askingPriceText.KeyPress += TextBoxKeyEvent.DecimalNumbericTextBox_KeyPress;
+        }
+
+        private void AddProductForm()
+        {
+
+        }
+
+        private void ClearProductForm()
+        {
+            productCodeText.Text = "";
+            productTypes.Items.Clear();
+            TextBoxKeyEvent.BindPlaceholderToTextBox(productNameText, productPlaceHolder, Color.Gray);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(qtyText, qtyPercentPlaceHolder, Color.Gray);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(askingPriceText, pricePlaceHolder, Color.Gray);
         }
 
         private DataGridView amtTable;

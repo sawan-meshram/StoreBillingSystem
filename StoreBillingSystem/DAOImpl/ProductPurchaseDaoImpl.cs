@@ -115,6 +115,40 @@ namespace StoreBillingSystem.DAOImpl
             return purchase;
         }
 
+        public IList<ProductPurchase> Read(Product product)
+        {
+            string query = $"SELECT * FROM {_tableName} WHERE Product_ID = @ProductId";
+
+            IList<ProductPurchase> purchases = new List<ProductPurchase>();
+
+            using (SqliteCommand command = new SqliteCommand(query, _conn))
+            {
+                command.Parameters.AddWithValue("@ProductId", product.Id);
+
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        purchases.Add(new ProductPurchase()
+                        {
+                            Id = reader.GetInt64(reader.GetOrdinal("ID")),
+                            PurchaseDate = reader.GetString(reader.GetOrdinal("PURCHASE_DATE")),
+                            Qty = reader.GetFloat(reader.GetOrdinal("QTY")),
+                            PurchasePrice = reader.GetDouble(reader.GetOrdinal("PRICE")),
+                            PurchaseCGSTInPercent = reader.GetFloat(reader.GetOrdinal("CGST_PERCENT")),
+                            PurchaseSGSTInPercent = reader.GetFloat(reader.GetOrdinal("SGST_PERCENT")),
+                            MfgDate = reader.GetString(reader.GetOrdinal("MFG_DATE")),
+                            ExpDate = reader.GetString(reader.GetOrdinal("EXP_DATE")),
+                            BatchNumber = reader.GetString(reader.GetOrdinal("BATCH")),
+                            Product = product
+                        });
+                    }
+                }
+            }
+
+            return purchases;
+        }
+
         public IList<ProductPurchase> ReadAll()
         {
             IList<ProductPurchase> purchases = new List<ProductPurchase>();

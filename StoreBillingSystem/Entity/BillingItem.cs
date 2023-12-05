@@ -10,7 +10,7 @@ namespace StoreBillingSystem.Entity
 
         public BillingItem(ProductSelling selling)
         {
-            Selling = selling;
+            ProductSelling = selling;
         }
 
         public BillingItem(ProductSelling selling, SellingType type) : this(selling)
@@ -31,7 +31,7 @@ namespace StoreBillingSystem.Entity
         }
 
         public int SrNo { get; set; }
-        public ProductSelling Selling { get; set; }
+        public ProductSelling ProductSelling { get; set; }
 
         public SellingType Type { get; set; }
 
@@ -44,10 +44,10 @@ namespace StoreBillingSystem.Entity
             {
                 switch (Type)
                 {
-                    case SellingType.A: return Selling.SellingPrice_A;
-                    case SellingType.B: return Selling.SellingPrice_B;
-                    case SellingType.C: return Selling.SellingPrice_C;
-                    case SellingType.D: return Selling.SellingPrice_D;
+                    case SellingType.A: return ProductSelling.SellingPrice_A;
+                    case SellingType.B: return ProductSelling.SellingPrice_B;
+                    case SellingType.C: return ProductSelling.SellingPrice_C;
+                    case SellingType.D: return ProductSelling.SellingPrice_D;
                 }
                 return 0;
             }
@@ -59,12 +59,36 @@ namespace StoreBillingSystem.Entity
             {
                 switch (Type)
                 {
-                    case SellingType.A: return Selling.DiscountPrice_A;
-                    case SellingType.B: return Selling.DiscountPrice_B;
-                    case SellingType.C: return Selling.DiscountPrice_C;
-                    case SellingType.D: return Selling.DiscountPrice_D;
+                    case SellingType.A: return ProductSelling.DiscountPrice_A;
+                    case SellingType.B: return ProductSelling.DiscountPrice_B;
+                    case SellingType.C: return ProductSelling.DiscountPrice_C;
+                    case SellingType.D: return ProductSelling.DiscountPrice_D;
                 }
                 return 0;
+            }
+        }
+
+        public double TotalAmount
+        {
+            get
+            {
+                return SellingPrice * AskQty;
+            }
+        }
+
+        public double TotalDiscount
+        {
+            get
+            {
+                return DiscountPrice * AskQty;
+            }
+        }
+
+        public double Total
+        {
+            get
+            {
+                return TotalAmount - TotalDiscount;
             }
         }
 

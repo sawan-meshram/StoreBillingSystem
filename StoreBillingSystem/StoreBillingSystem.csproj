@@ -74,6 +74,7 @@
     <Compile Include="ProductTypeForm.cs" />
     <Compile Include="Entity\BillingItem.cs" />
     <Compile Include="Util\SellingType.cs" />
+    <Compile Include="CustomerCustomDialogBox.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Database\" />

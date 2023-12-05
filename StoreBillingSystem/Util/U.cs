@@ -42,5 +42,15 @@ namespace StoreBillingSystem.Util
         {
             return dateTime != null ? dateTime.ToString("yyyy-MM-dd") : null;
         }
+
+        public static double CalculateQty(double askedPrice, double soldPrice)
+        {
+            return askedPrice / soldPrice;
+        }
+
+        public static double CalculateAskingPrice(double askedQty, double soldPrice)
+        {
+            return askedQty * soldPrice;
+        }
     }
 }

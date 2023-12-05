@@ -20,9 +20,9 @@ namespace StoreBillingSystem.DAOImpl
             _tableName = StoreDbTable.Customer.ToString();
         }
 
-        public IList<string> CustomerNames()
+        public ISet<string> CustomerNames()
         {
-            IList<string> customerNames = new List<string>();
+            ISet<string> customerNames = new HashSet<string>();
 
             string query = $"SELECT NAME FROM {_tableName}";
 
@@ -32,7 +32,8 @@ namespace StoreBillingSystem.DAOImpl
                 {
                     while (reader.Read())
                     {
-                        customerNames.Add(reader.GetString(reader.GetOrdinal("NAME")));
+                        if(!customerNames.Contains(reader.GetString(reader.GetOrdinal("NAME"))))
+                            customerNames.Add(reader.GetString(reader.GetOrdinal("NAME")));
                     }
                 }
             }
@@ -195,6 +196,34 @@ namespace StoreBillingSystem.DAOImpl
             }
 
             return customer;
+        }
+
+        public IList<Customer> Read(string customerName)
+        {
+            IList<Customer> customers = new List<Customer>();
+
+            string query = $"SELECT * FROM {_tableName} WHERE NAME = @CustomerName";
+
+            using (SqliteCommand command = new SqliteCommand(query, _conn))
+            {
+                command.Parameters.AddWithValue("@CustomerName", customerName);
+
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        customers.Add(new Customer()
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("ID")),
+                            Name = reader.GetString(reader.GetOrdinal("NAME")),
+                            Address = reader.GetString(reader.GetOrdinal("ADDRESS")),
+                            PhoneNumber = reader.GetInt64(reader.GetOrdinal("PHONE")),
+                            RegisterDate = reader.GetString(reader.GetOrdinal("REGISTER_DATE"))
+                        });
+                    }
+                }
+            }
+            return customers;
         }
 
         public IList<Customer> ReadAll()

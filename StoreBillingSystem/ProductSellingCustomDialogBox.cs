@@ -208,6 +208,7 @@ namespace StoreBillingSystem
                 BackColor = Color.Blue,
                 Margin = new Padding(5)
             };
+            CancelButton = cancelButton; 
 
             okButton.Click += OkButton_Click;
             cancelButton.Click += CancelButton_Click;

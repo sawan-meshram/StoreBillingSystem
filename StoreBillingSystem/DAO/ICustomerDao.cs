@@ -7,13 +7,14 @@ namespace StoreBillingSystem.DAO
     {
         IList<Customer> ReadAll();
         Customer Read(int id);
+        IList<Customer> Read(string customerName);
         bool Insert(Customer customer);
         bool Update(Customer customer);
         bool Delete(int id);
         bool IsRecordExists(string name, long phoneNumber);
         bool IsRecordExists(long phoneNumber);
         int GetNewCustomerId();
-        IList<string> CustomerNames();
+        ISet<string> CustomerNames();
         IList<string> Phones();
 
     }

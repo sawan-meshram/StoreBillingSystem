@@ -15,7 +15,6 @@ namespace StoreBillingSystem
 {
     public class BillingForm : Form
     {
-        private DataGridView dataGridView;
         private Font labelFont = new Font("Arial", 12, FontStyle.Bold);
         private Font textfieldFont = new Font("Arial", 12);
 
@@ -44,9 +43,6 @@ namespace StoreBillingSystem
 
         private void InitComponets()
         {
-
-
-
             // Create panels for each region
             topPanel = new Panel();
             topPanel.BackColor = Color.LightBlue;
@@ -98,6 +94,35 @@ namespace StoreBillingSystem
 
         }
 
+        private AutoCompleteStringCollection customerNameAutoSuggestion;
+        private AutoCompleteStringCollection productNameAutoSuggestion;
+        private List<string> customers;
+        private List<string> productNames;
+
+        private IProductDao productDao;
+        private IProductSellingDao productSellingDao;
+        private ICustomerDao customerDao;
+        private void InitComponentsData()
+        {
+            SqliteConnection connection = DatabaseManager.GetConnection();
+
+            productDao = new ProductDaoImpl(connection);
+            productSellingDao = new ProductSellingDaoImpl(connection);
+            customerDao = new CustomerDaoImpl(connection);
+
+            productNameAutoSuggestion = new AutoCompleteStringCollection();
+            productNames = (List<string>)productDao.ProductNames();
+
+            //customerNameAutoSuggestion = new AutoCompleteStringCollection();
+            //customers = (List<string>)customerDao.CustomerNames();
+
+            //BindAutoSuggestionToCustomerNameTextBox();
+            BindAutoSuggestionToProductNameTextBox();
+
+        }
+
+
+        private string customerNamePlaceHolder = U.ToTitleCase("Enter customer name ...");
 
         private TextBox billingNumText;
         private TextBox customerNameText;
@@ -164,25 +189,70 @@ namespace StoreBillingSystem
             {
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
-                Margin = new Padding(5)
+                Margin = new Padding(5),
+                Text = customerNamePlaceHolder,
+                ForeColor = Color.Gray,
             };
             panel.Controls.Add(customerNameText, 1, 1);
             panel.SetColumnSpan(customerNameText, 2);
+
+            InitBillingHeaderFormEvent();
             return panel;
 
         }
 
-        private void InitComponentsData()
+        private void InitBillingHeaderFormEvent()
         {
-            SqliteConnection connection = DatabaseManager.GetConnection();
+            customerNameText.TextChanged += (sender, e) => TextBoxKeyEvent.CapitalizeText_TextChanged(customerNameText);
 
-            productDao = new ProductDaoImpl(connection);
-            productSellingDao = new ProductSellingDaoImpl(connection);
+            customerNameText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(customerNameText, customerNamePlaceHolder);
+            customerNameText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(customerNameText, customerNamePlaceHolder);
 
-            productNameAutoSuggestion = new AutoCompleteStringCollection();
-            productNames = (List<string>)productDao.ProductNames();
+            customerNameText.KeyDown += CustomerNameTextBox_KeyDown;
+        }
 
-            BindAutoSuggestionToProductNameTextBox();
+        private DataGridView customerTable;
+        private void CustomerNameTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+
+                customerTable = new DataGridView
+                {
+                    Dock = DockStyle.Fill,
+                    BackgroundColor = Color.LightGray,
+                    Margin = new Padding(0),
+                };
+
+                // Open the dialog box when Enter key is pressed
+                CustomerCustomDialogBox customDialogBox = new CustomerCustomDialogBox(customerTable, customerDao.ReadAll());
+                if (customDialogBox.ShowDialog() == DialogResult.OK)
+                {
+                    Console.WriteLine("Ok");
+
+
+                    //DataGridViewRow selectedRow = customerTable.SelectedRows[0];
+                    //string type = selectedRow.Cells["Selling Type"].Value.ToString();
+
+                }
+                else
+                {
+                    // Handle Cancel button logic
+                    Console.WriteLine("Cancel");
+                }
+            }
+
+        }
+
+
+
+        private void BindAutoSuggestionToCustomerNameTextBox()
+        {
+            customerNameAutoSuggestion.AddRange(customers.ToArray());
+
+            customerNameText.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            customerNameText.AutoCompleteSource = AutoCompleteSource.CustomSource;
+            customerNameText.AutoCompleteCustomSource = customerNameAutoSuggestion;
         }
 
         private void BindAutoSuggestionToProductNameTextBox()
@@ -194,146 +264,14 @@ namespace StoreBillingSystem
             productNameText.AutoCompleteCustomSource = productNameAutoSuggestion;
         }
 
-        private void ProductNameTextBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                // Open the dialog box when Enter key is pressed
-                SearchByProductName(productNameText.Text.Trim());
-            }
-        }
+       
 
-        private void ProductCodeTextBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                // Open the dialog box when Enter key is pressed
-                SearchByProductId(productCodeText.Text.Trim());
-            }
-        }
-        private void QtyTextBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                Console.WriteLine("QTY Text");
-                if(string.IsNullOrWhiteSpace(qtyText.Text.Trim())) return;
-
-                //if qty contains placeholder value
-                if (qtyText.Text.Trim() == qtyPercentPlaceHolder) return;
-
-                if(billingItem != null)
-                {
-                    askingPriceText.Text = (float.Parse(qtyText.Text.Trim()) * (billingItem.SellingPrice - billingItem.DiscountPrice)).ToString();
-                    //TextBoxKeyEvent.BindPlaceholderToTextBox(productNameText, productPlaceHolder, Color.Gray);
-                    askingPriceText.ForeColor = Color.Black;
-                }
-            }
-        }
-
-        private void AskingPriceTextBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Tab)
-            {
-                // Open the dialog box when Enter key is pressed
-                //SearchByProductId(productCodeText.Text.Trim());
-            }
-        }
-
-        private static double calculateGramOrMilliLitre(double askedPrice, double soldPrice)
-        {
-            return askedPrice / soldPrice;
-        }
-
-        private static double calculatePrice(double askedUnit, double soldPrice)
-        {
-            return askedUnit * soldPrice;
-        }
-
-        private void SearchByProductName(string productName)
-        {
-            if (!string.IsNullOrWhiteSpace(productName))
-            {
-                Product product = productDao.Read(productName);
-                if(product != null) ProductItemForm(product);
-                else MessageBox.Show("Product name is not found.", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            else MessageBox.Show("Enter product name..", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-        }
-
-        private void SearchByProductId(string productId)
-        {
-            if (!string.IsNullOrWhiteSpace(productId))
-            {
-                Product product = productDao.Read(long.Parse(productId));
-                if(product != null) ProductItemForm(product);
-                else MessageBox.Show("Product id is not found.", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            else MessageBox.Show("Enter product id..", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-        }
-
-
-        private DataGridView productSellingTable;
-        private BillingItem billingItem;
-        private void ProductItemForm(Product product)
-        {
-            Console.WriteLine("product ::" + product);
-            productTypes.Items.Add(product.ProductType.Abbr);
-            productTypes.SelectedIndex = 0;
-
-            productCodeText.Text = product.Id.ToString();
-
-            ProductSelling selling = productSellingDao.Read(product);
-
-            productSellingTable = new DataGridView 
-            { 
-                Dock = DockStyle.Fill, BackgroundColor = Color.LightGray, Margin = new Padding(0), 
-            };
-
-            ProductSellingCustomDialogBox sellingCustomDialog = new ProductSellingCustomDialogBox(productSellingTable, selling);
-            if (sellingCustomDialog.ShowDialog() == DialogResult.OK)
-            {
-                // Handle OK button logic
-                Console.WriteLine("Ok");
-                DataGridViewRow selectedRow = productSellingTable.SelectedRows[0];
-                string type = selectedRow.Cells["Selling Type"].Value.ToString();
-
-                SellingType sellingType = 0;
-                if (type == SellingType.A.ToString()) sellingType = SellingType.A;
-                else if (type == SellingType.B.ToString()) sellingType = SellingType.B;
-                else if (type == SellingType.C.ToString()) sellingType = SellingType.C;
-                else if (type == SellingType.D.ToString()) sellingType = SellingType.D;
-
-                billingItem = new BillingItem(selling, sellingType);
-                /*
-                productSellingTable.Columns[0].Name = "Selling Type";
-                productSellingTable.Columns[1].Name = "Selling (Rs.)";
-                productSellingTable.Columns[2].Name = "Discount (Rs.)";
-                productSellingTable.Columns[3].Name = "Total Selling (Rs.)";
-                productSellingTable.Columns[4].Name = "GST (%)";
-                productSellingTable.Columns[5].Name = "GST (Rs.)";
-                productSellingTable.Columns[6].Name = "Total (Rs.)";
-                */
-            }
-            else
-            {
-                // Handle Cancel button logic
-                Console.WriteLine("Cancel");
-            }
-            
-
-        }
-
-
-
-        private AutoCompleteStringCollection productNameAutoSuggestion;
-        private List<string> productNames;
-        private IProductDao productDao;
-        private IProductSellingDao productSellingDao;
+        private List<BillingItem> billingItems = new List<BillingItem>();
 
         private string pricePlaceHolder = "0.00";
         private string qtyPercentPlaceHolder = "0.0";
         private string productPlaceHolder = Util.U.ToTitleCase("Enter product here...");
-
+        private string searchCodePlaceHolder = Util.U.ToTitleCase("Search product code...");
 
 
 
@@ -406,6 +344,8 @@ namespace StoreBillingSystem
 
             productCodeText = new TextBox
             {
+                Text = searchCodePlaceHolder,
+                ForeColor = Color.Gray,
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
                 Margin = new Padding(5)
@@ -415,7 +355,7 @@ namespace StoreBillingSystem
             //Clear Button
             Button clearProductButton = new Button
             {
-                Text = "Clear",
+                Text = "&Clear",
                 Dock = DockStyle.Fill,
                 Font = labelFont,
                 ForeColor = Color.White,
@@ -487,7 +427,7 @@ namespace StoreBillingSystem
 
             Button addProductButton = new Button
             {
-                Text = "Add",
+                Text = "&Add",
                 Dock = DockStyle.Fill,
                 Font = labelFont,
                 ForeColor = Color.White,
@@ -507,15 +447,13 @@ namespace StoreBillingSystem
         private void InitAddProductFormEvent()
         {
 
-            productNameText.KeyDown += ProductNameTextBox_KeyDown;
-            productCodeText.KeyDown += ProductCodeTextBox_KeyDown;
-            qtyText.KeyDown += QtyTextBox_KeyDown;
-            askingPriceText.KeyDown += AskingPriceTextBox_KeyDown;
-
             productNameText.TextChanged += (sender, e) => TextBoxKeyEvent.CapitalizeText_TextChanged(productNameText);
 
             productNameText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(productNameText, productPlaceHolder);
             productNameText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(productNameText, productPlaceHolder);
+
+            productCodeText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(productCodeText, searchCodePlaceHolder);
+            productCodeText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(productCodeText, searchCodePlaceHolder);
 
             qtyText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(qtyText, qtyPercentPlaceHolder);
             qtyText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(qtyText, qtyPercentPlaceHolder);
@@ -525,22 +463,259 @@ namespace StoreBillingSystem
 
             qtyText.KeyPress += TextBoxKeyEvent.DecimalNumbericTextBox_KeyPress;
             askingPriceText.KeyPress += TextBoxKeyEvent.DecimalNumbericTextBox_KeyPress;
+            productCodeText.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
+
+            productNameText.KeyDown += ProductNameTextBox_KeyDown;
+            productCodeText.KeyDown += ProductCodeTextBox_KeyDown;
+            qtyText.KeyDown += QtyTextBox_KeyDown;
+            askingPriceText.KeyDown += AskingPriceTextBox_KeyDown;
+
         }
 
         private void AddProductForm()
         {
+            if(string.IsNullOrWhiteSpace(productNameText.Text) || productNameText.Text == productPlaceHolder)
+            {
+                MessageBox.Show("Product Name can't be empty or null.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(productCodeText.Text) || productCodeText.Text == searchCodePlaceHolder)
+            {
+                MessageBox.Show("Product code can't be empty or null.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(qtyText.Text) || qtyText.Text == qtyPercentPlaceHolder)
+            {
+                MessageBox.Show("Qty can't be empty or null.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(askingPriceText.Text) || askingPriceText.Text == pricePlaceHolder)
+            {
+                MessageBox.Show("Asking price can't be empty or null.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(productTypes.SelectedItem.ToString()))
+            {
+                MessageBox.Show("Product type can't be empty or null.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            string type = productTypes.SelectedItem.ToString();
+            Console.WriteLine("product ty :" + type);
 
+            if (_billingItem != null)
+            {
+                _billingItem.AskQty = float.Parse(qtyText.Text.Trim());
+                _billingItem.AskAmount = double.Parse(askingPriceText.Text.Trim());
+                _billingItem.SrNo = billingItems.Count + 1;
+
+                double totalAmt = _billingItem.SellingPrice * _billingItem.AskQty;
+                double totalDiscount = _billingItem.DiscountPrice * _billingItem.AskQty;
+                double total = totalAmt - totalDiscount;
+                //add to billing table
+                /*
+                billingTable.Rows.Add(_billingItem.SrNo, _billingItem.ProductSelling.Product.Name, _billingItem.ProductSelling.Product.ProductType.Abbr,
+                    _billingItem.AskQty, 
+                    _billingItem.SellingPrice.ToString("C2"), 
+                    _billingItem.TotalAmount.ToString("C2"),
+                    _billingItem.ProductSelling.GetTotalGSTInPercent().ToString("P"), 
+                    _billingItem.TotalDiscount.ToString("C2"), 
+                    _billingItem.Total.ToString("C2"));
+                */
+                billingTable.Rows.Add(_billingItem.SrNo, _billingItem.ProductSelling.Product.Name, _billingItem.ProductSelling.Product.ProductType.Abbr,
+                    _billingItem.AskQty,
+                    _billingItem.SellingPrice,
+                    _billingItem.TotalAmount,
+                    _billingItem.ProductSelling.GetTotalGSTInPercent(),
+                    _billingItem.TotalDiscount,
+                    _billingItem.Total);
+
+
+                //add to List collection
+                billingItems.Add(_billingItem);
+
+
+
+                //clear after add to billing table
+                ClearProductForm();
+                _billingItem = null;
+                UpdateTotalAmountTable();
+            }
         }
+
+        private void UpdateTotalAmountTable() 
+        {
+            double totalAmt = 0, totalDiscount = 0, total = 0;
+            foreach(BillingItem item in billingItems)
+            {
+                totalAmt += item.TotalAmount;
+                totalDiscount += item.TotalDiscount;
+                total += item.Total;
+            }
+            /*
+            amtTable.Rows[0].Cells[5].Value = totalAmt.ToString("C2");
+            amtTable.Rows[0].Cells[6].Value = 0.ToString("C2");
+            amtTable.Rows[0].Cells[7].Value = totalDiscount.ToString("C2");
+            amtTable.Rows[0].Cells[8].Value = total.ToString("C2");
+            */
+            amtTable.Rows[0].Cells[5].Value = totalAmt;
+            amtTable.Rows[0].Cells[6].Value = 0;
+            amtTable.Rows[0].Cells[7].Value = totalDiscount;
+            amtTable.Rows[0].Cells[8].Value = total;
+        }
+
 
         private void ClearProductForm()
         {
             productCodeText.Text = "";
             productTypes.Items.Clear();
             TextBoxKeyEvent.BindPlaceholderToTextBox(productNameText, productPlaceHolder, Color.Gray);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(productCodeText, searchCodePlaceHolder, Color.Gray);
             TextBoxKeyEvent.BindPlaceholderToTextBox(qtyText, qtyPercentPlaceHolder, Color.Gray);
             TextBoxKeyEvent.BindPlaceholderToTextBox(askingPriceText, pricePlaceHolder, Color.Gray);
         }
 
+        private void ProductNameTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                // Open the dialog box when Enter key is pressed
+                SearchByProductName(productNameText.Text.Trim());
+            }
+        }
+
+        private void ProductCodeTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                // Open the dialog box when Enter key is pressed
+                SearchByProductId(productCodeText.Text.Trim());
+            }
+        }
+        private void QtyTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            //calculate asking price
+            if (e.KeyCode == Keys.Enter)
+            {
+                if (string.IsNullOrWhiteSpace(qtyText.Text.Trim())) return;
+
+                //if qty contains placeholder value
+                if (qtyText.Text.Trim() == qtyPercentPlaceHolder) return;
+
+                if (_billingItem != null)
+                {
+                    askingPriceText.Text = (float.Parse(qtyText.Text.Trim()) * (_billingItem.SellingPrice - _billingItem.DiscountPrice)).ToString();
+                    //TextBoxKeyEvent.BindPlaceholderToTextBox(productNameText, productPlaceHolder, Color.Gray);
+                    askingPriceText.ForeColor = Color.Black;
+                }
+            }
+        }
+
+        private void AskingPriceTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            //calculate asking qty
+            if (e.KeyCode == Keys.Enter)
+            {
+                if (string.IsNullOrWhiteSpace(askingPriceText.Text.Trim())) return;
+                if (askingPriceText.Text.Trim() == pricePlaceHolder) return;
+                if (_billingItem != null && !string.IsNullOrWhiteSpace(qtyText.Text.Trim()))
+                {
+                    qtyText.Text = (double.Parse(askingPriceText.Text.Trim()) / (_billingItem.SellingPrice - _billingItem.DiscountPrice)).ToString();
+                    //TextBoxKeyEvent.BindPlaceholderToTextBox(productNameText, productPlaceHolder, Color.Gray);
+                    qtyText.ForeColor = Color.Black;
+                }
+            }
+        }
+
+
+        private void SearchByProductName(string productName)
+        {
+            if (!string.IsNullOrWhiteSpace(productName))
+            {
+                Product product = productDao.Read(productName);
+                if (product != null) PreparedProductItemForBilling(product);
+                else MessageBox.Show("Product name is not found.", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else MessageBox.Show("Enter product name..", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+        }
+
+        private void SearchByProductId(string productId)
+        {
+            if (!string.IsNullOrWhiteSpace(productId))
+            {
+                Product product = productDao.Read(long.Parse(productId));
+                if (product != null) PreparedProductItemForBilling(product);
+                else MessageBox.Show("Product id is not found.", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else MessageBox.Show("Enter product id..", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+        }
+
+
+        private DataGridView productSellingTable;
+        private BillingItem _billingItem;
+        private void PreparedProductItemForBilling(Product product)
+        {
+            Console.WriteLine("product ::" + product);
+            productTypes.Items.Add(product.ProductType.Abbr);
+            productTypes.SelectedIndex = 0;
+
+            if (productNameText.Text == productPlaceHolder)
+            {
+                productNameText.Text = product.Name;
+                productNameText.ForeColor = Color.Black;
+            }
+
+            if (productCodeText.Text == searchCodePlaceHolder)
+            {
+                productCodeText.Text = product.Id.ToString();
+                productCodeText.ForeColor = Color.Black;
+            }
+
+            ProductSelling selling = productSellingDao.Read(product);
+
+            productSellingTable = new DataGridView
+            {
+                Dock = DockStyle.Fill,
+                BackgroundColor = Color.LightGray,
+                Margin = new Padding(0),
+            };
+
+            ProductSellingCustomDialogBox sellingCustomDialog = new ProductSellingCustomDialogBox(productSellingTable, selling);
+            if (sellingCustomDialog.ShowDialog() == DialogResult.OK)
+            {
+                // Handle OK button logic
+                Console.WriteLine("Ok");
+                DataGridViewRow selectedRow = productSellingTable.SelectedRows[0];
+                string type = selectedRow.Cells["Selling Type"].Value.ToString();
+
+                SellingType sellingType = 0;
+                if (type == SellingType.A.ToString()) sellingType = SellingType.A;
+                else if (type == SellingType.B.ToString()) sellingType = SellingType.B;
+                else if (type == SellingType.C.ToString()) sellingType = SellingType.C;
+                else if (type == SellingType.D.ToString()) sellingType = SellingType.D;
+
+                _billingItem = new BillingItem(selling, sellingType);
+                /*
+                productSellingTable.Columns[0].Name = "Selling Type";
+                productSellingTable.Columns[1].Name = "Selling (Rs.)";
+                productSellingTable.Columns[2].Name = "Discount (Rs.)";
+                productSellingTable.Columns[3].Name = "Total Selling (Rs.)";
+                productSellingTable.Columns[4].Name = "GST (%)";
+                productSellingTable.Columns[5].Name = "GST (Rs.)";
+                productSellingTable.Columns[6].Name = "Total (Rs.)";
+                */
+            }
+            else
+            {
+                // Handle Cancel button logic
+                Console.WriteLine("Cancel");
+                _billingItem = null;
+            }
+
+
+        }
+
+
+        private DataGridView billingTable;
         private DataGridView amtTable;
         private Panel GetBillingForm()
         {
@@ -556,7 +731,7 @@ namespace StoreBillingSystem
 
 
             // Create a DataGridView
-            dataGridView = new DataGridView
+            billingTable = new DataGridView
             {
                 Dock = DockStyle.None,
                 BackgroundColor = Color.Cyan,
@@ -568,36 +743,44 @@ namespace StoreBillingSystem
                 //Font = textfieldFont,
                 //Width = 1160, //based on left & right panel width
             };
-            dataGridView.RowHeadersDefaultCellStyle.Font = new Font("Arial", 10, FontStyle.Bold);
+            billingTable.RowHeadersDefaultCellStyle.Font = new Font("Arial", 10, FontStyle.Bold);
             //dataGridView.ColumnHeadersDefaultCellStyle.Font = textfieldFont;
 
             //Console.WriteLine(dataGridView.Location.X + " " + dataGridView.Location.Y);
             // Create columns for the DataGridView
-            dataGridView.ColumnCount = 8;
-            dataGridView.Columns[0].Name = "Sr.No.";
-            dataGridView.Columns[1].Name = "Product Name";
-            dataGridView.Columns[2].Name = "Type";
-            dataGridView.Columns[3].Name = "Qty.";
-            dataGridView.Columns[4].Name = "Amount";
-            dataGridView.Columns[5].Name = "GST(%)";
-            dataGridView.Columns[6].Name = "Discount(%)";
-            dataGridView.Columns[7].Name = "Total";
+            billingTable.ColumnCount = 9;
+            billingTable.Columns[0].Name = "Sr.No.";
+            billingTable.Columns[1].Name = "Product Name";
+            billingTable.Columns[2].Name = "Type";
+            billingTable.Columns[3].Name = "Qty.";
+            billingTable.Columns[4].Name = "Rate";
+            billingTable.Columns[5].Name = "Amount";
+            billingTable.Columns[6].Name = "GST(%)";
+            billingTable.Columns[7].Name = "Discount(Rs.)";
+            billingTable.Columns[8].Name = "Total";
 
 
-            dataGridView.Columns[0].Width = 80;
-            dataGridView.Columns[1].Width = 400;
-            dataGridView.Columns[2].Width = 80;
-            dataGridView.Columns[3].Width = 100;
-            dataGridView.Columns[4].Width = 150;
-            dataGridView.Columns[5].Width = 100;
-            dataGridView.Columns[6].Width = 100;
-            dataGridView.Columns[7].Width = 150;
-            foreach (DataGridViewColumn column in dataGridView.Columns)
+            billingTable.Columns[0].Width = 80;
+            billingTable.Columns[1].Width = 400;
+            billingTable.Columns[2].Width = 80;
+            billingTable.Columns[3].Width = 70;
+            billingTable.Columns[4].Width = 80;
+            billingTable.Columns[5].Width = 100;
+            billingTable.Columns[6].Width = 100;
+            billingTable.Columns[7].Width = 100;
+            billingTable.Columns[8].Width = 150;
+
+            billingTable.Columns[4].DefaultCellStyle.Format = "C2";
+            billingTable.Columns[5].DefaultCellStyle.Format = "C2";
+            billingTable.Columns[6].DefaultCellStyle.Format = "P";
+            billingTable.Columns[7].DefaultCellStyle.Format = "C2";
+            billingTable.Columns[8].DefaultCellStyle.Format = "C2";
+            foreach (DataGridViewColumn column in billingTable.Columns)
             {
                 column.SortMode = DataGridViewColumnSortMode.NotSortable;
             }
 
-            dataGridView.Rows.Add("1", "Daal", "KG", "1", "100.00", "5", "0", "100.00");
+            //billingTable.Rows.Add("1", "Daal", "KG", "1", "100.00", "5", "0", "100.00");
             // Sample data to populate the DataGridView
             //string[] row1 = { "1", "John Doe", "30" };
             //string[] row2 = { "2", "Jane Smith", "25" };
@@ -610,11 +793,16 @@ namespace StoreBillingSystem
             //dataGridView.BringToFront();
 
             //dataGridView.Visible = true;
-            dataGridView.AllowUserToAddRows = false;
-            dataGridView.AutoGenerateColumns = false;
-            dataGridView.RowHeadersVisible = false;
+            billingTable.AllowUserToAddRows = false;
+            billingTable.AutoGenerateColumns = false;
+            billingTable.RowHeadersVisible = false;
+            billingTable.AllowUserToResizeRows = false;
+            billingTable.AllowUserToResizeColumns = false;
+            billingTable.ReadOnly = true;
+            billingTable.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            billingTable.MultiSelect = false;
 
-            panel.Controls.Add(dataGridView);
+            panel.Controls.Add(billingTable);
             //Console.WriteLine(panel.Location.X + " " + panel.Location.Y);
             //Console.WriteLine(panel.Size);
 
@@ -631,24 +819,40 @@ namespace StoreBillingSystem
                 Font = labelFont,
                 //Width = 1160, //based on left & right panel width
             };
-            amtTable.ColumnCount = 8;
+
+            amtTable.ColumnCount = 9;
             amtTable.Columns[0].Width = 80;
             amtTable.Columns[1].Width = 400;
             amtTable.Columns[2].Width = 80;
-            amtTable.Columns[3].Width = 100;
-            amtTable.Columns[4].Width = 150;
+            amtTable.Columns[3].Width = 70;
+            amtTable.Columns[4].Width = 80;
             amtTable.Columns[5].Width = 100;
             amtTable.Columns[6].Width = 100;
-            amtTable.Columns[7].Width = 150;
-            amtTable.Rows.Add("", "Total (Rs.)", "", "", "100.00", "0", "0", "100.00");
+            amtTable.Columns[7].Width = 100;
+            amtTable.Columns[8].Width = 150;
+
+            amtTable.Columns[5].DefaultCellStyle.Format = "C2";
+            amtTable.Columns[6].DefaultCellStyle.Format = "C2";
+            amtTable.Columns[7].DefaultCellStyle.Format = "C2";
+            amtTable.Columns[8].DefaultCellStyle.Format = "C2";
+
+            amtTable.Rows[0].DefaultCellStyle.Font = new Font("Arial", 10, FontStyle.Bold); // Replace "Arial" with your desired font
+
+            amtTable.Rows.Add("", "Total (Rs.)", "", "", "", 0.00.ToString("C2"), 0.00.ToString("C2"), 0.00.ToString("C2"), 0.00.ToString("C2"));
             amtTable.ColumnHeadersVisible = false;
             amtTable.AllowUserToAddRows = false;
             amtTable.AutoGenerateColumns = false;
             amtTable.RowHeadersVisible = false;
 
+            amtTable.AllowUserToResizeRows = false;
+            amtTable.AllowUserToResizeColumns = false;
+            amtTable.ReadOnly = true;
+            amtTable.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            amtTable.MultiSelect = false;
+
+
             //amtTable.RowHeadersDefaultCellStyle.Font = new Font("Arial", 10);
             //amtTable.ColumnHeadersDefaultCellStyle.Font = textfieldFont;
-            amtTable.Rows[0].DefaultCellStyle.Font = new Font("Arial", 10, FontStyle.Bold); // Replace "Arial" with your desired font
 
 
 

@@ -26,5 +26,9 @@ namespace StoreBillingSystem.Entity
         public long PhoneNumber { get; set; }
         public string RegisterDate { get; set; }
 
+        public override string ToString()
+        {
+            return $"Customer : Id={Id}, Name={Name}, Address={Address}, PhoneNumber={PhoneNumber}, RegisterDate={RegisterDate}";
+        }
     }
 }

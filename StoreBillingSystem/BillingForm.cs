@@ -92,11 +92,31 @@ namespace StoreBillingSystem
             this.Controls.Add(rightPanel);
             this.Controls.Add(centerPanel);
 
+            // Set the KeyPreview property of the form to true
+            this.KeyPreview = true;
+
+            //add event to form
+            this.KeyDown += BillingForm_KeyDown;
+
+        }
+
+        private void BillingForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Check for the Ctrl+Alt+C key combination
+            if (e.Control && e.Alt && e.KeyCode == Keys.C)
+            {
+                // Show the custom search form
+                PreparedCustomerDialogBoxToSearch();
+            }
         }
 
         private AutoCompleteStringCollection customerNameAutoSuggestion;
+        private AutoCompleteStringCollection customerMobileNumberAutoSuggestion;
+
         private AutoCompleteStringCollection productNameAutoSuggestion;
         private List<string> customers;
+        private List<string> customerMobiles;
+
         private List<string> productNames;
 
         private IProductDao productDao;
@@ -113,19 +133,25 @@ namespace StoreBillingSystem
             productNameAutoSuggestion = new AutoCompleteStringCollection();
             productNames = (List<string>)productDao.ProductNames();
 
-            //customerNameAutoSuggestion = new AutoCompleteStringCollection();
-            //customers = (List<string>)customerDao.CustomerNames();
+            customerNameAutoSuggestion = new AutoCompleteStringCollection();
+            customers = (List<string>)customerDao.CustomerNames();
 
-            //BindAutoSuggestionToCustomerNameTextBox();
+            customerMobileNumberAutoSuggestion = new AutoCompleteStringCollection();
+            customerMobiles = (List<string>)customerDao.Phones();
+
+            BindAutoSuggestionToCustomerNameTextBox();
+            BindAutoSuggestionToMobileNumberTextBox();
             BindAutoSuggestionToProductNameTextBox();
 
         }
 
 
         private string customerNamePlaceHolder = U.ToTitleCase("Enter customer name ...");
+        private string mobileNumberPlaceHolder = U.ToTitleCase("Enter mobile number ...");
 
         private TextBox billingNumText;
         private TextBox customerNameText;
+        private TextBox mobileNumberText;
         private DateTimePicker dateTimePicker;
 
         private Panel GetHeaderForm()
@@ -138,14 +164,16 @@ namespace StoreBillingSystem
                 //Size = new Size(1100, 90),
                 //Location = new Point(0, 0),
                 //BackColor = Color.Aquamarine
-                ColumnCount = 6,
+                ColumnCount = 8,
             };
 
-            panel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130F)); 
-            panel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 190F));
-            panel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 250F));
-            panel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 300F));
-            panel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150F));
+            panel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130F)); //col-0
+            panel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 170F)); //col-1
+            panel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 200F)); //col-2
+            panel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 140F)); //col-3
+            panel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 220F)); //col-4
+            panel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120F)); //col-5
+            panel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160F)); //col-6
 
             //Billing Number
             panel.Controls.Add(new Label
@@ -165,6 +193,16 @@ namespace StoreBillingSystem
             };
             panel.Controls.Add(billingNumText, 1, 0);
 
+            panel.Controls.Add(new Label
+            {
+                Text = "Billing Date :",
+                Font = labelFont,
+                Dock = DockStyle.Fill,
+                ForeColor = Color.Black,
+                TextAlign = ContentAlignment.MiddleRight,
+            }, 5, 0);
+
+
             dateTimePicker = new DateTimePicker
             {
                 //CustomFormat = "yyyy-MM-dd HH:mm:ss",
@@ -173,7 +211,7 @@ namespace StoreBillingSystem
                 Font = textfieldFont,
                 Margin = new Padding(5)
             };
-            panel.Controls.Add(dateTimePicker, 4, 0);
+            panel.Controls.Add(dateTimePicker, 6, 0);
 
             //Customer Name
             panel.Controls.Add(new Label
@@ -194,6 +232,26 @@ namespace StoreBillingSystem
                 ForeColor = Color.Gray,
             };
             panel.Controls.Add(customerNameText, 1, 1);
+
+            panel.Controls.Add(new Label
+            {
+                Text = "Mobile Number :",
+                Font = labelFont,
+                Dock = DockStyle.Fill,
+                ForeColor = Color.Black,
+                TextAlign = ContentAlignment.MiddleRight,
+            }, 3, 1);
+
+            mobileNumberText = new TextBox
+            {
+                Dock = DockStyle.Fill,
+                Font = textfieldFont,
+                Margin = new Padding(5),
+                Text = mobileNumberPlaceHolder,
+                ForeColor = Color.Gray,
+            };
+            panel.Controls.Add(mobileNumberText, 4, 1);
+
             panel.SetColumnSpan(customerNameText, 2);
 
             InitBillingHeaderFormEvent();
@@ -204,46 +262,111 @@ namespace StoreBillingSystem
         private void InitBillingHeaderFormEvent()
         {
             customerNameText.TextChanged += (sender, e) => TextBoxKeyEvent.CapitalizeText_TextChanged(customerNameText);
+            mobileNumberText.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
+
 
             customerNameText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(customerNameText, customerNamePlaceHolder);
             customerNameText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(customerNameText, customerNamePlaceHolder);
 
-            customerNameText.KeyDown += CustomerNameTextBox_KeyDown;
+            mobileNumberText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(mobileNumberText, mobileNumberPlaceHolder);
+            mobileNumberText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(mobileNumberText, mobileNumberPlaceHolder);
+
+
+            customerNameText.KeyDown += CustomerNameText_KeyDown;
+            mobileNumberText.KeyDown += MobileNumberText_KeyDown;
         }
 
+       
+
         private DataGridView customerTable;
-        private void CustomerNameTextBox_KeyDown(object sender, KeyEventArgs e)
+        private Customer _customer;
+        private void CustomerNameText_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
-
-                customerTable = new DataGridView
-                {
-                    Dock = DockStyle.Fill,
-                    BackgroundColor = Color.LightGray,
-                    Margin = new Padding(0),
-                };
-
-                // Open the dialog box when Enter key is pressed
-                CustomerCustomDialogBox customDialogBox = new CustomerCustomDialogBox(customerTable, customerDao.ReadAll());
-                if (customDialogBox.ShowDialog() == DialogResult.OK)
-                {
-                    Console.WriteLine("Ok");
-
-
-                    //DataGridViewRow selectedRow = customerTable.SelectedRows[0];
-                    //string type = selectedRow.Cells["Selling Type"].Value.ToString();
-
-                }
-                else
-                {
-                    // Handle Cancel button logic
-                    Console.WriteLine("Cancel");
-                }
+                SearchByCustomerName(customerNameText.Text.Trim());
             }
-
         }
 
+        private void MobileNumberText_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                SearchByMobileNumber(mobileNumberText.Text.Trim());
+            }
+        }
+
+        private void SearchByCustomerName(string customerName)
+        {
+            if (!string.IsNullOrWhiteSpace(customerName))
+            {
+                IList<Customer> _customers = customerDao.Read(customerName);
+                if(_customers.Count > 1)
+                {
+                    PreparedCustomerDialogBoxToSearch();
+                }
+                else if (_customers.Count == 1)
+                {
+                    _customer = _customers[0];
+                    LoadCustomerDataToTextBox(_customer);
+                }
+                else MessageBox.Show("Customer name is not found.", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else MessageBox.Show("Enter customer name", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+        }
+
+        private void SearchByMobileNumber(string mobileNumber)
+        {
+            if (!string.IsNullOrWhiteSpace(mobileNumber))
+            {
+                Customer customer = customerDao.Read(long.Parse(mobileNumber));
+                if (customer != null)
+                {
+                    _customer = customer;
+                    LoadCustomerDataToTextBox(_customer);
+                }
+                else MessageBox.Show("Customer mobile number is not found.", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else MessageBox.Show("Enter mobile number", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+        }
+
+        private void PreparedCustomerDialogBoxToSearch()
+        {
+            customerTable = new DataGridView
+            {
+                Dock = DockStyle.Fill,
+                BackgroundColor = Color.LightGray,
+                Margin = new Padding(0),
+            };
+
+            // Open the dialog box when Enter key is pressed
+            CustomerCustomDialogBox customDialogBox = new CustomerCustomDialogBox(customerTable, customerDao.ReadAll());
+            if (customDialogBox.ShowDialog() == DialogResult.OK)
+            {
+                Console.WriteLine("Ok");
+
+                DataGridViewRow selectedRow = customerTable.SelectedRows[0];
+                string customerId = selectedRow.Cells["Id"].Value.ToString();
+                _customer = customerDao.Read(int.Parse(customerId));
+                Console.WriteLine("Customer :" + _customer);
+
+                LoadCustomerDataToTextBox(_customer);
+            }
+            else
+            {
+                // Handle Cancel button logic
+                Console.WriteLine("Cancel");
+                _customer = null;
+            }
+        }
+
+        private void LoadCustomerDataToTextBox(Customer customer)
+        {
+            customerNameText.Text = customer.Name;
+            customerNameText.ForeColor = Color.Black;
+            mobileNumberText.Text = customer.PhoneNumber.ToString();
+            mobileNumberText.ForeColor = Color.Black;
+        }
 
 
         private void BindAutoSuggestionToCustomerNameTextBox()
@@ -253,6 +376,15 @@ namespace StoreBillingSystem
             customerNameText.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             customerNameText.AutoCompleteSource = AutoCompleteSource.CustomSource;
             customerNameText.AutoCompleteCustomSource = customerNameAutoSuggestion;
+        }
+
+        private void BindAutoSuggestionToMobileNumberTextBox()
+        {
+            customerMobileNumberAutoSuggestion.AddRange(customerMobiles.ToArray());
+
+            mobileNumberText.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            mobileNumberText.AutoCompleteSource = AutoCompleteSource.CustomSource;
+            mobileNumberText.AutoCompleteCustomSource = customerMobileNumberAutoSuggestion;
         }
 
         private void BindAutoSuggestionToProductNameTextBox()
@@ -566,8 +698,11 @@ namespace StoreBillingSystem
 
         private void ClearProductForm()
         {
-            productCodeText.Text = "";
+            //productCodeText.Text = "";
             productTypes.Items.Clear();
+
+            TextBoxKeyEvent.BindPlaceholderToTextBox(customerNameText, customerNamePlaceHolder, Color.Gray);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(mobileNumberText, mobileNumberPlaceHolder, Color.Gray);
             TextBoxKeyEvent.BindPlaceholderToTextBox(productNameText, productPlaceHolder, Color.Gray);
             TextBoxKeyEvent.BindPlaceholderToTextBox(productCodeText, searchCodePlaceHolder, Color.Gray);
             TextBoxKeyEvent.BindPlaceholderToTextBox(qtyText, qtyPercentPlaceHolder, Color.Gray);
@@ -635,7 +770,7 @@ namespace StoreBillingSystem
                 if (product != null) PreparedProductItemForBilling(product);
                 else MessageBox.Show("Product name is not found.", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            else MessageBox.Show("Enter product name..", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            else MessageBox.Show("Enter product name.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
 
         private void SearchByProductId(string productId)
@@ -646,7 +781,7 @@ namespace StoreBillingSystem
                 if (product != null) PreparedProductItemForBilling(product);
                 else MessageBox.Show("Product id is not found.", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            else MessageBox.Show("Enter product id..", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            else MessageBox.Show("Enter product id.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
 
 

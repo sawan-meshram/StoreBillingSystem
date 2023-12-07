@@ -55,7 +55,7 @@ namespace StoreBillingSystem
                 Dock = DockStyle.Fill,
                 ColumnCount = 4,
                 RowCount = 5,
-                CellBorderStyle = TableLayoutPanelCellBorderStyle.Single,
+                CellBorderStyle = TableLayoutPanelCellBorderStyle.None,
                 //BackColor = Color.Lime,
             };
 
@@ -150,7 +150,7 @@ namespace StoreBillingSystem
                 CellBorderStyle = TableLayoutPanelCellBorderStyle.None,
                 //BackColor = Color.Gold
             };
-            table1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 0f)); //name
+            table1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 25f)); //name
 
             Button okButton = new Button
             {

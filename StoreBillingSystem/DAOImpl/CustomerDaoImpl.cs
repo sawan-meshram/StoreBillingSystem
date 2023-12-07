@@ -20,9 +20,9 @@ namespace StoreBillingSystem.DAOImpl
             _tableName = StoreDbTable.Customer.ToString();
         }
 
-        public ISet<string> CustomerNames()
+        public IList<string> CustomerNames()
         {
-            ISet<string> customerNames = new HashSet<string>();
+            IList<string> customerNames = new List<string>();
 
             string query = $"SELECT NAME FROM {_tableName}";
 
@@ -32,8 +32,7 @@ namespace StoreBillingSystem.DAOImpl
                 {
                     while (reader.Read())
                     {
-                        if(!customerNames.Contains(reader.GetString(reader.GetOrdinal("NAME"))))
-                            customerNames.Add(reader.GetString(reader.GetOrdinal("NAME")));
+                        customerNames.Add(reader.GetString(reader.GetOrdinal("NAME")));
                     }
                 }
             }
@@ -224,6 +223,35 @@ namespace StoreBillingSystem.DAOImpl
                 }
             }
             return customers;
+        }
+
+        public Customer Read(long mobileNumber)
+        {
+            string query = $"SELECT * FROM {_tableName} WHERE PHONE = @Phone";
+
+            Customer customer = null;
+
+            using (SqliteCommand command = new SqliteCommand(query, _conn))
+            {
+                command.Parameters.AddWithValue("@Phone", mobileNumber);
+
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        customer = new Customer()
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("ID")),
+                            Name = reader.GetString(reader.GetOrdinal("NAME")),
+                            Address = reader.GetString(reader.GetOrdinal("ADDRESS")),
+                            PhoneNumber = reader.GetInt64(reader.GetOrdinal("PHONE")),
+                            RegisterDate = reader.GetString(reader.GetOrdinal("REGISTER_DATE"))
+                        };
+                    }
+                }
+            }
+
+            return customer;
         }
 
         public IList<Customer> ReadAll()

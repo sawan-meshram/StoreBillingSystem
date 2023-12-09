@@ -36,6 +36,9 @@ namespace StoreBillingSystem.Database
             CreateProductPurchaseTable();
             CreateProductSellingTable();
             CreateCustomerTable();
+            CreateBillingDateTable();
+            CreateBillingTable();
+            CreateBillingDetailsTable();
         }
 
         private void CreateCategoryTable()
@@ -165,11 +168,87 @@ namespace StoreBillingSystem.Database
                     NAME TEXT NOT NULL,
                     ADDRESS TEXT NOT NULL,
                     PHONE INTEGER UNIQUE,
-                    REGISTER_DATE TEXT NULL);";
+                    REGISTER_DATE TEXT NULL
+                    );";
 
                 // Execute the SQL command.
                 int row = command.ExecuteNonQuery();
                 if (row == 1) Console.WriteLine("'Customer' Table Created...");
+            }
+        }
+
+        private void CreateBillingDateTable()
+        {
+            using (SqliteCommand command = _conn.CreateCommand())
+            {
+                // Specify the SQL command to create a table.
+                command.CommandText = @"CREATE TABLE IF NOT EXISTS BillingDate (
+                    ID INTEGER PRIMARY KEY AUTOINCREMENT, 
+                    BILLING_DATE TEXT NOT NULL UNIQUE
+                    );";
+
+                // Execute the SQL command.
+                int row = command.ExecuteNonQuery();
+                if (row == 1) Console.WriteLine("'BillingDate' Table Created...");
+            }
+        }
+
+        private void CreateBillingTable()
+        {
+            using (SqliteCommand command = _conn.CreateCommand())
+            {
+                // Specify the SQL command to create a table.
+                command.CommandText = @"CREATE TABLE IF NOT EXISTS Billing (
+                    ID INTEGER PRIMARY KEY AUTOINCREMENT, 
+                    BILLING_NUMBER INTEGER,
+                    BILLING_DATE TEXT NOT NULL,
+                    Customer_ID INTEGER,
+                    BillingDate_ID INTEGER,
+                    GROSS_AMOUNT REAL DEFAULT 0,
+                    GST_PRICE REAL DEFAULT 0,
+                    DISCOUNT_PRICE REAL DEFAULT 0,
+                    NET_AMOUNT REAL DEFAULT 0,
+                    FOREIGN KEY (Customer_ID) REFERENCES Customer (ID) 
+                        ON DELETE CASCADE 
+                        ON UPDATE NO ACTION,
+                    FOREIGN KEY (BillingDate_ID) REFERENCES BillingDate (ID) 
+                        ON DELETE CASCADE 
+                        ON UPDATE NO ACTION
+                    );";
+
+                // Execute the SQL command.
+                int row = command.ExecuteNonQuery();
+                if (row == 1) Console.WriteLine("'Billing' Table Created...");
+            }
+        }
+
+        private void CreateBillingDetailsTable()
+        {
+            using (SqliteCommand command = _conn.CreateCommand())
+            {
+                // Specify the SQL command to create a table.
+                command.CommandText = @"CREATE TABLE IF NOT EXISTS BillingDetails (
+                    ID INTEGER PRIMARY KEY AUTOINCREMENT, 
+                    Billing_ID INTEGER,
+                    Product_ID INTEGER,
+                    SR_NUM INTEGER,
+                    QTY REAL DEFAULT 0,
+                    PRICE REAL DEFAULT 0,
+                    GROSS_AMOUNT REAL DEFAULT 0,
+                    GST_PERCENT REAL DEFAULT 0,
+                    DISCOUNT_PRICE REAL DEFAULT 0,
+                    NET_AMOUNT REAL DEFAULT 0,
+                    FOREIGN KEY (Product_ID) REFERENCES Product (ID) 
+                        ON DELETE CASCADE 
+                        ON UPDATE NO ACTION,
+                    FOREIGN KEY (Billing_ID) REFERENCES Billing (ID) 
+                        ON DELETE CASCADE 
+                        ON UPDATE NO ACTION
+                    );";
+
+                // Execute the SQL command.
+                int row = command.ExecuteNonQuery();
+                if (row == 1) Console.WriteLine("'BillingDetails' Table Created...");
             }
         }
     }

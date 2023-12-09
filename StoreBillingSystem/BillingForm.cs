@@ -92,11 +92,90 @@ namespace StoreBillingSystem
             this.Controls.Add(rightPanel);
             this.Controls.Add(centerPanel);
 
+            bottomPanel.Controls.Add(GetFooterForm());
             // Set the KeyPreview property of the form to true
             this.KeyPreview = true;
 
             //add event to form
             this.KeyDown += BillingForm_KeyDown;
+
+        }
+
+        private Panel GetFooterForm()
+        {
+
+            TableLayoutPanel panel = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                CellBorderStyle = TableLayoutPanelCellBorderStyle.None,
+                //Size = new Size(1100, 90),
+                //Location = new Point(0, 0),
+                BackColor = Color.MintCream,
+                RowCount = 2,
+                ColumnCount = 6
+            };
+
+            panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 35F)); //row-1
+            panel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 400F)); //col-0
+            panel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100F)); //col-0
+            panel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100F)); //col-0
+            panel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100F)); //col-0
+            panel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100F)); //col-0
+
+            Button clearBillingButton = new Button
+            {
+                Text = "&Clear All",
+                Dock = DockStyle.Fill,
+                Font = labelFont,
+                ForeColor = Color.White,
+                BackColor = Color.Blue,
+                Margin = new Padding(5)
+            };
+            panel.Controls.Add(clearBillingButton, 1, 0);
+
+            Button printBillingButton = new Button
+            {
+                Text = "&Print",
+                Dock = DockStyle.Fill,
+                Font = labelFont,
+                ForeColor = Color.White,
+                BackColor = Color.Blue,
+                Margin = new Padding(5)
+            };
+            panel.Controls.Add(printBillingButton, 2, 0);
+
+
+            Button saveBillingButton = new Button
+            {
+                Text = "&Save",
+                Dock = DockStyle.Fill,
+                Font = labelFont,
+                ForeColor = Color.White,
+                BackColor = Color.Blue,
+                Margin = new Padding(5)
+            };
+            panel.Controls.Add(saveBillingButton, 3, 0);
+
+
+            Button newBillingButton = new Button
+            {
+                Text = "&New",
+                Dock = DockStyle.Fill,
+                Font = labelFont,
+                ForeColor = Color.White,
+                BackColor = Color.Blue,
+                Margin = new Padding(5)
+            };
+            panel.Controls.Add(newBillingButton, 4, 0);
+
+            clearBillingButton.Click += (sender, e) => ClearAll();
+            return panel;
+
+        }
+        private void ClearAll()
+        {
+            ClearCustomerForm();
+            ClearProductForm();
 
         }
 
@@ -252,11 +331,32 @@ namespace StoreBillingSystem
             };
             panel.Controls.Add(mobileNumberText, 4, 1);
 
+            Button clearCustomerButton = new Button
+            {
+                Text = "Clear",
+                //Dock = DockStyle.Right,
+                Width = 100,
+                Height = 27,
+                Font = labelFont,
+                ForeColor = Color.White,
+                BackColor = Color.Blue,
+                Margin = new Padding(5),
+            };
+            panel.Controls.Add(clearCustomerButton, 5, 1);
+
+            clearCustomerButton.Click += (sender, e) => ClearCustomerForm();
+
             panel.SetColumnSpan(customerNameText, 2);
 
             InitBillingHeaderFormEvent();
             return panel;
 
+        }
+
+        private void ClearCustomerForm()
+        {
+            TextBoxKeyEvent.BindPlaceholderToTextBox(customerNameText, customerNamePlaceHolder, Color.Gray);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(mobileNumberText, mobileNumberPlaceHolder, Color.Gray);
         }
 
         private void InitBillingHeaderFormEvent()
@@ -638,7 +738,7 @@ namespace StoreBillingSystem
             {
                 _billingItem.AskQty = float.Parse(qtyText.Text.Trim());
                 _billingItem.AskAmount = double.Parse(askingPriceText.Text.Trim());
-                _billingItem.SrNo = billingItems.Count + 1;
+                //_billingItem.SrNo = billingItems.Count + 1;
 
                 double totalAmt = _billingItem.SellingPrice * _billingItem.AskQty;
                 double totalDiscount = _billingItem.DiscountPrice * _billingItem.AskQty;
@@ -653,17 +753,36 @@ namespace StoreBillingSystem
                     _billingItem.TotalDiscount.ToString("C2"), 
                     _billingItem.Total.ToString("C2"));
                 */
-                billingTable.Rows.Add(_billingItem.SrNo, _billingItem.ProductSelling.Product.Name, _billingItem.ProductSelling.Product.ProductType.Abbr,
-                    _billingItem.AskQty,
-                    _billingItem.SellingPrice,
-                    _billingItem.TotalAmount,
-                    _billingItem.ProductSelling.GetTotalGSTInPercent(),
-                    _billingItem.TotalDiscount,
-                    _billingItem.Total);
+                //_billingItem.SrNo
 
+                //When update Item
+                if (_onUpdateItem)
+                {
+                    billingTable.Rows[billingTable.CurrentCell.RowIndex].Cells[3].Value = _billingItem.AskQty;
+                    billingTable.Rows[billingTable.CurrentCell.RowIndex].Cells[4].Value = _billingItem.SellingPrice;
+                    billingTable.Rows[billingTable.CurrentCell.RowIndex].Cells[5].Value = _billingItem.TotalAmount;
+                    billingTable.Rows[billingTable.CurrentCell.RowIndex].Cells[6].Value = _billingItem.ProductSelling.GetTotalGSTInPercent();
+                    billingTable.Rows[billingTable.CurrentCell.RowIndex].Cells[7].Value = _billingItem.TotalDiscount;
+                    billingTable.Rows[billingTable.CurrentCell.RowIndex].Cells[8].Value = _billingItem.Total;
 
-                //add to List collection
-                billingItems.Add(_billingItem);
+                    productNameText.ReadOnly = false;
+                    productCodeText.ReadOnly = false;
+                    _onUpdateItem = false;
+                }
+                else
+                {
+                    //When new added Item
+                    billingTable.Rows.Add("", _billingItem.ProductSelling.Product.Name, _billingItem.ProductSelling.Product.ProductType.Abbr,
+                        _billingItem.AskQty,
+                        _billingItem.SellingPrice,
+                        _billingItem.TotalAmount,
+                        _billingItem.ProductSelling.GetTotalGSTInPercent(),
+                        _billingItem.TotalDiscount,
+                        _billingItem.Total);
+
+                    //add to List collection
+                    billingItems.Add(_billingItem);
+                }
 
 
 
@@ -698,11 +817,17 @@ namespace StoreBillingSystem
 
         private void ClearProductForm()
         {
+            if (_onUpdateItem)
+            {
+                productNameText.ReadOnly = false;
+                productCodeText.ReadOnly = false;
+                _onUpdateItem = false;
+            }
+
+
             //productCodeText.Text = "";
             productTypes.Items.Clear();
 
-            TextBoxKeyEvent.BindPlaceholderToTextBox(customerNameText, customerNamePlaceHolder, Color.Gray);
-            TextBoxKeyEvent.BindPlaceholderToTextBox(mobileNumberText, mobileNumberPlaceHolder, Color.Gray);
             TextBoxKeyEvent.BindPlaceholderToTextBox(productNameText, productPlaceHolder, Color.Gray);
             TextBoxKeyEvent.BindPlaceholderToTextBox(productCodeText, searchCodePlaceHolder, Color.Gray);
             TextBoxKeyEvent.BindPlaceholderToTextBox(qtyText, qtyPercentPlaceHolder, Color.Gray);
@@ -992,8 +1117,109 @@ namespace StoreBillingSystem
 
 
             panel.Controls.Add(amtTable);
+
+            //PreparedBillingTableMouseMenu();
+            billingTable.CellMouseUp += BillingTable_CellMouseUp;
+            billingTable.CellFormatting += BillingTable_CellFormatting;
+
             return panel;
         }
+
+        private ContextMenuStrip mouseMenu;
+        private void PreparedBillingTableMouseMenu()
+        {
+            mouseMenu = new ContextMenuStrip();
+            mouseMenu.Items.Add("Update Item", null, OnUpdateItem);
+            mouseMenu.Items.Add("Remove Item", null, OnRemoveItem);
+            mouseMenu.Items.Add("Remove All Item", null, OnRemoveAllItem);
+
+        }
+        private void BillingTable_CellMouseUp(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                if(mouseMenu == null)
+                {
+                    // Select the row that was clicked
+                    billingTable.CurrentCell = billingTable.Rows[e.RowIndex].Cells[e.ColumnIndex];
+
+                    PreparedBillingTableMouseMenu();
+                    mouseMenu.Show(billingTable, e.Location);
+                }
+                mouseMenu = null;
+            }
+        }
+
+        private bool _onUpdateItem = false;
+        private void OnUpdateItem(object sender, EventArgs e)
+        {
+
+            _billingItem = billingItems[billingTable.CurrentCell.RowIndex];
+
+            productNameText.Text = _billingItem.ProductSelling.Product.Name;
+            productNameText.ForeColor = Color.Black;
+
+
+            productTypes.Items.Clear();
+            productTypes.Items.Add(_billingItem.ProductSelling.Product.ProductType.Abbr);
+            productTypes.SelectedIndex = 0;
+
+
+            productCodeText.Text = _billingItem.ProductSelling.Product.Id.ToString();
+            productCodeText.ForeColor = Color.Black;
+
+            qtyText.Text = _billingItem.AskQty.ToString();
+            qtyText.ForeColor = Color.Black;
+
+            askingPriceText.Text = _billingItem.AskAmount.ToString();
+            askingPriceText.ForeColor = Color.Black;
+
+            productNameText.ReadOnly = true;
+            productNameText.BackColor = Color.White;
+            productCodeText.ReadOnly = true;
+            productCodeText.BackColor = Color.White;
+
+            _onUpdateItem = true;
+        }
+
+        private void OnRemoveItem(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show($"Do you want to remove the selected Item with Sr No.:{billingTable.CurrentCell.RowIndex+1}?", "Delete Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                billingItems.RemoveAt(billingTable.CurrentCell.RowIndex);
+                // Delete the row from the DataGridView
+                billingTable.Rows.RemoveAt(billingTable.CurrentCell.RowIndex);
+                UpdateTotalAmountTable();
+            }
+
+        }
+
+        private void OnRemoveAllItem(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show($"Do you want to remove all Items?", "Delete Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                billingTable.Rows.Clear();
+                billingItems.Clear();
+                UpdateTotalAmountTable();
+            }
+
+        }
+
+        private void BillingTable_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            // Check if the current cell is in the first column (index 0) and not a header cell
+            if (e.ColumnIndex == 0 && e.RowIndex >= 0)
+            {
+                // Set the value to the current row index plus the initial serial number
+                e.Value = e.RowIndex + 1;
+                e.FormattingApplied = true;
+            }
+        }
+
 
 
     }

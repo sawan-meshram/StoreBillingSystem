@@ -75,6 +75,10 @@
     <Compile Include="Entity\BillingItem.cs" />
     <Compile Include="Util\SellingType.cs" />
     <Compile Include="CustomerCustomDialogBox.cs" />
+    <Compile Include="Entity\Billing.cs" />
+    <Compile Include="Entity\BillingDate.cs" />
+    <Compile Include="Entity\BillingDetails.cs" />
+    <Compile Include="Entity\Item.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Database\" />

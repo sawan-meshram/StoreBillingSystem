@@ -39,6 +39,7 @@ namespace StoreBillingSystem.Database
             CreateBillingDateTable();
             CreateBillingTable();
             CreateBillingDetailsTable();
+            CreatePaymentTable();
         }
 
         private void CreateCategoryTable()
@@ -249,6 +250,31 @@ namespace StoreBillingSystem.Database
                 // Execute the SQL command.
                 int row = command.ExecuteNonQuery();
                 if (row == 1) Console.WriteLine("'BillingDetails' Table Created...");
+            }
+        }
+
+        private void CreatePaymentTable()
+        {
+            using (SqliteCommand command = _conn.CreateCommand())
+            {
+                // Specify the SQL command to create a table.
+                command.CommandText = @"CREATE TABLE IF NOT EXISTS Payment (
+                    ID INTEGER PRIMARY KEY AUTOINCREMENT, 
+                    Billing_ID INTEGER,
+                    PAYMENT_MODE TEXT NOT NULL,
+                    STATUS TEXT NOT NULL,
+                    PAID_AMOUNT REAL DEFAULT 0,
+                    PAID_DATE TEXT NULL,
+                    BALANCE_AMOUNT REAL DEFAULT 0,
+                    BALANCE_PAID_DATE TEXT NULL,
+                    FOREIGN KEY (Billing_ID) REFERENCES Billing (ID) 
+                        ON DELETE CASCADE 
+                        ON UPDATE NO ACTION
+                    );";
+
+                // Execute the SQL command.
+                int row = command.ExecuteNonQuery();
+                if (row == 1) Console.WriteLine("'Payment' Table Created...");
             }
         }
     }

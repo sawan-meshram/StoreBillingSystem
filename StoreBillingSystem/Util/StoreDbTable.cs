@@ -8,6 +8,10 @@ namespace StoreBillingSystem.Util
         Product,
         ProductPurchase,
         ProductSelling,
-        Customer
+        Customer,
+        BillingDate,
+        Billing,
+        BillingDetails,
+        Payment
     }
 }

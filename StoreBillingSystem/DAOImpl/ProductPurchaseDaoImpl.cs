@@ -94,7 +94,7 @@ namespace StoreBillingSystem.DAOImpl
                 {
                     while (reader.Read())
                     {
-                        purchase = new ProductPurchase()
+                        purchase = new ProductPurchase
                         {
                             Id = reader.GetInt64(reader.GetOrdinal("ID")),
                             PurchaseDate = reader.GetString(reader.GetOrdinal("PURCHASE_DATE")),
@@ -129,7 +129,7 @@ namespace StoreBillingSystem.DAOImpl
                 {
                     while (reader.Read())
                     {
-                        purchases.Add(new ProductPurchase()
+                        purchases.Add(new ProductPurchase
                         {
                             Id = reader.GetInt64(reader.GetOrdinal("ID")),
                             PurchaseDate = reader.GetString(reader.GetOrdinal("PURCHASE_DATE")),
@@ -161,7 +161,7 @@ namespace StoreBillingSystem.DAOImpl
                 {
                     while (reader.Read())
                     {
-                        ProductPurchase purchase = new ProductPurchase()
+                        ProductPurchase purchase = new ProductPurchase
                         {
                             Id = reader.GetInt64(reader.GetOrdinal("ID")),
                             PurchaseDate = reader.GetString(reader.GetOrdinal("PURCHASE_DATE")),

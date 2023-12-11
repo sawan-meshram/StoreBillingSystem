@@ -95,7 +95,7 @@ namespace StoreBillingSystem.DAOImpl
                 {
                     while (reader.Read())
                     {
-                        selling = new ProductSelling()
+                        selling = new ProductSelling
                         {
                             Id = reader.GetInt64(reader.GetOrdinal("ID")),
                             SellingPrice_A = reader.GetDouble(reader.GetOrdinal("PRICE_A")),
@@ -130,7 +130,7 @@ namespace StoreBillingSystem.DAOImpl
                 {
                     while (reader.Read())
                     {
-                        ProductSelling selling = new ProductSelling()
+                        ProductSelling selling = new ProductSelling
                         {
                             Id = reader.GetInt64(reader.GetOrdinal("ID")),
                             SellingPrice_A = reader.GetDouble(reader.GetOrdinal("PRICE_A")),
@@ -168,7 +168,7 @@ namespace StoreBillingSystem.DAOImpl
                 {
                     while (reader.Read())
                     {
-                        selling = new ProductSelling()
+                        selling = new ProductSelling
                         {
                             Id = reader.GetInt64(reader.GetOrdinal("ID")),
                             SellingPrice_A = reader.GetDouble(reader.GetOrdinal("PRICE_A")),

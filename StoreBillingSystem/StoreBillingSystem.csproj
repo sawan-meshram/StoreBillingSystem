@@ -79,6 +79,17 @@
     <Compile Include="Entity\BillingDate.cs" />
     <Compile Include="Entity\BillingDetails.cs" />
     <Compile Include="Entity\Item.cs" />
+    <Compile Include="DAO\IBillingDateDao.cs" />
+    <Compile Include="DAO\IBillingDao.cs" />
+    <Compile Include="DAO\IBillingDetailsDao.cs" />
+    <Compile Include="Entity\PaymentMode.cs" />
+    <Compile Include="Entity\Payment.cs" />
+    <Compile Include="Entity\BillingStatus.cs" />
+    <Compile Include="DAO\IPaymentDao.cs" />
+    <Compile Include="DAOImpl\BillingDaoImpl.cs" />
+    <Compile Include="DAOImpl\BillingDateDaoImpl.cs" />
+    <Compile Include="DAOImpl\PaymentDaoImpl.cs" />
+    <Compile Include="DAOImpl\BillingDetailsDaoImpl.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Database\" />

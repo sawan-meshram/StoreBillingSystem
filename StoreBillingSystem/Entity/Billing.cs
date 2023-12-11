@@ -14,7 +14,7 @@ namespace StoreBillingSystem.Entity
         }
 
 
-        public Billing(long id, long billingNumber, string billingDateTime, BillingDate billingDate, Customer customer, 
+        public Billing(long id, long billingNumber, string billingDateTime, BillingDate billingDate, Customer customer,
             double grossAmt, double gstInPrice, double discountInPrice, double netAmt) : this (billingNumber, billingDateTime)
         {
             Id = id;
@@ -32,6 +32,7 @@ namespace StoreBillingSystem.Entity
 
         public BillingDate BillingDate { get; set; }
         public Customer Customer { get; set; }
+
         public double GrossAmount { get; set; }
         public double GSTPrice { get; set; }
         public double DiscountPrice { get; set; }

@@ -159,7 +159,7 @@ namespace StoreBillingSystem.DAOImpl
                 {
                     while (reader.Read())
                     {
-                        product = new Product()
+                        product = new Product
                         {
                             Id = reader.GetInt64(reader.GetOrdinal("ID")),
                             Name = reader.GetString(reader.GetOrdinal("NAME")),
@@ -205,7 +205,7 @@ namespace StoreBillingSystem.DAOImpl
                 {
                     while (reader.Read())
                     {
-                        product = new Product()
+                        product = new Product
                         {
                             Id = reader.GetInt64(reader.GetOrdinal("ID")),
                             Name = reader.GetString(reader.GetOrdinal("NAME")),
@@ -258,7 +258,7 @@ namespace StoreBillingSystem.DAOImpl
                         );
                         */
 
-                        Product product = new Product()
+                        Product product = new Product
                         {
                             Id = reader.GetInt64(reader.GetOrdinal("ID")),
                             Name = reader.GetString(reader.GetOrdinal("NAME")),

@@ -22,7 +22,8 @@ namespace StoreBillingSystem
 
             //Application.Run(new MainForm());
 
-            Application.Run(new BillingForm());
+            //Application.Run(new BillingForm());
+            Application.Run(new BillingForm1());
             //Application.Run(new AddCustomer());
             //Application.Run(new ProductForm());
 

@@ -90,6 +90,8 @@
     <Compile Include="DAOImpl\BillingDateDaoImpl.cs" />
     <Compile Include="DAOImpl\PaymentDaoImpl.cs" />
     <Compile Include="DAOImpl\BillingDetailsDaoImpl.cs" />
+    <Compile Include="AbstractBillingForm.cs" />
+    <Compile Include="BillingForm1.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Database\" />

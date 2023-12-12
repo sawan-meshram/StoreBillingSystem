@@ -169,14 +169,33 @@ namespace StoreBillingSystem
             panel.Controls.Add(newBillingButton, 4, 0);
 
             clearBillingButton.Click += (sender, e) => ClearAll();
+            saveBillingButton.Click +=(sender, e) => SaveBilling();
             return panel;
 
         }
+
+        private void SaveBilling()
+        {
+            DialogResult result = MessageBox.Show($"Do you want to save this bill?", "Save Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+
+            }
+        }
+
         private void ClearAll()
         {
             ClearCustomerForm();
             ClearProductForm();
 
+            //Items clear
+            billingItems.Clear();
+            billingTable.Rows.Clear();
+            TotalAmountTableChangedToDefault();
+
+            //Set to Current Time
+            billDateTimePicker.Value = DateTime.Now;
         }
 
         private void BillingForm_KeyDown(object sender, KeyEventArgs e)
@@ -198,12 +217,20 @@ namespace StoreBillingSystem
 
         private List<string> productNames;
 
+        private BillingDate billingDate;
         private IProductDao productDao;
         private IProductSellingDao productSellingDao;
         private ICustomerDao customerDao;
+        private IBillingDateDao billingDateDao;
+        private IBillingDao billingDao;
         private void InitComponentsData()
         {
             SqliteConnection connection = DatabaseManager.GetConnection();
+
+            billingDateDao = new BillingDateDaoImpl(connection);
+            billingDao = new BillingDaoImpl(connection);
+
+            BillingDateChanged();
 
             productDao = new ProductDaoImpl(connection);
             productSellingDao = new ProductSellingDaoImpl(connection);
@@ -224,6 +251,23 @@ namespace StoreBillingSystem
 
         }
 
+        private void BillingDateChanged()
+        {
+            DateTime billDate = billDateTimePicker.Value;
+            billingDate = new BillingDate(U.ToDate(billDate));
+
+            if (!billingDateDao.IsRecordExists(billingDate.BillDate))
+            {
+                billingDateDao.Insert(billingDate);
+            }
+            else
+            {
+                billingDate = billingDateDao.Read(billingDate.BillDate);
+            }
+
+            //Set Billing Number
+            billingNumText.Text = billingDao.GetNewBillingNumber(billingDate).ToString();
+        }
 
         private string customerNamePlaceHolder = U.ToTitleCase("Enter customer name ...");
         private string mobileNumberPlaceHolder = U.ToTitleCase("Enter mobile number ...");
@@ -231,7 +275,7 @@ namespace StoreBillingSystem
         private TextBox billingNumText;
         private TextBox customerNameText;
         private TextBox mobileNumberText;
-        private DateTimePicker dateTimePicker;
+        private DateTimePicker billDateTimePicker;
 
         private Panel GetHeaderForm()
         {
@@ -268,7 +312,9 @@ namespace StoreBillingSystem
             {
                 Dock = DockStyle.Fill,
                 Font = textfieldFont,
-                Margin = new Padding(5)
+                Margin = new Padding(5),
+                BackColor = Color.White,
+                ReadOnly = true
             };
             panel.Controls.Add(billingNumText, 1, 0);
 
@@ -282,7 +328,7 @@ namespace StoreBillingSystem
             }, 5, 0);
 
 
-            dateTimePicker = new DateTimePicker
+            billDateTimePicker = new DateTimePicker
             {
                 //CustomFormat = "yyyy-MM-dd HH:mm:ss",
                 Format = DateTimePickerFormat.Short,
@@ -290,7 +336,7 @@ namespace StoreBillingSystem
                 Font = textfieldFont,
                 Margin = new Padding(5)
             };
-            panel.Controls.Add(dateTimePicker, 6, 0);
+            panel.Controls.Add(billDateTimePicker, 6, 0);
 
             //Customer Name
             panel.Controls.Add(new Label
@@ -349,10 +395,18 @@ namespace StoreBillingSystem
             panel.SetColumnSpan(customerNameText, 2);
 
             InitBillingHeaderFormEvent();
+
             return panel;
 
         }
 
+        private void BillDateTimePicker_ValueChanged(object sender, EventArgs e)
+        {
+            // Handle the ValueChanged event when billing date changed
+            BillingDateChanged();
+        }
+
+       
         private void ClearCustomerForm()
         {
             TextBoxKeyEvent.BindPlaceholderToTextBox(customerNameText, customerNamePlaceHolder, Color.Gray);
@@ -374,9 +428,12 @@ namespace StoreBillingSystem
 
             customerNameText.KeyDown += CustomerNameText_KeyDown;
             mobileNumberText.KeyDown += MobileNumberText_KeyDown;
+
+            billDateTimePicker.ValueChanged += BillDateTimePicker_ValueChanged;
+
         }
 
-       
+
 
         private DataGridView customerTable;
         private Customer _customer;
@@ -1098,7 +1155,7 @@ namespace StoreBillingSystem
 
             amtTable.Rows[0].DefaultCellStyle.Font = new Font("Arial", 10, FontStyle.Bold); // Replace "Arial" with your desired font
 
-            amtTable.Rows.Add("", "Total (Rs.)", "", "", "", 0.00.ToString("C2"), 0.00.ToString("C2"), 0.00.ToString("C2"), 0.00.ToString("C2"));
+            //amtTable.Rows.Add("", "Total (Rs.)", "", "", "", 0.00.ToString("C2"), 0.00.ToString("C2"), 0.00.ToString("C2"), 0.00.ToString("C2"));
             amtTable.ColumnHeadersVisible = false;
             amtTable.AllowUserToAddRows = false;
             amtTable.AutoGenerateColumns = false;
@@ -1110,6 +1167,7 @@ namespace StoreBillingSystem
             amtTable.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             amtTable.MultiSelect = false;
 
+            TotalAmountTableChangedToDefault();
 
             //amtTable.RowHeadersDefaultCellStyle.Font = new Font("Arial", 10);
             //amtTable.ColumnHeadersDefaultCellStyle.Font = textfieldFont;
@@ -1123,6 +1181,12 @@ namespace StoreBillingSystem
             billingTable.CellFormatting += BillingTable_CellFormatting;
 
             return panel;
+        }
+
+        private void TotalAmountTableChangedToDefault()
+        {
+            amtTable.Rows.Clear();
+            amtTable.Rows.Add("", "Total (Rs.)", "", "", "", 0.00.ToString("C2"), 0.00.ToString("C2"), 0.00.ToString("C2"), 0.00.ToString("C2"));
         }
 
         private ContextMenuStrip mouseMenu;

@@ -1039,7 +1039,7 @@ namespace StoreBillingSystem
             Panel panel = new Panel
             {
                 //FlowDirection = FlowDirection.LeftToRight,
-                Dock = DockStyle.Fill,
+                Dock = DockStyle.None,
                 BackColor = Color.Brown,
                 //Size = new Size(1000, 500),
                 //Location = new Point(55, 155),

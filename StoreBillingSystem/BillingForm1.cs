@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Printing;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using Mono.Data.Sqlite;
@@ -34,6 +35,7 @@ namespace StoreBillingSystem
         private IBillingDateDao billingDateDao;
         private IBillingDao billingDao;
         private IBillingDetailsDao billingDetailsDao;
+        private IPaymentDao paymentDao;
         private DataGridView customerTable;
         private Customer _customer;
         private BillingDate _billingDate;
@@ -43,7 +45,7 @@ namespace StoreBillingSystem
 
         private DataGridView productSellingTable;
         private BillingItem _billingItem;
-
+        private BillingDetails _billingDetails;
 
         public BillingForm1()
         {
@@ -52,7 +54,12 @@ namespace StoreBillingSystem
             //FormBorderStyle = FormBorderStyle.None;
             // Create the main form
             this.Text = "Billing";
-            this.Size = new Size(1366, 768);
+            //this.Size = new Size(1366, 768);
+
+            this.Size = Screen.PrimaryScreen.WorkingArea.Size;
+
+            this.MinimumSize = new Size(1366, 768); // Set your minimum size
+            this.MaximumSize = new Size(1366, 768); // Set your maximum size
 
             // Set the KeyPreview property of the form to true
             this.KeyPreview = true;
@@ -80,7 +87,8 @@ namespace StoreBillingSystem
             billingDateDao = new BillingDateDaoImpl(connection);
             billingDao = new BillingDaoImpl(connection);
             billingDetailsDao = new BillingDetailsDaoImpl(connection);
-
+            paymentDao = new PaymentDaoImpl(connection);
+            
             BillingDateChanged();
 
             productDao = new ProductDaoImpl(connection);
@@ -770,9 +778,9 @@ namespace StoreBillingSystem
 
         private void SaveBilling()
         {
-            DialogResult result = MessageBox.Show($"Do you want to save this bill?", "Save Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            //DialogResult result = MessageBox.Show($"Do you want to save this bill?", "Save Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-            if (result == DialogResult.Yes)
+            //if (result == DialogResult.Yes)
             {
                 if (!ValidationOnBillingForm()) return;
 
@@ -794,7 +802,7 @@ namespace StoreBillingSystem
                     NetAmount = netAmt
                 };
 
-                BillingDetails details = new BillingDetails
+                _billingDetails = new BillingDetails
                 {
                     Billing = billing,
                     Items = new List<Item>()
@@ -802,7 +810,7 @@ namespace StoreBillingSystem
 
                 for(int i = 0; i < billingItems.Count; i++)
                 {
-                    details.Items.Add(new Item
+                    _billingDetails.Items.Add(new Item
                     {
                         SrNum = i+1, //long.Parse(billingTable.Rows[i].Cells[0].Value.ToString())
                         Product = billingItems[i].ProductSelling.Product,
@@ -816,14 +824,34 @@ namespace StoreBillingSystem
                     );
 
                 }
-                //Write code to insert into database
-                bool isBillingInsert = billingDao.Insert(billing);
-                bool isBillingDetailsInsert = billingDetailsDao.Insert(details);
+                Payment payment = new Payment(billing);
 
-                if(isBillingInsert && isBillingDetailsInsert)
+
+                CustomPaymentDialogBox customPaymentDialogBox = new CustomPaymentDialogBox(payment);
+                if (customPaymentDialogBox.ShowDialog() == DialogResult.OK)
                 {
-                    MessageBox.Show("Save successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    Console.WriteLine(payment);
+                    /*
+                    //Write code to insert into database
+                    bool isBillingInsert = billingDao.Insert(billing);
+                    bool isBillingDetailsInsert = billingDetailsDao.Insert(_billingDetails);
+                    bool isPaymentInsert = paymentDao.Insert(payment);
+
+
+                    if (isBillingInsert && isBillingDetailsInsert && isPaymentInsert)
+                    {
+                        MessageBox.Show("Save successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        ClearAll();
+                    }
+                    */
                 }
+                else
+                {
+                    _billingDetails = null;
+                }
+
+
             }
         }
 
@@ -844,7 +872,45 @@ namespace StoreBillingSystem
 
         private void PrintBilling()
         {
-            MessageBox.Show("No implementation added", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            if (!ValidationOnBillingForm()) return;
+
+            SaveBilling();
+
+            //MessageBox.Show("No implementation added", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            PrintDocument printDocument = new PrintDocument();
+            printDocument.PrintPage += PrintDocument_PrintPage;
+
+            // Create a PrintPreviewDialog to preview the printout
+            PrintPreviewDialog printPreviewDialog = new PrintPreviewDialog();
+            printPreviewDialog.Document = printDocument;
+            printPreviewDialog.ShowDialog();
+        }
+
+        private void PrintDocument_PrintPage(object sender, PrintPageEventArgs e)
+        {
+            // Set up the document layout for printing
+            Font headerFont = new Font("Arial", 14, FontStyle.Bold);
+            Font normalFont = new Font("Arial", 12);
+
+            int yPos = 20;
+
+            // Print customer information
+            e.Graphics.DrawString("Customer Name: " + _billingDetails.Billing.Customer.Name, headerFont, Brushes.Black, 20, yPos);
+            yPos += 30;
+            e.Graphics.DrawString("Customer Address: " + _billingDetails.Billing.Customer.Address, normalFont, Brushes.Black, 20, yPos);
+            yPos += 40;
+
+            // Print billing items
+            foreach (Item item in _billingDetails.Items)
+            {
+                string line = $"{item.Product.Name} - {item.Qty} x {item.Price}";
+                e.Graphics.DrawString(line, normalFont, Brushes.Black, 20, yPos);
+                yPos += 20;
+            }
+
+            // Print total amount
+            yPos += 10;
+            e.Graphics.DrawString("Total Amount: " + _billingDetails.Billing.NetAmount.ToString("C2"), headerFont, Brushes.Black, 20, yPos);
         }
     }
 }

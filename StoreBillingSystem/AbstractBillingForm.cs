@@ -7,8 +7,8 @@ namespace StoreBillingSystem
 {
     public class AbstractBillingForm : Form
     {
-        private Font labelFont = new Font("Arial", 12, FontStyle.Bold);
-        private Font textfieldFont = new Font("Arial", 12);
+        private Font labelFont = new Font("Arial", 11, FontStyle.Bold);
+        private Font textfieldFont = new Font("Arial", 11);
 
 
         private Panel topPanel;
@@ -33,7 +33,7 @@ namespace StoreBillingSystem
             topPanel = new Panel();
             topPanel.BackColor = Color.LightBlue;
             topPanel.Dock = DockStyle.Top;
-            topPanel.Height = 80;
+            topPanel.Height = 70;
 
 
             topPanel.Controls.Add(GetHeaderForm());
@@ -64,12 +64,12 @@ namespace StoreBillingSystem
             topPanel_1 = new Panel();
             topPanel_1.BackColor = Color.Yellow;
             topPanel_1.Dock = DockStyle.Top;
-            topPanel_1.Height = 100;
+            topPanel_1.Height = 95;
             topPanel_1.Controls.Add(GetProductForm());
 
             // Add panels to the form
+            //this.Controls.Add(topPanel_1);
             this.Controls.Add(topPanel_1);
-
             this.Controls.Add(topPanel);
 
             this.Controls.Add(bottomPanel);
@@ -478,13 +478,14 @@ namespace StoreBillingSystem
         /// <returns>The billing form.</returns>
         private Panel GetBillingForm()
         {
+            //FlowLayoutPanel panel = new FlowLayoutPanel
             Panel panel = new Panel
             {
-                //FlowDirection = FlowDirection.LeftToRight,
+                //FlowDirection = FlowDirection.TopDown,
                 Dock = DockStyle.Fill,
                 BackColor = Color.Brown,
                 //Size = new Size(1000, 500),
-                //Location = new Point(55, 155),
+                //Location = new Point(100, 165),
 
             };
 
@@ -495,13 +496,15 @@ namespace StoreBillingSystem
                 Dock = DockStyle.None,
                 BackgroundColor = Color.Cyan,
                 Margin = new Padding(0),
-                Location = new Point(100, 180),
-                //Left = 100,
-                //Top = 180,
-                Size = new Size(1160, 454),
+                Location = new Point(100, 165),
+                //Left = 300,
+                //Top = 280,
+                Size = new Size(1160, 454), //
+                ScrollBars = ScrollBars.Vertical,
                 //Font = textfieldFont,
                 //Width = 1160, //based on left & right panel width
             };
+
             billingTable.RowHeadersDefaultCellStyle.Font = new Font("Arial", 10, FontStyle.Bold);
             //dataGridView.ColumnHeadersDefaultCellStyle.Font = textfieldFont;
 
@@ -528,6 +531,8 @@ namespace StoreBillingSystem
             billingTable.Columns[6].Width = 100;
             billingTable.Columns[7].Width = 100;
             billingTable.Columns[8].Width = 150;
+            //billingTable.Columns[8].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+
 
             billingTable.Columns[4].DefaultCellStyle.Format = "C2";
             billingTable.Columns[5].DefaultCellStyle.Format = "C2";
@@ -571,7 +576,7 @@ namespace StoreBillingSystem
                 Dock = DockStyle.None,
                 BackgroundColor = Color.Blue,
                 Margin = new Padding(0),
-                Location = new Point(100, 630),
+                Location = new Point(100, 615),
                 //Left = 100,
                 //Top = 180,
                 Size = new Size(1160, 25),

@@ -92,6 +92,7 @@
     <Compile Include="DAOImpl\BillingDetailsDaoImpl.cs" />
     <Compile Include="AbstractBillingForm.cs" />
     <Compile Include="BillingForm1.cs" />
+    <Compile Include="CustomPaymentDialogBox.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Database\" />

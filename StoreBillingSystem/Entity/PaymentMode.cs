@@ -9,6 +9,7 @@ namespace StoreBillingSystem.Entity
         Cheques,
         Debit_Card,
         Cebit_Card,
-        Net_Banking
+        Net_Banking,
+        None
     }
 }

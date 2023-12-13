@@ -12,13 +12,17 @@ namespace StoreBillingSystem
         private TabPage billingTab;
         private TabPage productTab;
 
-        private BillingForm billingForm;
+        private BillingForm1 billingForm;
         private AddCustomer registrationForm;
         private ProductForm productForm;
         public MainForm()
         {
             this.Text = "Main Form";
-            this.Size = new Size(1366, 780);
+            //this.Size = new Size(1366, 780);
+            this.Size = Screen.PrimaryScreen.WorkingArea.Size;
+
+            this.MinimumSize = new Size(1366, 768); // Set your minimum size
+            //this.MaximumSize = new Size(1366, 768); // Set your maximum size
 
             InitComponents();
 
@@ -55,7 +59,7 @@ namespace StoreBillingSystem
             registrationForm.TopLevel = false;
             registrationForm.Dock = DockStyle.Fill;
 
-            billingForm = new BillingForm();
+            billingForm = new BillingForm1();
             billingForm.TopLevel = false;
             billingForm.Dock = DockStyle.Fill;
 

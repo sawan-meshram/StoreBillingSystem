@@ -12,6 +12,11 @@ namespace StoreBillingSystem.Entity
             Id = id;
         }
 
+        public Payment(Billing billing)
+        {
+            Billing = billing;
+        }
+
         public Payment(long id, Billing billing, PaymentMode mode, BillingStatus status, double paidAmt, string paidDate, double balanceAmt, string balancePaidDate): this(id)
         {
             Billing = billing;

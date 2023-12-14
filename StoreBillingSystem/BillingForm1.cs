@@ -66,7 +66,7 @@ namespace StoreBillingSystem
 
             //add event to form
             this.KeyDown += BillingForm_KeyDown;
-
+            this.BackColor = U.StoreMainBackColor;
 
             InitBillingHeaderFormEvent();
             InitAddProductFormEvent();
@@ -465,6 +465,12 @@ namespace StoreBillingSystem
             amtTable.Rows[0].Cells[6].Value = 0;
             amtTable.Rows[0].Cells[7].Value = totalDiscount;
             amtTable.Rows[0].Cells[8].Value = total;
+
+            var indianNumberFormat = System.Globalization.CultureInfo.CreateSpecificCulture("en-IN"); // Create a culture-specific NumberFormatInfo object for Indian currency
+            string netAmountInWords = totalDiscount.ToString("C2", indianNumberFormat); // "One Thousand Two Hundred Thirty-Four Rupees and Fifty-Six Paise"
+
+
+
         }
 
 

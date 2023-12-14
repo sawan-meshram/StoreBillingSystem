@@ -93,6 +93,7 @@
     <Compile Include="AbstractBillingForm.cs" />
     <Compile Include="BillingForm1.cs" />
     <Compile Include="CustomPaymentDialogBox.cs" />
+    <Compile Include="CustomerDisplayForm.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Database\" />

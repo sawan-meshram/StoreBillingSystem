@@ -4,23 +4,26 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Linq;
 
+using StoreBillingSystem.Database;
+using StoreBillingSystem.DAO;
+using StoreBillingSystem.DAOImpl;
 using StoreBillingSystem.Entity;
 using StoreBillingSystem.Events;
 using StoreBillingSystem.Util;
 
 namespace StoreBillingSystem
 {
-    public class CustomerCustomDialogBox : Form
+    public class CustomerDisplayForm : Form
     {
-
-        public CustomerCustomDialogBox(DataGridView customerTable, IList<Customer> customers)
+        public CustomerDisplayForm()
         {
-            this.customers = customers;
-            this.customerTable = customerTable;
+            ICustomerDao customerDao = new CustomerDaoImpl(DatabaseManager.GetConnection());
+            customers = customerDao.ReadAll();
 
             InitializeComponent();
+            InitializeCustomerData();
 
-
+            InitCustomerDialogFormEvent();
         }
 
         private DataGridView customerTable;
@@ -31,21 +34,26 @@ namespace StoreBillingSystem
 
         private TextBox customerNameText;
         private TextBox phoneText;
+        private Button okButton;
+        private Button viewButton;
+        private Button deleteButton;
+        private Button updateButton;
 
+        public bool IsCustomerModified { get; private set; }
 
         private string _customerNamePlaceHolder = U.ToTitleCase("Search Customer Name Here..");
         private string _phonePlaceHolder = U.ToTitleCase("Search Phone Number Here..");
 
         private void InitializeComponent()
         {
-            Text = "Choose Customer";
+            Text = "Customer Details";
 
             HelpButton = true; // Display a help button on the form
             FormBorderStyle = FormBorderStyle.FixedDialog; // Define the border style of the form to a dialog box.
             MaximizeBox = false; // Set the MaximizeBox to false to remove the maximize box.
             MinimizeBox = false; // Set the MinimizeBox to false to remove the minimize box.
             StartPosition = FormStartPosition.CenterScreen; // Set the start position of the form to the center of the screen.
-            Size = new Size(1000, 600);
+            Size = new Size(1000, 650);
             BackColor = U.StoreDialogBackColor;
             AutoScroll = true;
 
@@ -53,8 +61,8 @@ namespace StoreBillingSystem
             TableLayoutPanel table = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                ColumnCount = 4,
-                RowCount = 5,
+                ColumnCount = 6,
+                RowCount = 6,
                 CellBorderStyle = TableLayoutPanelCellBorderStyle.None,
                 //BackColor = Color.Lime,
             };
@@ -62,13 +70,24 @@ namespace StoreBillingSystem
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-0
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 10F)); //row-1
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 460F)); //row-2 //DataGridView
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F)); //row-3
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F)); //row-3
 
-
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100f)); //name
             table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 350f)); //name
             table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F)); //black
             table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 300F)); //phone
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 90F)); //phone
 
+
+            table.Controls.Add(new Label 
+            { 
+                Text = "Search :", 
+                Font = labelFont, 
+                Dock = DockStyle.Fill, 
+                ForeColor = Color.Black, 
+                TextAlign = ContentAlignment.MiddleRight, 
+            }, 0, 0);
 
             customerNameText = new TextBox
             {
@@ -78,7 +97,7 @@ namespace StoreBillingSystem
                 Text = _customerNamePlaceHolder,
                 ForeColor = Color.Gray,
             };
-            table.Controls.Add(customerNameText, 0, 0);
+            table.Controls.Add(customerNameText, 1, 0);
 
             phoneText = new TextBox
             {
@@ -88,7 +107,27 @@ namespace StoreBillingSystem
                 Text = _phonePlaceHolder,
                 ForeColor = Color.Gray,
             };
-            table.Controls.Add(phoneText, 2, 0);
+            table.Controls.Add(phoneText, 3, 0);
+
+            Button clearButton = new Button
+            {
+                Text = "Clear",
+                Dock = DockStyle.Fill,
+                DialogResult = DialogResult.OK,
+                Font = labelFont,
+                ForeColor = Color.White,
+                BackColor = Color.Blue,
+                Margin = new Padding(5)
+            };
+            table.Controls.Add(clearButton, 4, 0);
+
+            customerTable = new DataGridView
+            {
+                Dock = DockStyle.Fill,
+                BackgroundColor = Color.LightGray,
+                Margin = new Padding(0),
+                ScrollBars = ScrollBars.Vertical,
+            };
 
             customerTable.RowHeadersDefaultCellStyle.Font = U.StoreLabelFont;
             customerTable.ColumnCount = 5;
@@ -145,14 +184,14 @@ namespace StoreBillingSystem
             TableLayoutPanel table1 = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                ColumnCount = 4,
+                ColumnCount = 6,
                 RowCount = 1,
                 CellBorderStyle = TableLayoutPanelCellBorderStyle.None,
                 //BackColor = Color.Gold
             };
-            table1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 25f)); //name
+            table1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 220)); //name
 
-            Button okButton = new Button
+            okButton = new Button
             {
                 Text = "Ok",
                 Dock = DockStyle.Fill,
@@ -162,9 +201,10 @@ namespace StoreBillingSystem
                 BackColor = Color.Blue,
                 Margin = new Padding(5)
             };
-            Button cancelButton = new Button
+
+            viewButton = new Button
             {
-                Text = "Cancel",
+                Text = "View",
                 DialogResult = DialogResult.Cancel,
                 Dock = DockStyle.Fill,
                 Font = labelFont,
@@ -172,23 +212,44 @@ namespace StoreBillingSystem
                 BackColor = Color.Blue,
                 Margin = new Padding(5)
             };
-            CancelButton = cancelButton;
 
-            okButton.Click += OkButton_Click;
-            cancelButton.Click += CancelButton_Click;
+            deleteButton = new Button
+            {
+                Text = "Delete",
+                DialogResult = DialogResult.Cancel,
+                Dock = DockStyle.Fill,
+                Font = labelFont,
+                ForeColor = Color.White,
+                BackColor = Color.Blue,
+                Margin = new Padding(5)
+            };
+            updateButton = new Button
+            {
+                Text = "Update",
+                DialogResult = DialogResult.Cancel,
+                Dock = DockStyle.Fill,
+                Font = labelFont,
+                ForeColor = Color.White,
+                BackColor = Color.Blue,
+                Margin = new Padding(5)
+            };
+            CancelButton = okButton;
 
-            table1.Controls.Add(cancelButton, 1, 0);
-            table1.Controls.Add(okButton, 2, 0);
 
-            table.Controls.Add(table1, 2, 3);
+
+            table1.Controls.Add(updateButton, 1, 0);
+            table1.Controls.Add(deleteButton, 2, 0);
+            table1.Controls.Add(viewButton, 3, 0);
+            table1.Controls.Add(okButton, 4, 0);
+
+            table.Controls.Add(table1, 1, 4);
+            table.SetColumnSpan(table1, 4);
 
 
 
             Controls.Add(table);
 
-            InitializeCustomerData();
 
-            InitCustomerDialogFormEvent();
         }
 
         private void InitializeCustomerData()
@@ -203,7 +264,7 @@ namespace StoreBillingSystem
             */
             customerTable.DataSource = null;
             customerTable.DataSource = customers;
-                       
+
         }
 
 
@@ -224,7 +285,7 @@ namespace StoreBillingSystem
 
             customerTable.DataSource = null;
             customerTable.DataSource = filteredList;
-                      
+
         }
         private void searchPhoneTextBox_TextChanged(object sender, EventArgs e)
         {
@@ -241,9 +302,9 @@ namespace StoreBillingSystem
 
             customerTable.DataSource = null;
             customerTable.DataSource = filteredList;
-                     
+
         }
-    
+
 
         private void InitCustomerDialogFormEvent()
         {
@@ -258,20 +319,32 @@ namespace StoreBillingSystem
 
             customerNameText.TextChanged += searchCustomerTextBox_TextChanged;
             phoneText.TextChanged += searchPhoneTextBox_TextChanged;
+
+            okButton.Click += OkButton_Click;
+            viewButton.Click += ViewButton_Click;
+            deleteButton.Click += DeleteButton_Click;
+            updateButton.Click += UpdateButton_Click;
         }
 
 
         private void OkButton_Click(object sender, EventArgs e)
         {
-            DialogResult = DialogResult.OK;
+            //DialogResult = DialogResult.OK;
             Close();
         }
 
-        private void CancelButton_Click(object sender, EventArgs e)
+        private void ViewButton_Click(object sender, EventArgs e)
         {
-            DialogResult = DialogResult.Cancel;
-            Close();
+            //DialogResult = DialogResult.Cancel;
+            //Close();
         }
 
+        private void UpdateButton_Click(object sender, EventArgs e)
+        {
+        }
+
+        private void DeleteButton_Click(object sender, EventArgs e)
+        {
+        }
     }
 }

@@ -39,22 +39,24 @@ namespace StoreBillingSystem
             topPanel.Controls.Add(GetHeaderForm());
 
             bottomPanel = new Panel();
-            bottomPanel.BackColor = Color.LightGreen;
+            //bottomPanel.BackColor = Color.LightGreen;
             bottomPanel.Dock = DockStyle.Bottom;
             bottomPanel.Height = 50;
+            bottomPanel.Controls.Add(GetFooterForm());
+
 
             leftPanel = new Panel();
-            leftPanel.BackColor = Color.LightYellow;
+            //leftPanel.BackColor = Color.LightYellow;
             leftPanel.Dock = DockStyle.Left;
             leftPanel.Width = 100;
 
             rightPanel = new Panel();
-            rightPanel.BackColor = Color.LightCoral;
+            //rightPanel.BackColor = Color.Bisque;
             rightPanel.Dock = DockStyle.Right;
             rightPanel.Width = 100;
 
             centerPanel = new Panel();
-            centerPanel.BackColor = Color.White;
+            //centerPanel.BackColor = Color.White;
             centerPanel.Dock = DockStyle.Fill;
 
 
@@ -62,7 +64,7 @@ namespace StoreBillingSystem
 
             // Create panels for each region
             topPanel_1 = new Panel();
-            topPanel_1.BackColor = Color.Yellow;
+            //topPanel_1.BackColor = Color.Bisque;
             topPanel_1.Dock = DockStyle.Top;
             topPanel_1.Height = 95;
             topPanel_1.Controls.Add(GetProductForm());
@@ -78,7 +80,6 @@ namespace StoreBillingSystem
             this.Controls.Add(rightPanel);
             this.Controls.Add(centerPanel);
 
-            bottomPanel.Controls.Add(GetFooterForm());
 
 
         }
@@ -101,7 +102,7 @@ namespace StoreBillingSystem
                 CellBorderStyle = TableLayoutPanelCellBorderStyle.None,
                 //Size = new Size(1100, 90),
                 //Location = new Point(0, 0),
-                BackColor = Color.MintCream,
+                //BackColor = Color.MintCream,
                 RowCount = 2,
                 ColumnCount = 6
             };
@@ -328,7 +329,8 @@ namespace StoreBillingSystem
                 CellBorderStyle = TableLayoutPanelCellBorderStyle.None,
                 //Size = new Size(1100, 50),
                 //Location = new Point(0, 0),
-                BackColor = Color.YellowGreen,
+                //BackColor = Color.YellowGreen,
+                //BackColor = Color.LightBlue,
                 ColumnCount = 8
             };
 
@@ -483,7 +485,7 @@ namespace StoreBillingSystem
             {
                 //FlowDirection = FlowDirection.TopDown,
                 Dock = DockStyle.Fill,
-                BackColor = Color.Brown,
+                //BackColor = Color.Brown,
                 //Size = new Size(1000, 500),
                 //Location = new Point(100, 165),
 
@@ -494,7 +496,7 @@ namespace StoreBillingSystem
             billingTable = new DataGridView
             {
                 Dock = DockStyle.None,
-                BackgroundColor = Color.Cyan,
+                BackgroundColor = Color.Bisque,
                 Margin = new Padding(0),
                 Location = new Point(100, 165),
                 //Left = 300,

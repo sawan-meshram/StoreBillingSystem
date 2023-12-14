@@ -41,7 +41,7 @@ namespace StoreBillingSystem
             MinimizeBox = false; // Set the MinimizeBox to false to remove the minimize box.
             StartPosition = FormStartPosition.CenterScreen; // Set the start position of the form to the center of the screen.
             Size = new Size(350, 400);
-            BackColor = Color.Yellow;
+            BackColor = U.StoreDialogBackColor;
             AutoScroll = true;
 
 

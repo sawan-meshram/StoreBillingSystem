@@ -14,8 +14,9 @@ namespace StoreBillingSystem.Util
         public static readonly Font StoreLabelFont = new Font("Arial", 11, FontStyle.Bold);
         public static readonly Font StoreTextBoxFont = new Font("Arial", 11);
         public static readonly Font StoreTitleFont = new Font("Arial", 16, FontStyle.Bold);
-       
 
+        public static readonly Color StoreMainBackColor = Color.Aquamarine;
+        public static readonly Color StoreDialogBackColor = Color.Bisque;
 
         //Convert string to capitalise except the upper case
         public static string ToTitleCase(string title)

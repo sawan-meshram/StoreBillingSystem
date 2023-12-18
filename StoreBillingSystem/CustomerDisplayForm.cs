@@ -15,10 +15,19 @@ namespace StoreBillingSystem
 {
     public class CustomerDisplayForm : Form
     {
+
         public CustomerDisplayForm()
         {
-            ICustomerDao customerDao = new CustomerDaoImpl(DatabaseManager.GetConnection());
+            customerDao = new CustomerDaoImpl(DatabaseManager.GetConnection());
             customers = customerDao.ReadAll();
+
+            customerTable = new DataGridView
+            {
+                Dock = DockStyle.Fill,
+                BackgroundColor = Color.LightGray,
+                Margin = new Padding(0),
+                ScrollBars = ScrollBars.Vertical,
+            };
 
             InitializeComponent();
             InitializeCustomerData();
@@ -26,18 +35,36 @@ namespace StoreBillingSystem
             InitCustomerDialogFormEvent();
         }
 
+        public CustomerDisplayForm(DataGridView customerTable, IList<Customer> customers, ICustomerDao customerDao)
+        {
+            this.customerTable = customerTable;
+            this.customers = customers;
+            this.customerDao = customerDao;
+
+            InitializeComponent();
+            InitializeCustomerData();
+
+            InitCustomerDialogFormEvent();
+        }
+
+
+        private ICustomerDao customerDao;
+
         private DataGridView customerTable;
         private IList<Customer> customers;
+        private Customer _customer;
         //private BindingSource bindingSource;
 
         private Font labelFont = U.StoreLabelFont;
 
+        private Label totalCustomerLabel;
         private TextBox customerNameText;
         private TextBox phoneText;
         private Button okButton;
         private Button viewButton;
         private Button deleteButton;
         private Button updateButton;
+        private Button clearButton;
 
         public bool IsCustomerModified { get; private set; }
 
@@ -53,7 +80,7 @@ namespace StoreBillingSystem
             MaximizeBox = false; // Set the MaximizeBox to false to remove the maximize box.
             MinimizeBox = false; // Set the MinimizeBox to false to remove the minimize box.
             StartPosition = FormStartPosition.CenterScreen; // Set the start position of the form to the center of the screen.
-            Size = new Size(1000, 650);
+            Size = new Size(1150, 650);
             BackColor = U.StoreDialogBackColor;
             AutoScroll = true;
 
@@ -80,6 +107,7 @@ namespace StoreBillingSystem
             table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 90F)); //phone
 
 
+            //row-0
             table.Controls.Add(new Label 
             { 
                 Text = "Search :", 
@@ -109,7 +137,7 @@ namespace StoreBillingSystem
             };
             table.Controls.Add(phoneText, 3, 0);
 
-            Button clearButton = new Button
+            clearButton = new Button
             {
                 Text = "Clear",
                 Dock = DockStyle.Fill,
@@ -121,6 +149,11 @@ namespace StoreBillingSystem
             };
             table.Controls.Add(clearButton, 4, 0);
 
+            //row-1
+            //blank
+
+            //row-2
+            /*
             customerTable = new DataGridView
             {
                 Dock = DockStyle.Fill,
@@ -128,14 +161,16 @@ namespace StoreBillingSystem
                 Margin = new Padding(0),
                 ScrollBars = ScrollBars.Vertical,
             };
+            */
 
             customerTable.RowHeadersDefaultCellStyle.Font = U.StoreLabelFont;
-            customerTable.ColumnCount = 5;
+            customerTable.ColumnCount = 6;
             customerTable.Columns[0].Name = "Id";
             customerTable.Columns[1].Name = "Name";
             customerTable.Columns[2].Name = "Phone";
             customerTable.Columns[3].Name = "Address";
             customerTable.Columns[4].Name = "Registration Date";
+            customerTable.Columns[5].Name = "Update Date";
 
 
             customerTable.Columns[0].Width = 100;
@@ -144,12 +179,14 @@ namespace StoreBillingSystem
             customerTable.Columns[3].Width = 330;
             //customerTable.Columns[4].Width = 140;
             customerTable.Columns[4].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            customerTable.Columns[5].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
             customerTable.Columns[0].DataPropertyName = "Id";
             customerTable.Columns[1].DataPropertyName = "Name";
             customerTable.Columns[2].DataPropertyName = "PhoneNumber";
             customerTable.Columns[3].DataPropertyName = "Address";
             customerTable.Columns[4].DataPropertyName = "RegisterDate";
+            customerTable.Columns[5].DataPropertyName = "UpdateDate";
 
 
             customerTable.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft; //data display in center
@@ -180,7 +217,28 @@ namespace StoreBillingSystem
             table.Controls.Add(customerTable, 0, 2);
             table.SetColumnSpan(customerTable, table.ColumnCount);
 
-            //Row-9
+            //row-3
+            Label totalCustomerShowLabel = new Label
+            {
+                Text = "Total Customer :",
+                Font = labelFont,
+                Dock = DockStyle.Fill,
+                ForeColor = Color.Navy,
+                TextAlign = ContentAlignment.MiddleRight,
+            };
+            table.Controls.Add(totalCustomerShowLabel, 3, 3);
+            table.SetColumnSpan(totalCustomerShowLabel, 2);
+
+            totalCustomerLabel = new Label
+            {
+                Font = labelFont,
+                Dock = DockStyle.Fill,
+                ForeColor = Color.Crimson,
+                TextAlign = ContentAlignment.MiddleLeft,
+            };
+            table.Controls.Add(totalCustomerLabel, 5, 3);
+
+            //Row-4
             TableLayoutPanel table1 = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
@@ -189,13 +247,13 @@ namespace StoreBillingSystem
                 CellBorderStyle = TableLayoutPanelCellBorderStyle.None,
                 //BackColor = Color.Gold
             };
-            table1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 220)); //name
+            table1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 290)); //name
 
             okButton = new Button
             {
                 Text = "Ok",
                 Dock = DockStyle.Fill,
-                DialogResult = DialogResult.OK,
+                //DialogResult = DialogResult.OK,
                 Font = labelFont,
                 ForeColor = Color.White,
                 BackColor = Color.Blue,
@@ -205,7 +263,7 @@ namespace StoreBillingSystem
             viewButton = new Button
             {
                 Text = "View",
-                DialogResult = DialogResult.Cancel,
+                //DialogResult = DialogResult.Cancel,
                 Dock = DockStyle.Fill,
                 Font = labelFont,
                 ForeColor = Color.White,
@@ -216,7 +274,7 @@ namespace StoreBillingSystem
             deleteButton = new Button
             {
                 Text = "Delete",
-                DialogResult = DialogResult.Cancel,
+                //DialogResult = DialogResult.Cancel,
                 Dock = DockStyle.Fill,
                 Font = labelFont,
                 ForeColor = Color.White,
@@ -226,7 +284,7 @@ namespace StoreBillingSystem
             updateButton = new Button
             {
                 Text = "Update",
-                DialogResult = DialogResult.Cancel,
+                //DialogResult = DialogResult.Cancel,
                 Dock = DockStyle.Fill,
                 Font = labelFont,
                 ForeColor = Color.White,
@@ -245,7 +303,8 @@ namespace StoreBillingSystem
             table.Controls.Add(table1, 1, 4);
             table.SetColumnSpan(table1, 4);
 
-
+            //row-5
+            //blank
 
             Controls.Add(table);
 
@@ -264,11 +323,16 @@ namespace StoreBillingSystem
             */
             customerTable.DataSource = null;
             customerTable.DataSource = customers;
+            UpdateCustomerCountAtLabel(customers.Count);
+        }
 
+        private void UpdateCustomerCountAtLabel(int count)
+        {
+            totalCustomerLabel.Text = count.ToString();
         }
 
 
-        private void searchCustomerTextBox_TextChanged(object sender, EventArgs e)
+        private void SearchCustomerTextBox_TextChanged(object sender, EventArgs e)
         {
             TextBoxKeyEvent.CapitalizeText_TextChanged(customerNameText);
 
@@ -285,9 +349,9 @@ namespace StoreBillingSystem
 
             customerTable.DataSource = null;
             customerTable.DataSource = filteredList;
-
+            UpdateCustomerCountAtLabel(filteredList.Count);
         }
-        private void searchPhoneTextBox_TextChanged(object sender, EventArgs e)
+        private void SearchPhoneTextBox_TextChanged(object sender, EventArgs e)
         {
             string searchTerm = phoneText.Text;
             Console.WriteLine(searchTerm);
@@ -302,7 +366,7 @@ namespace StoreBillingSystem
 
             customerTable.DataSource = null;
             customerTable.DataSource = filteredList;
-
+            UpdateCustomerCountAtLabel(filteredList.Count);
         }
 
 
@@ -317,15 +381,22 @@ namespace StoreBillingSystem
             phoneText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(phoneText, _phonePlaceHolder);
             phoneText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(phoneText, _phonePlaceHolder);
 
-            customerNameText.TextChanged += searchCustomerTextBox_TextChanged;
-            phoneText.TextChanged += searchPhoneTextBox_TextChanged;
+            customerNameText.TextChanged += SearchCustomerTextBox_TextChanged;
+            phoneText.TextChanged += SearchPhoneTextBox_TextChanged;
 
             okButton.Click += OkButton_Click;
             viewButton.Click += ViewButton_Click;
             deleteButton.Click += DeleteButton_Click;
             updateButton.Click += UpdateButton_Click;
+            clearButton.Click += ClearButton_Click;
         }
 
+        private void ClearButton_Click(object sender, EventArgs e)
+        {
+            TextBoxKeyEvent.BindPlaceholderToTextBox(customerNameText, _customerNamePlaceHolder, Color.Gray);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(phoneText, _phonePlaceHolder, Color.Gray);
+            InitializeCustomerData();
+        }
 
         private void OkButton_Click(object sender, EventArgs e)
         {
@@ -333,18 +404,400 @@ namespace StoreBillingSystem
             Close();
         }
 
+        private void DeleteButton_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show($"Do you want to remove the selected Customer with its ID is :{customerTable.CurrentRow.Cells[0].Value}?", "Delete Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+            {
+                if (customerDao.Delete(Int32.Parse(customerTable.CurrentRow.Cells[0].Value.ToString())))
+                {
+                    // Delete customer records from list that its bind with datagridview datasource
+                    customers.RemoveAt(customerTable.CurrentCell.RowIndex);
+
+                    // Delete the row from the DataGridView
+                    customerTable.Rows.RemoveAt(customerTable.CurrentCell.RowIndex);
+
+                    //update totalCustomer count
+                    UpdateCustomerCountAtLabel(customers.Count);
+                }
+            }
+        }
+
         private void ViewButton_Click(object sender, EventArgs e)
         {
+
+            _customer = customers[customerTable.CurrentCell.RowIndex];
+            CustomerForm(false, true).ShowDialog();
             //DialogResult = DialogResult.Cancel;
             //Close();
         }
 
         private void UpdateButton_Click(object sender, EventArgs e)
         {
+            _customer = customers[customerTable.CurrentCell.RowIndex];
+            CustomerForm(true, false).ShowDialog();
+
         }
 
-        private void DeleteButton_Click(object sender, EventArgs e)
+        private Form CustomerForm(bool forUpdateCustomer, bool forViewCustomer)
         {
+            Form form = new Form();
+            form.HelpButton = true; // Display a help button on the form
+            form.FormBorderStyle = FormBorderStyle.FixedDialog; // Define the border style of the form to a dialog box.
+            form.MaximizeBox = false; // Set the MaximizeBox to false to remove the maximize box.
+            form.MinimizeBox = false; // Set the MinimizeBox to false to remove the minimize box.
+            form.StartPosition = FormStartPosition.CenterScreen; // Set the start position of the form to the center of the screen.
+            form.Size = new Size(500, 550);
+            form.BackColor = U.StoreDialogBackColor;
+
+            if (forUpdateCustomer) form.Text = "Update Customer Details";
+            else if (forViewCustomer) form.Text = "Customer Details";
+
+            form.Controls.Add(UpdateViewForm(form, forUpdateCustomer, forViewCustomer));
+
+
+            InitUpdateViewCustomerData();
+
+            return form;
+        }
+
+        private void InitUpdateViewCustomerData()
+        {
+            _idTextBox.Text = _customer.Id.ToString();
+            _nameTextBox.Text = _customer.Name;
+            _addressTextBox.Text = _customer.Address;
+            _phoneNumberTextBox.Text = _customer.PhoneNumber.ToString();
+            _registerDateTime.Text = _customer.RegisterDate;
+
+            if (_updateDateTime != null) _updateDateTime.Text = string.IsNullOrWhiteSpace(_customer.UpdateDate) ? "" : _customer.UpdateDate;
+        }
+
+
+        private TextBox _idTextBox;
+        private TextBox _nameTextBox;
+        private TextBox _addressTextBox;
+        private TextBox _phoneNumberTextBox;
+        private TextBox _registerDateTime;
+        private TextBox _updateDateTime;
+        private DateTimePicker _updateDateTimePicker;
+
+        private TableLayoutPanel UpdateViewForm(Form form, bool forUpdateCustomer, bool forViewCustomer)
+        {
+            Label registerDateLabel = new Label
+            {
+                Text = "Register Date :",
+                Font = labelFont,
+                Dock = DockStyle.Fill,
+                ForeColor = Color.Black,
+                TextAlign = ContentAlignment.MiddleRight,
+            };
+
+            Label updateDateLabel = new Label
+            {
+                Text = "Update Date :",
+                Font = labelFont,
+                Dock = DockStyle.Fill,
+                ForeColor = Color.Black,
+                TextAlign = ContentAlignment.MiddleRight,
+            };
+
+            Label customerIdLabel = new Label
+            {
+                Text = "Customer Id :",
+                Font = labelFont,
+                Dock = DockStyle.Fill,
+                ForeColor = Color.Black,
+                TextAlign = ContentAlignment.MiddleRight,
+            };
+
+            Label nameLabel = new Label
+            {
+                Text = "Full Name :",
+                Font = labelFont,
+                Dock = DockStyle.Fill,
+                ForeColor = Color.Black,
+                TextAlign = ContentAlignment.MiddleRight,
+            };
+
+            Label addressLabel = new Label
+            {
+                Text = "Address :",
+                ForeColor = Color.Black,
+                Dock = DockStyle.Fill,
+                Font = labelFont,
+                TextAlign = ContentAlignment.MiddleRight
+            };
+
+            Label phoneLabel = new Label
+            {
+                Text = "Phone Number :",
+                ForeColor = Color.Black,
+                Dock = DockStyle.Fill,
+                Font = labelFont,
+                TextAlign = ContentAlignment.MiddleRight
+            };
+
+
+            _idTextBox = new TextBox
+            {
+                Dock = DockStyle.Fill,
+                Font = labelFont,
+                Margin = new Padding(10),
+                ReadOnly = true,
+                BackColor = Color.White
+            };
+
+            _nameTextBox = new TextBox
+            {
+                Dock = DockStyle.Fill,
+                Font = U.StoreTextBoxFont,
+                Margin = new Padding(10),
+            };
+
+            _addressTextBox = new TextBox
+            {
+                Dock = DockStyle.Fill,
+                Size = new Size(200, 100),
+                Multiline = true,
+                Font = U.StoreTextBoxFont,
+                Margin = new Padding(10),
+            };
+
+            _phoneNumberTextBox = new TextBox
+            {
+                Dock = DockStyle.Fill,
+                Font = U.StoreTextBoxFont,
+                Margin = new Padding(10),
+            };
+
+            _registerDateTime = new TextBox
+            {
+                Dock = DockStyle.Fill,
+                Font = U.StoreTextBoxFont,
+                Margin = new Padding(10),
+                ReadOnly = true,
+                BackColor = Color.White
+            };
+
+
+
+            TableLayoutPanel table = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                CellBorderStyle = TableLayoutPanelCellBorderStyle.None,
+                //BackColor = Color.Aquamarine,
+                ColumnCount = 3,
+                RowCount = 9
+            };
+
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 125F));
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 325F));
+
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 150F));
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+
+
+            table.Controls.Add(customerIdLabel, 0, 0);
+            table.Controls.Add(_idTextBox, 1, 0);
+
+            table.Controls.Add(nameLabel, 0, 1);
+            table.Controls.Add(_nameTextBox, 1, 1);
+
+            table.Controls.Add(addressLabel, 0, 2);
+            table.Controls.Add(_addressTextBox, 1, 2);
+
+            table.Controls.Add(phoneLabel, 0, 3);
+            table.Controls.Add(_phoneNumberTextBox, 1, 3);
+
+            table.Controls.Add(registerDateLabel, 0, 4);
+            table.Controls.Add(_registerDateTime, 1, 4);
+
+
+            FlowLayoutPanel flowLayout = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.LeftToRight
+            };
+
+            //To show Update Form
+            if (forUpdateCustomer)
+            {
+                _updateDateTimePicker = new DateTimePicker
+                {
+                    //CustomFormat = "yyyy-MM-dd HH:mm:ss",
+                    Format = DateTimePickerFormat.Short,
+                    Dock = DockStyle.Fill,
+                    Font = labelFont,
+                    Margin = new Padding(10)
+                };
+
+                table.Controls.Add(updateDateLabel, 0, 5);
+                table.Controls.Add(_updateDateTimePicker, 1, 5);
+
+                Button _cancelButton = new Button
+                {
+                    Text = "Cancel",
+                    Dock = DockStyle.None,
+                    BackColor = Color.Blue,
+                    Font = labelFont,
+                    ForeColor = Color.White,
+                    Height = 40,
+                    Width = 100
+
+                };
+
+                Button _updateButton = new Button
+                {
+                    Text = "Update",
+                    Dock = DockStyle.None,
+                    BackColor = Color.Blue,
+                    Font = labelFont,
+                    ForeColor = Color.White,
+                    Height = 40,
+                    Width = 100
+
+                };
+
+                flowLayout.Controls.Add(_cancelButton);
+                flowLayout.Controls.Add(_updateButton);
+
+                _cancelButton.Click += (sender, e) => form.Close();
+                _updateButton.Click += (sender, e) => UpdateCustomerFormEvent(form);;
+
+                form.CancelButton = _cancelButton;
+            }
+            //To show View Form
+            else if (forViewCustomer)
+            {
+                _updateDateTime = new TextBox
+                {
+                    Dock = DockStyle.Fill,
+                    Font = U.StoreTextBoxFont,
+                    Margin = new Padding(10),
+                    ForeColor = Color.Black
+                };
+
+                table.Controls.Add(updateDateLabel, 0, 5);
+                table.Controls.Add(_updateDateTime, 1, 5);
+
+                Button _okButton = new Button
+                {
+                    Text = "Ok",
+                    Dock = DockStyle.None,
+                    BackColor = Color.Blue,
+                    Font = labelFont,
+                    ForeColor = Color.White,
+                    Height = 40,
+                    Width = 100
+
+                };
+
+
+                _nameTextBox.ReadOnly = true;
+                _addressTextBox.ReadOnly = true;
+                _phoneNumberTextBox.ReadOnly = true;
+                _updateDateTime.ReadOnly = true;
+
+                _nameTextBox.BackColor = Color.White;
+                _addressTextBox.BackColor = Color.White;
+                _phoneNumberTextBox.BackColor = Color.White;
+                _updateDateTime.BackColor = Color.White;
+
+
+
+                flowLayout.Controls.Add(_okButton);
+                flowLayout.Anchor = AnchorStyles.None; //to show button on center
+                //Ok button event
+                _okButton.Click += (sender, e) => form.Close();
+
+                form.CancelButton = _okButton;
+            }
+
+            _nameTextBox.TextChanged += (sender, e) => TextBoxKeyEvent.CapitalizeText_TextChanged(_nameTextBox);
+            _addressTextBox.TextChanged += (sender, e) => TextBoxKeyEvent.CapitalizeText_TextChanged(_addressTextBox);
+            _phoneNumberTextBox.KeyPress += PhoneTextBox_KeyPress;
+
+            table.Controls.Add(flowLayout, 1, 7);
+
+            return table;
+        }
+
+        private void UpdateCustomerFormEvent(Form form)
+        {
+            string name = _nameTextBox.Text.Trim();
+            string address = _addressTextBox.Text.Trim();
+            string phone = _phoneNumberTextBox.Text.Trim();
+
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                MessageBox.Show("Customer name can't be empty or null.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(address))
+            {
+                MessageBox.Show("Address can't be empty or null.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(phone))
+            {
+                MessageBox.Show("Phone number can't be empty or null.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            if(_customer.Name == name && _customer.Address == address && _customer.PhoneNumber == long.Parse(phone))
+            {
+                MessageBox.Show("There is nothing to update.", "Status", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            if(_customer.PhoneNumber != long.Parse(phone))
+            {
+                if (customerDao.IsRecordExists(long.Parse(phone)))
+                {
+                    MessageBox.Show("Phone number is already exist.", "Duplicate", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+            }
+            if(_customer.Name != name && _customer.PhoneNumber != long.Parse(phone))
+            {
+                if (customerDao.IsRecordExists(name, long.Parse(phone)))
+                {
+                    MessageBox.Show("Name & Phone number already exist.", "Duplicate", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+            }
+
+            Customer customer = new Customer(_customer.Id, name, address, long.Parse(phone), _customer.RegisterDate, U.ToDateTime(_updateDateTimePicker.Value));
+            if (customerDao.Update(customer))
+            {
+                MessageBox.Show("Update successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                customers[customerTable.CurrentCell.RowIndex] = customer;
+                form.Close();
+            }
+            else
+            {
+                MessageBox.Show("Update failed.", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+
+        }
+
+        private void PhoneTextBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // Allow digits, decimal point, and the backspace key
+            if (!char.IsDigit(e.KeyChar) && e.KeyChar != (char)Keys.Back)
+            {
+                e.Handled = true; // Ignore the input
+            }
+            if (_phoneNumberTextBox.Text.Length >= 10 && !char.IsControl(e.KeyChar))
+            {
+                e.Handled = true; // Cancel the key press
+                MessageBox.Show("Please enter a valid phone number with exactly 10 digits.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
         }
     }
 }

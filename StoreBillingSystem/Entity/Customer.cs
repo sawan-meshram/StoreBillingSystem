@@ -20,15 +20,22 @@ namespace StoreBillingSystem.Entity
             Id = id;
         }
 
+        public Customer(int id, string name, string address, long phoneNumber, string registerDate, string updateDate) : this(name, address, phoneNumber, registerDate)
+        {
+            Id = id;
+            UpdateDate = updateDate;
+        }
+
         public int Id { get; set; }
         public string Name { get; set; }
         public string Address { get; set; }
         public long PhoneNumber { get; set; }
         public string RegisterDate { get; set; }
+        public string UpdateDate { get; set; }
 
         public override string ToString()
         {
-            return $"Customer : Id={Id}, Name={Name}, Address={Address}, PhoneNumber={PhoneNumber}, RegisterDate={RegisterDate}";
+            return $"Customer : Id={Id}, Name={Name}, Address={Address}, PhoneNumber={PhoneNumber}, RegisterDate={RegisterDate}, UpdateDate={UpdateDate}";
         }
     }
 }

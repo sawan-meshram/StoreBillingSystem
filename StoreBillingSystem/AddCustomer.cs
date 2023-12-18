@@ -499,6 +499,7 @@ namespace StoreBillingSystem
             if (phoneNumberTextBox.Text.Length >= 10 && !char.IsControl(e.KeyChar))
             {
                 e.Handled = true; // Cancel the key press
+                MessageBox.Show("Please enter a valid phone number with exactly 10 digits.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
 

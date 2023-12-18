@@ -169,7 +169,8 @@ namespace StoreBillingSystem.Database
                     NAME TEXT NOT NULL,
                     ADDRESS TEXT NOT NULL,
                     PHONE INTEGER UNIQUE,
-                    REGISTER_DATE TEXT NULL
+                    REGISTER_DATE TEXT NULL,
+                    UPDATE_DATE TEXT NULL
                     );";
 
                 // Execute the SQL command.

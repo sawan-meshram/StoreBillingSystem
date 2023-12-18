@@ -96,12 +96,13 @@ namespace StoreBillingSystem.DAOImpl
                 using (SqliteTransaction transaction = _conn.BeginTransaction())
                 {
                     // Insert a single record
-                    command.CommandText = $"INSERT INTO {_tableName} (ID, NAME, ADDRESS, PHONE, REGISTER_DATE) VALUES (@Id, @Name, @Address, @Phone, @RegisterDate); SELECT last_insert_rowid()";
+                    command.CommandText = $"INSERT INTO {_tableName} (ID, NAME, ADDRESS, PHONE, REGISTER_DATE, UPDATE_DATE) VALUES (@Id, @Name, @Address, @Phone, @RegisterDate, @UpdateDate); SELECT last_insert_rowid()";
                     command.Parameters.AddWithValue("@Id", customer.Id);
                     command.Parameters.AddWithValue("@Name", customer.Name);
                     command.Parameters.AddWithValue("@Address", customer.Address);
                     command.Parameters.AddWithValue("@Phone", customer.PhoneNumber);
                     command.Parameters.AddWithValue("@RegisterDate", customer.RegisterDate);
+                    command.Parameters.AddWithValue("@UpdateDate", customer.UpdateDate);
 
                     long generatedId = (long)command.ExecuteScalar();
                     Console.WriteLine($"Auto-generated ID: {generatedId}");
@@ -188,7 +189,8 @@ namespace StoreBillingSystem.DAOImpl
                             Name = reader.GetString(reader.GetOrdinal("NAME")),
                             Address = reader.GetString(reader.GetOrdinal("ADDRESS")),
                             PhoneNumber = reader.GetInt64(reader.GetOrdinal("PHONE")),
-                            RegisterDate = reader.GetString(reader.GetOrdinal("REGISTER_DATE"))
+                            RegisterDate = reader.GetString(reader.GetOrdinal("REGISTER_DATE")),
+                            UpdateDate = reader.IsDBNull(reader.GetOrdinal("UPDATE_DATE")) ? null : reader.GetString(reader.GetOrdinal("UPDATE_DATE"))
                         };
                     }
                 }
@@ -217,7 +219,8 @@ namespace StoreBillingSystem.DAOImpl
                             Name = reader.GetString(reader.GetOrdinal("NAME")),
                             Address = reader.GetString(reader.GetOrdinal("ADDRESS")),
                             PhoneNumber = reader.GetInt64(reader.GetOrdinal("PHONE")),
-                            RegisterDate = reader.GetString(reader.GetOrdinal("REGISTER_DATE"))
+                            RegisterDate = reader.GetString(reader.GetOrdinal("REGISTER_DATE")),
+                            UpdateDate = reader.IsDBNull(reader.GetOrdinal("UPDATE_DATE")) ? null : reader.GetString(reader.GetOrdinal("UPDATE_DATE"))
                         });
                     }
                 }
@@ -245,7 +248,8 @@ namespace StoreBillingSystem.DAOImpl
                             Name = reader.GetString(reader.GetOrdinal("NAME")),
                             Address = reader.GetString(reader.GetOrdinal("ADDRESS")),
                             PhoneNumber = reader.GetInt64(reader.GetOrdinal("PHONE")),
-                            RegisterDate = reader.GetString(reader.GetOrdinal("REGISTER_DATE"))
+                            RegisterDate = reader.GetString(reader.GetOrdinal("REGISTER_DATE")),
+                            UpdateDate = reader.IsDBNull(reader.GetOrdinal("UPDATE_DATE")) ? null : reader.GetString(reader.GetOrdinal("UPDATE_DATE"))
                         };
                     }
                 }
@@ -272,7 +276,8 @@ namespace StoreBillingSystem.DAOImpl
                             Name = reader.GetString(reader.GetOrdinal("NAME")),
                             Address = reader.GetString(reader.GetOrdinal("ADDRESS")),
                             PhoneNumber = reader.GetInt64(reader.GetOrdinal("PHONE")),
-                            RegisterDate = reader.GetString(reader.GetOrdinal("REGISTER_DATE"))
+                            RegisterDate = reader.GetString(reader.GetOrdinal("REGISTER_DATE")),
+                            UpdateDate = reader.IsDBNull(reader.GetOrdinal("UPDATE_DATE"))? null : reader.GetString(reader.GetOrdinal("UPDATE_DATE"))
                         }); 
                     }
                 }
@@ -288,11 +293,12 @@ namespace StoreBillingSystem.DAOImpl
                 using (SqliteTransaction transaction = _conn.BeginTransaction())
                 {
                     // Insert a single record
-                    command.CommandText = $"UPDATE {_tableName} SET NAME=@Name, ADDRESS=@Address, PHONE=@Phone, REGISTER_DATE=@RegisterDate WHERE ID = @Id";
+                    command.CommandText = $"UPDATE {_tableName} SET NAME=@Name, ADDRESS=@Address, PHONE=@Phone, REGISTER_DATE=@RegisterDate, UPDATE_DATE=@UpdateDate WHERE ID = @Id";
                     command.Parameters.AddWithValue("@Name", customer.Name);
                     command.Parameters.AddWithValue("@Address", customer.Address);
                     command.Parameters.AddWithValue("@Phone", customer.PhoneNumber);
                     command.Parameters.AddWithValue("@RegisterDate", customer.RegisterDate);
+                    command.Parameters.AddWithValue("@UpdateDate", customer.UpdateDate);
                     command.Parameters.AddWithValue("@Id", customer.Id);
 
                     int rowsAffected = command.ExecuteNonQuery();

@@ -16,6 +16,7 @@ namespace StoreBillingSystem.DAOImpl
         //private string _refProductTypeTableName;
         private ICategoryDao _categoryDao;
         private IProductTypeDao _productTypeDao;
+        private readonly int batchSize = 100;
 
         public ProductDaoImpl(SqliteConnection conn)
         {
@@ -327,6 +328,41 @@ namespace StoreBillingSystem.DAOImpl
                     }
                 }
             }
+            return false;
+        }
+
+        public bool UpdateQty(IList<Product> products)
+        {
+            string updateQuery = $"UPDATE {_tableName} SET QTY=@Qty WHERE ID = @Id"; ;
+            int updatedCount = 0;
+
+            using (SqliteCommand command = new SqliteCommand(updateQuery, _conn))
+            {
+                using (SqliteTransaction transaction = _conn.BeginTransaction())
+                {
+                    int index = 0;
+                    for (int i = 0; i < products.Count; i += batchSize)
+                    {
+                        int remainingRows = Math.Min(batchSize, products.Count - i);
+                        for (int j = 0; j < remainingRows; j++)
+                        {
+                            command.Parameters.AddWithValue("@Qty", products[index].TotalQty);
+                            command.Parameters.AddWithValue("@Id", products[index].Id);
+
+                            // Execute the update command for each row in the batch
+                            updatedCount += command.ExecuteNonQuery();
+                            index++;
+                        }
+
+                        transaction.Commit();
+                        //Console.WriteLine($"{remainingRows} rows updated in batch {i / batchSize + 1}");
+                    }
+
+                    //Console.WriteLine("Bulk update completed.");
+                }
+
+            }
+            if (updatedCount > 0) return true;
             return false;
         }
     }

@@ -94,6 +94,7 @@
     <Compile Include="BillingForm1.cs" />
     <Compile Include="CustomPaymentDialogBox.cs" />
     <Compile Include="CustomerDisplayForm.cs" />
+    <Compile Include="ProductDisplayForm.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Database\" />

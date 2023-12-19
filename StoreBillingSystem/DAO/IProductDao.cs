@@ -11,6 +11,7 @@ namespace StoreBillingSystem.DAO
         bool Insert(Product product);
         bool Update(Product product);
         bool UpdateQty(long id, float qty);
+        bool UpdateQty(IList<Product> products);
         bool Delete(long id);
         bool IsRecordExists(string name);
         long GetNewProductId();

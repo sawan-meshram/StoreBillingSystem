@@ -1,23 +1,9 @@
 ﻿<Properties StartupConfiguration="{264F6592-08B9-4A69-BB0A-FD7ED2E62E2A}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="StoreBillingSystem/Events/TextBoxKeyEvent.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="StoreBillingSystem/ProductDisplayForm.cs">
     <Files>
-      <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/Model/WaterDistrictModel.cs" Line="2" Column="30" />
-      <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/Util/RouteConfig.cs" Line="13" Column="66" />
-      <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/UserProfile.aspx" Line="141" Column="33" />
-      <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/UserProfile.aspx.cs" Line="54" Column="22" />
-      <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/Dashboard.aspx" Line="75" Column="31" />
-      <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/Dashboard.aspx.cs" Line="29" Column="45" />
-      <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/Login.aspx" Line="100" Column="10" />
-      <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/ForgotPassword.aspx.cs" Line="27" Column="50" />
-      <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/PasswordReset.aspx.cs" Line="15" Column="33" />
-      <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/WaterDistrictDemo.aspx" Line="2990" Column="79" />
-      <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/Model/ShatamGeometry.cs" Line="24" Column="36" />
-      <File FileName="StoreBillingSystem/Program.cs" Line="110" Column="15" />
-      <File FileName="StoreBillingSystem/CustomerDisplayForm.cs" Line="699" Column="88" />
-      <File FileName="StoreBillingSystem/AddCustomer.cs" Line="447" Column="30" />
-      <File FileName="StoreBillingSystem/BillingForm1.cs" Line="707" Column="56" />
-      <File FileName="StoreBillingSystem/DAOImpl/CustomerDaoImpl.cs" Line="265" Column="58" />
-      <File FileName="StoreBillingSystem/Events/TextBoxKeyEvent.cs" Line="89" Column="50" />
+      <File FileName="StoreBillingSystem/Program.cs" Line="25" Column="45" />
+      <File FileName="StoreBillingSystem/BillingForm1.cs" Line="17" Column="38" />
+      <File FileName="StoreBillingSystem/ProductDisplayForm.cs" Line="115" Column="45" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -34,14 +20,8 @@
           </Node>
           <Node name="StoreBillingSystem" expanded="True">
             <Node name="StoreBillingSystem" expanded="True">
-              <Node name="DAO" expanded="True" />
               <Node name="DAOImpl" expanded="True" />
-              <Node name="Database" expanded="True" />
-              <Node name="Entity" expanded="True" />
-              <Node name="Events" expanded="True">
-                <Node name="TextBoxKeyEvent.cs" selected="True" />
-              </Node>
-              <Node name="Util" expanded="True" />
+              <Node name="ProductDisplayForm.cs" selected="True" />
             </Node>
           </Node>
         </State>

@@ -828,14 +828,24 @@ namespace StoreBillingSystem
                         NetAmount = billingItems[i].Total
                     }
                     );
-
                 }
                 Payment payment = new Payment(billing);
 
+                //Total Qty updates on Product
+                IList<Product> updateProducts = new List<Product>();
+                foreach(Item item in _billingDetails.Items)
+                {
+                    Product product = item.Product;
+                    float qty = product.TotalQty - item.Qty;
+                    product.TotalQty = qty >= 0 ? qty : 0;
+                    updateProducts.Add(product);
+                }
 
                 CustomPaymentDialogBox customPaymentDialogBox = new CustomPaymentDialogBox(payment);
                 if (customPaymentDialogBox.ShowDialog() == DialogResult.OK)
                 {
+
+
 
                     Console.WriteLine(payment);
                     /*
@@ -843,9 +853,9 @@ namespace StoreBillingSystem
                     bool isBillingInsert = billingDao.Insert(billing);
                     bool isBillingDetailsInsert = billingDetailsDao.Insert(_billingDetails);
                     bool isPaymentInsert = paymentDao.Insert(payment);
+                    bool isProductUpdate = productDao.UpdateQty(updateProducts);
 
-
-                    if (isBillingInsert && isBillingDetailsInsert && isPaymentInsert)
+                    if (isBillingInsert && isBillingDetailsInsert && isPaymentInsert && isProductUpdate)
                     {
                         MessageBox.Show("Save successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         ClearAll();

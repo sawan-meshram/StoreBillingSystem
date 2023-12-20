@@ -114,13 +114,13 @@ namespace StoreBillingSystem.DAOImpl
             return productType;
         }
 
-        public IList<ProductType> ReadAll()
+        public IList<ProductType> ReadAll(bool sort)
         {
             IList<ProductType> productTypes = new List<ProductType>();
 
             using (SqliteCommand command = _conn.CreateCommand())
             {
-                command.CommandText = $"SELECT * FROM {_tableName}";
+                command.CommandText = $"SELECT * FROM {_tableName}" + (sort ? " ORDER BY NAME" : "");
 
                 using (SqliteDataReader reader = command.ExecuteReader())
                 {

@@ -212,7 +212,7 @@ namespace StoreBillingSystem
             TextBoxKeyEvent.CapitalizeText_TextChanged(customerNameText);
 
             string searchTerm = customerNameText.Text.ToLower();
-            Console.WriteLine(searchTerm);
+            //Console.WriteLine(searchTerm);
             if (string.IsNullOrWhiteSpace(searchTerm) || searchTerm == _customerNamePlaceHolder.ToLower()) return;
 
             List<Customer> filteredList = customers
@@ -229,7 +229,7 @@ namespace StoreBillingSystem
         private void searchPhoneTextBox_TextChanged(object sender, EventArgs e)
         {
             string searchTerm = phoneText.Text;
-            Console.WriteLine(searchTerm);
+            //Console.WriteLine(searchTerm);
             if (string.IsNullOrWhiteSpace(searchTerm) || searchTerm == _phonePlaceHolder.ToLower()) return;
 
             List<Customer> filteredList = customers

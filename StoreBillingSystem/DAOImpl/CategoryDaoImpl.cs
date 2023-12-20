@@ -110,13 +110,13 @@ namespace StoreBillingSystem.DAOImpl
             return category;
         }
 
-        public IList<Category> ReadAll()
+        public IList<Category> ReadAll(bool sort)
         {
             IList<Category> categories = new List<Category>();
 
             using (SqliteCommand command = _conn.CreateCommand())
             {
-                command.CommandText = $"SELECT * FROM {_tableName}";
+                command.CommandText = $"SELECT * FROM {_tableName}" + (sort ? " ORDER BY NAME" : "");
 
                 using (SqliteDataReader reader = command.ExecuteReader())
                 {

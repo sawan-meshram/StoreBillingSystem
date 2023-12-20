@@ -5,7 +5,7 @@ namespace StoreBillingSystem.DAO
 {
     public interface ICategoryDao
     {
-        IList<Category> ReadAll();
+        IList<Category> ReadAll(bool sort);
         Category Read(int id);
         bool Insert(Category category);
         bool Update(Category category);

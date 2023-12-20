@@ -48,10 +48,10 @@ namespace StoreBillingSystem
             productPurchaseDao = new ProductPurchaseDaoImpl(connection);
 
             categoryDao = new CategoryDaoImpl(connection);
-            categoryList = categoryDao.ReadAll();
+            categoryList = categoryDao.ReadAll(true);
 
             productTypeDao = new ProductTypeDaoImpl(connection);
-            productTypeList = productTypeDao.ReadAll();
+            productTypeList = productTypeDao.ReadAll(true);
 
             BindCategoryTypeToComboBox();
             BindProductTypeToComboBox();

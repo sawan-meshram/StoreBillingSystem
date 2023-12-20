@@ -1,9 +1,13 @@
 ﻿<Properties StartupConfiguration="{264F6592-08B9-4A69-BB0A-FD7ED2E62E2A}|Default">
   <MonoDevelop.Ide.Workbench ActiveDocument="StoreBillingSystem/ProductDisplayForm.cs">
     <Files>
-      <File FileName="StoreBillingSystem/Program.cs" Line="25" Column="45" />
-      <File FileName="StoreBillingSystem/BillingForm1.cs" Line="17" Column="38" />
-      <File FileName="StoreBillingSystem/ProductDisplayForm.cs" Line="115" Column="45" />
+      <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/WaterDistrictDemo.aspx" Line="8441" Column="27" />
+      <File FileName="StoreBillingSystem/ProductDisplayForm.cs" Line="862" Column="62" />
+      <File FileName="StoreBillingSystem/Program.cs" Line="23" Column="47" />
+      <File FileName="StoreBillingSystem/ProductForm.cs" Line="1200" Column="54" />
+      <File FileName="StoreBillingSystem/BillingForm1.cs" Line="502" Column="65" />
+      <File FileName="StoreBillingSystem/AbstractBillingForm.cs" Line="299" Column="48" />
+      <File FileName="StoreBillingSystem/CustomerCustomDialogBox.cs" Line="153" Column="36" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -20,7 +24,9 @@
           </Node>
           <Node name="StoreBillingSystem" expanded="True">
             <Node name="StoreBillingSystem" expanded="True">
+              <Node name="DAO" expanded="True" />
               <Node name="DAOImpl" expanded="True" />
+              <Node name="Entity" expanded="True" />
               <Node name="ProductDisplayForm.cs" selected="True" />
             </Node>
           </Node>

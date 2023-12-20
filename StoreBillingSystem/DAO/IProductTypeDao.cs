@@ -5,7 +5,7 @@ namespace StoreBillingSystem.DAO
 {
     public interface IProductTypeDao
     {
-        IList<ProductType> ReadAll();
+        IList<ProductType> ReadAll(bool sort);
         ProductType Read(int id);
         bool Insert(ProductType productType);
         bool Update(ProductType productType);

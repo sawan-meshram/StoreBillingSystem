@@ -17,35 +17,33 @@ namespace StoreBillingSystem
     {
         public ProductDisplayForm()
         {
-            productDao = new ProductDaoImpl(DatabaseManager.GetConnection());
-            products = productDao.ReadAll();
 
-            customerTable = new DataGridView
-            {
-                Dock = DockStyle.Fill,
-                BackgroundColor = Color.LightGray,
-                Margin = new Padding(0),
-                ScrollBars = ScrollBars.Vertical,
-            };
+
+
 
             InitializeComponent();
-            InitializeCustomerData();
+            InitializeProductData();
 
             InitCustomerDialogFormEvent();
         }
 
-       
-        private IProductDao productDao;
 
-        private DataGridView customerTable;
-        private IList<Product> products;
+        private IProductDao productDao;
+        private ICategoryDao categoryDao;
+        private IProductTypeDao productTypeDao;
+
+        private DataGridView productTable;
+        private IList<Product> productList;
+        private IList<Category> categoryList;
+        private IList<ProductType> productTypeList;
+
         private Product _product;
         //private BindingSource bindingSource;
 
         private Font labelFont = U.StoreLabelFont;
         private Font textBoxFont = U.StoreTextBoxFont;
 
-        private Label totalCustomerLabel;
+        private Label totalProductLabel;
         private TextBox productNameText;
 
         private Button okButton;
@@ -53,16 +51,16 @@ namespace StoreBillingSystem
         private Button deleteButton;
         private Button updateButton;
         private Button clearButton;
-        private ComboBox categoryTypes;
+        private ComboBox categoryTypesComboBox;
 
         public bool IsCustomerModified { get; private set; }
 
-        private string _customerNamePlaceHolder = U.ToTitleCase("Search Customer Name Here..");
-        private string _phonePlaceHolder = U.ToTitleCase("Search Phone Number Here..");
+        private string _productNamePlaceHolder = U.ToTitleCase("Search Product Name Here..");
+        private string qtyPercentPlaceHolder = 0.0F.ToString("N");
 
         private void InitializeComponent()
         {
-            Text = "Customer Details";
+            Text = "Product Details";
 
             HelpButton = true; // Display a help button on the form
             FormBorderStyle = FormBorderStyle.FixedDialog; // Define the border style of the form to a dialog box.
@@ -89,11 +87,11 @@ namespace StoreBillingSystem
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F)); //row-3
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F)); //row-3
 
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100f)); //name
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 350f)); //name
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130f)); //name
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 400f)); //name
             table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F)); //black
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130F)); //phone
             table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 300F)); //phone
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 90F)); //phone
 
 
             //row-0
@@ -111,7 +109,7 @@ namespace StoreBillingSystem
                 Dock = DockStyle.Fill,
                 Font = labelFont,
                 Margin = new Padding(5),
-                Text = _customerNamePlaceHolder,
+                Text = _productNamePlaceHolder,
                 ForeColor = Color.Gray,
             };
             table.Controls.Add(productNameText, 1, 0);
@@ -126,14 +124,14 @@ namespace StoreBillingSystem
             }, 3, 0);
 
 
-            categoryTypes = new ComboBox
+            categoryTypesComboBox = new ComboBox
             {
                 Dock = DockStyle.Fill,
                 Font = textBoxFont,
                 Margin = new Padding(5),
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
-            table.Controls.Add(categoryTypes, 4, 0);
+            table.Controls.Add(categoryTypesComboBox, 4, 0);
 
 
             clearButton = new Button
@@ -152,90 +150,82 @@ namespace StoreBillingSystem
             //blank
 
             //row-2
-            /*
-            customerTable = new DataGridView
+
+            productTable = new DataGridView
             {
                 Dock = DockStyle.Fill,
                 BackgroundColor = Color.LightGray,
                 Margin = new Padding(0),
                 ScrollBars = ScrollBars.Vertical,
             };
-            */
+            productTable.RowHeadersDefaultCellStyle.Font = U.StoreLabelFont;
 
-            customerTable.RowHeadersDefaultCellStyle.Font = U.StoreLabelFont;
-            customerTable.ColumnCount = 6;
-            customerTable.Columns[0].Name = "Id";
-            customerTable.Columns[1].Name = "Name";
-            customerTable.Columns[2].Name = "Phone";
-            customerTable.Columns[3].Name = "Address";
-            customerTable.Columns[4].Name = "Registration Date";
-            customerTable.Columns[5].Name = "Update Date";
-
-
-            customerTable.Columns[0].Width = 100;
-            customerTable.Columns[1].Width = 250;
-            customerTable.Columns[2].Width = 150;
-            customerTable.Columns[3].Width = 330;
-            //customerTable.Columns[4].Width = 140;
-            customerTable.Columns[4].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            customerTable.Columns[5].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-
-            customerTable.Columns[0].DataPropertyName = "Id";
-            customerTable.Columns[1].DataPropertyName = "Name";
-            customerTable.Columns[2].DataPropertyName = "PhoneNumber";
-            customerTable.Columns[3].DataPropertyName = "Address";
-            customerTable.Columns[4].DataPropertyName = "RegisterDate";
-            customerTable.Columns[5].DataPropertyName = "UpdateDate";
+            productTable.ColumnCount = 6;
+            productTable.Columns[0].Name = "Id";
+            productTable.Columns[1].Name = "Name";
+            productTable.Columns[2].Name = "Category";
+            productTable.Columns[3].Name = "Product Type Full";
+            productTable.Columns[4].Name = "Product Type Abbr";
+            productTable.Columns[5].Name = "Total Qty";
 
 
-            customerTable.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft; //data display in center
-            customerTable.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter; //header display in center
+            productTable.Columns[0].Width = 100;
+            productTable.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            productTable.Columns[2].Width = 200;
+            productTable.Columns[3].Width = 120;
+            productTable.Columns[4].Width = 120;
+            productTable.Columns[5].Width = 150;
 
-            customerTable.ReadOnly = true;
-            customerTable.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            customerTable.MultiSelect = false;
+
+            productTable.Columns[0].DataPropertyName = "Id";
+            productTable.Columns[1].DataPropertyName = "Name";
+            productTable.Columns[5].DataPropertyName = "TotalQty";
+
+            productTable.Columns[5].DefaultCellStyle.Format = "N";
 
 
-            //productSellingTable.Columns[0].Width = 140;
-            //productSellingTable.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            foreach (DataGridViewColumn column in customerTable.Columns)
+            productTable.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft; //data display in center
+            productTable.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter; //header display in center
+
+            productTable.ReadOnly = true;
+            productTable.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            productTable.MultiSelect = false;
+
+
+            foreach (DataGridViewColumn column in productTable.Columns)
             {
                 column.SortMode = DataGridViewColumnSortMode.NotSortable;
             }
 
-            customerTable.AllowUserToAddRows = false;
-            customerTable.AutoGenerateColumns = false;
-            customerTable.RowHeadersVisible = false;
-            customerTable.AllowUserToResizeRows = false;
-            customerTable.AllowUserToResizeColumns = false;
+            productTable.AllowUserToAddRows = false;
+            productTable.AutoGenerateColumns = false;
+            productTable.RowHeadersVisible = false;
+            productTable.AllowUserToResizeRows = false;
+            productTable.AllowUserToResizeColumns = false;
 
-            //to select only row at a time
-            //productSellingTable.SelectionChanged += ProductSellingTable_SelectionChanged;
-
-
-            table.Controls.Add(customerTable, 0, 2);
-            table.SetColumnSpan(customerTable, table.ColumnCount);
+            table.Controls.Add(productTable, 0, 2);
+            table.SetColumnSpan(productTable, table.ColumnCount);
 
             //row-3
-            Label totalCustomerShowLabel = new Label
+            Label totalProductShowLabel = new Label
             {
-                Text = "Total Customer :",
+                Text = "Total Product :",
                 Font = labelFont,
                 Dock = DockStyle.Fill,
                 ForeColor = Color.Navy,
                 TextAlign = ContentAlignment.MiddleRight,
             };
-            table.Controls.Add(totalCustomerShowLabel, 3, 3);
-            table.SetColumnSpan(totalCustomerShowLabel, 2);
+            table.Controls.Add(totalProductShowLabel, 3, 3);
+            table.SetColumnSpan(totalProductShowLabel, 2);
 
-            totalCustomerLabel = new Label
+            totalProductLabel = new Label
             {
                 Font = labelFont,
                 Dock = DockStyle.Fill,
                 ForeColor = Color.Crimson,
                 TextAlign = ContentAlignment.MiddleLeft,
             };
-            table.Controls.Add(totalCustomerLabel, 5, 3);
+            table.Controls.Add(totalProductLabel, 5, 3);
 
             //Row-4
             TableLayoutPanel table1 = new TableLayoutPanel
@@ -282,7 +272,7 @@ namespace StoreBillingSystem
             };
             updateButton = new Button
             {
-                Text = "Update",
+                Text = "Edit",
                 //DialogResult = DialogResult.Cancel,
                 Dock = DockStyle.Fill,
                 Font = labelFont,
@@ -310,78 +300,70 @@ namespace StoreBillingSystem
 
         }
 
-        private void InitializeCustomerData()
-        {
-            /*
-            // Create a BindingSource and bind it to the List
-            bindingSource = new BindingSource();
-            bindingSource.DataSource = customers;
 
-            // Set the DataGridView DataSource to the BindingSource
-            customerTable.DataSource = bindingSource;
-            */
-            customerTable.DataSource = null;
-            customerTable.DataSource = customers;
-            UpdateCustomerCountAtLabel(customers.Count);
+
+        private void ProductTable_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            foreach (DataGridViewRow row in productTable.Rows)
+            {
+                // Set the value for Category.Name column
+                if (row.DataBoundItem is Product product)
+                {
+                    row.Cells[2].Value = product.Category?.Name;
+                    row.Cells[3].Value = product.ProductType?.Name;
+                    row.Cells[4].Value = product.ProductType?.Abbr;
+                }
+            }
+        }
+
+
+        private void BindProductToDataGridView()
+        {
+            productTable.DataSource = null;
+            productTable.DataSource = productList;
+        }
+        private void InitializeProductData()
+        {
+
+            productDao = new ProductDaoImpl(DatabaseManager.GetConnection());
+            productList = new List<Product>(productDao.ReadAll());
+
+            BindProductToDataGridView();
+            UpdateCustomerCountAtLabel(productList.Count);
+
+
+            categoryDao = new CategoryDaoImpl(DatabaseManager.GetConnection());
+           
+            categoryList = categoryDao.ReadAll(true);
+
+            IList<Category> categories = categoryList.ToList();
+            categories.Insert(0, new Category { Id = 0, Name = "" });
+
+            categoryTypesComboBox.DataSource = null;
+            categoryTypesComboBox.DataSource = categories;
+            categoryTypesComboBox.DisplayMember = "Name";
+            categoryTypesComboBox.ValueMember = "Id";
+
+            productTypeDao = new ProductTypeDaoImpl(DatabaseManager.GetConnection());
+            productTypeList = productTypeDao.ReadAll(true);
         }
 
         private void UpdateCustomerCountAtLabel(int count)
         {
-            totalCustomerLabel.Text = count.ToString();
+            totalProductLabel.Text = count.ToString();
         }
-
-
-        private void SearchCustomerTextBox_TextChanged(object sender, EventArgs e)
-        {
-            TextBoxKeyEvent.CapitalizeText_TextChanged(customerNameText);
-
-            string searchTerm = customerNameText.Text.ToLower();
-            Console.WriteLine(searchTerm);
-            if (string.IsNullOrWhiteSpace(searchTerm) || searchTerm == _customerNamePlaceHolder.ToLower()) return;
-
-            List<Customer> filteredList = customers
-                .Where(customer => customer.Name.ToLower().Contains(searchTerm))
-                .ToList();
-
-            // Update the BindingSource with the filtered data
-            //bindingSource.DataSource = filteredList;
-
-            customerTable.DataSource = null;
-            customerTable.DataSource = filteredList;
-            UpdateCustomerCountAtLabel(filteredList.Count);
-        }
-        private void SearchPhoneTextBox_TextChanged(object sender, EventArgs e)
-        {
-            string searchTerm = phoneText.Text;
-            Console.WriteLine(searchTerm);
-            if (string.IsNullOrWhiteSpace(searchTerm) || searchTerm == _phonePlaceHolder.ToLower()) return;
-
-            List<Customer> filteredList = customers
-                .Where(customer => customer.PhoneNumber.ToString().Contains(searchTerm))
-                .ToList();
-
-            // Update the BindingSource with the filtered data
-            //bindingSource.DataSource = filteredList;
-
-            customerTable.DataSource = null;
-            customerTable.DataSource = filteredList;
-            UpdateCustomerCountAtLabel(filteredList.Count);
-        }
-
 
         private void InitCustomerDialogFormEvent()
         {
 
-            customerNameText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(customerNameText, _customerNamePlaceHolder);
-            customerNameText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(customerNameText, _customerNamePlaceHolder);
+            productNameText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(productNameText, _productNamePlaceHolder);
+            productNameText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(productNameText, _productNamePlaceHolder);
 
-            phoneText.KeyPress += TextBoxKeyEvent.NumbericTextBox_KeyPress;
 
-            phoneText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(phoneText, _phonePlaceHolder);
-            phoneText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(phoneText, _phonePlaceHolder);
+            productNameText.TextChanged += SearchCustomerTextBox_TextChanged;
+            categoryTypesComboBox.SelectedIndexChanged += CategoryTypesComboBox_SelectedIndexChanged;
+            productTable.DataBindingComplete += ProductTable_DataBindingComplete;
 
-            customerNameText.TextChanged += SearchCustomerTextBox_TextChanged;
-            phoneText.TextChanged += SearchPhoneTextBox_TextChanged;
 
             okButton.Click += OkButton_Click;
             viewButton.Click += ViewButton_Click;
@@ -390,11 +372,47 @@ namespace StoreBillingSystem
             clearButton.Click += ClearButton_Click;
         }
 
+        private void SearchCustomerTextBox_TextChanged(object sender, EventArgs e)
+        {
+            TextBoxKeyEvent.CapitalizeText_TextChanged(productNameText);
+
+            string searchTerm = productNameText.Text.ToLower();
+
+            if (string.IsNullOrWhiteSpace(searchTerm) || searchTerm == _productNamePlaceHolder.ToLower()) return;
+
+            List<Product> filteredList = productList
+                .Where(product => product.Name.ToLower().Contains(searchTerm))
+                .ToList();
+
+            // Update the BindingSource with the filtered data
+
+            productTable.DataSource = null;
+            productTable.DataSource = filteredList;
+            UpdateCustomerCountAtLabel(filteredList.Count);
+        }
+
+
+
+        private void CategoryTypesComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var category = (Category)categoryTypesComboBox.SelectedItem;
+
+            List<Product> filteredList = productList
+                .Where(product => product.Category.Id == category.Id || category.Id == 0)
+                .ToList();
+
+            // Update the BindingSource with the filtered data
+
+            productTable.DataSource = null;
+            productTable.DataSource = filteredList;
+            UpdateCustomerCountAtLabel(filteredList.Count);
+        }
+
         private void ClearButton_Click(object sender, EventArgs e)
         {
-            TextBoxKeyEvent.BindPlaceholderToTextBox(customerNameText, _customerNamePlaceHolder, Color.Gray);
-            TextBoxKeyEvent.BindPlaceholderToTextBox(phoneText, _phonePlaceHolder, Color.Gray);
-            InitializeCustomerData();
+            TextBoxKeyEvent.BindPlaceholderToTextBox(productNameText, _productNamePlaceHolder, Color.Gray);
+            categoryTypesComboBox.SelectedIndex = 0;
+            InitializeProductData();
         }
 
         private void OkButton_Click(object sender, EventArgs e)
@@ -405,40 +423,41 @@ namespace StoreBillingSystem
 
         private void DeleteButton_Click(object sender, EventArgs e)
         {
-            DialogResult result = MessageBox.Show($"Do you want to remove the selected Customer with its ID is :{customerTable.CurrentRow.Cells[0].Value}?", "Delete Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            DialogResult result = MessageBox.Show($"Do you want to remove the selected Product with its ID is :{productTable.CurrentRow.Cells[0].Value}?", "Delete Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (result == DialogResult.Yes)
             {
-                if (customerDao.Delete(Int32.Parse(customerTable.CurrentRow.Cells[0].Value.ToString())))
+                if (productDao.Delete(long.Parse(productTable.CurrentRow.Cells[0].Value.ToString())))
                 {
-                    // Delete customer records from list that its bind with datagridview datasource
-                    customers.RemoveAt(customerTable.CurrentCell.RowIndex);
+                    // Delete product records from list that its bind with datagridview datasource
+                    productList.RemoveAt(productTable.CurrentCell.RowIndex);
 
                     // Delete the row from the DataGridView
-                    customerTable.Rows.RemoveAt(customerTable.CurrentCell.RowIndex);
+                    productTable.Rows.RemoveAt(productTable.CurrentCell.RowIndex);
 
                     //update totalCustomer count
-                    UpdateCustomerCountAtLabel(customers.Count);
+                    UpdateCustomerCountAtLabel(productList.Count);
                 }
             }
         }
 
+
         private void ViewButton_Click(object sender, EventArgs e)
         {
 
-            _customer = customers[customerTable.CurrentCell.RowIndex];
-            CustomerForm(false, true).ShowDialog();
+            _product = productList[productTable.CurrentCell.RowIndex];
+            ProductForm(false, true).ShowDialog();
             //DialogResult = DialogResult.Cancel;
             //Close();
         }
 
         private void UpdateButton_Click(object sender, EventArgs e)
         {
-            _customer = customers[customerTable.CurrentCell.RowIndex];
-            CustomerForm(true, false).ShowDialog();
+            _product = productList[productTable.CurrentCell.RowIndex];
+            ProductForm(true, false).ShowDialog();
 
         }
 
-        private Form CustomerForm(bool forUpdateCustomer, bool forViewCustomer)
+        private Form ProductForm(bool forUpdateCustomer, bool forViewCustomer)
         {
             Form form = new Form();
             form.HelpButton = true; // Display a help button on the form
@@ -446,63 +465,90 @@ namespace StoreBillingSystem
             form.MaximizeBox = false; // Set the MaximizeBox to false to remove the maximize box.
             form.MinimizeBox = false; // Set the MinimizeBox to false to remove the minimize box.
             form.StartPosition = FormStartPosition.CenterScreen; // Set the start position of the form to the center of the screen.
-            form.Size = new Size(500, 550);
+            form.Size = new Size(600, 450);
             form.BackColor = U.StoreDialogBackColor;
 
-            if (forUpdateCustomer) form.Text = "Update Customer Details";
-            else if (forViewCustomer) form.Text = "Customer Details";
+            if (forUpdateCustomer) form.Text = "Update Product Details";
+            else if (forViewCustomer) form.Text = "Product Details";
 
             form.Controls.Add(UpdateViewForm(form, forUpdateCustomer, forViewCustomer));
 
 
-            InitUpdateViewCustomerData();
+            InitUpdateViewProductData(forUpdateCustomer, forViewCustomer);
 
             return form;
         }
 
-        private void InitUpdateViewCustomerData()
+        private void InitUpdateViewProductData(bool forUpdateProduct, bool forViewProduct)
         {
-            _idTextBox.Text = _customer.Id.ToString();
-            _nameTextBox.Text = _customer.Name;
-            _addressTextBox.Text = _customer.Address;
-            _phoneNumberTextBox.Text = _customer.PhoneNumber.ToString();
-            _registerDateTime.Text = _customer.RegisterDate;
+            _idTextBox.Text = _product.Id.ToString();
+            _nameTextBox.Text = _product.Name;
+            _qtyTextBox.Text = _product.TotalQty.ToString("N");
+            _typeAbbrTextBox.Text = _product.ProductType.Abbr;
 
-            if (_updateDateTime != null) _updateDateTime.Text = string.IsNullOrWhiteSpace(_customer.UpdateDate) ? "" : _customer.UpdateDate;
+            if (forViewProduct)
+            {
+                _categoryTextBox.Text = _product.Category.Name;
+                _typeNameTextBox.Text = _product.ProductType.Name;
+            }
+            else if (forUpdateProduct)
+            {
+                BindCategoryTypeToComboBox();
+                BindProductTypeToComboBox();
+
+                if(float.Parse(_qtyTextBox.Text) == 0)
+                {
+                    TextBoxKeyEvent.BindPlaceholderToTextBox(_qtyTextBox, qtyPercentPlaceHolder, Color.Gray);
+                }
+
+
+                int categoryIndex = categoryList.IndexOf(categoryList.FirstOrDefault(category => _product.Category.Id == category.Id));
+                _categoryComboBox.SelectedIndex = categoryIndex;
+
+                int productTypeIndex = productTypeList.IndexOf(productTypeList.FirstOrDefault(productType => _product.ProductType.Id == productType.Id));
+                _typeNameComboBox.SelectedIndex = productTypeIndex;
+
+                _typeNameComboBox.SelectedIndexChanged += TypeNameComboBox_SelectedIndexChanged;
+            }
+        }
+
+        private void TypeNameComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var productType = (ProductType)_typeNameComboBox.SelectedItem;
+            _typeAbbrTextBox.Text = productType.Abbr;
+        }
+
+        private void BindCategoryTypeToComboBox()
+        {
+            _categoryComboBox.DataSource = null;
+            _categoryComboBox.DataSource = categoryList;
+            _categoryComboBox.DisplayMember = "Name";
+            _categoryComboBox.ValueMember = "Id";
         }
 
 
+        private void BindProductTypeToComboBox()
+        {
+            _typeNameComboBox.DataSource = null;
+            _typeNameComboBox.DataSource = productTypeList;
+            _typeNameComboBox.DisplayMember = "Name";
+            _typeNameComboBox.ValueMember = "Id";
+        }
+
         private TextBox _idTextBox;
         private TextBox _nameTextBox;
-        private TextBox _addressTextBox;
-        private TextBox _phoneNumberTextBox;
-        private TextBox _registerDateTime;
-        private TextBox _updateDateTime;
-        private DateTimePicker _updateDateTimePicker;
-
-        private TableLayoutPanel UpdateViewForm(Form form, bool forUpdateCustomer, bool forViewCustomer)
+        private TextBox _categoryTextBox;
+        private TextBox _typeNameTextBox;
+        private TextBox _typeAbbrTextBox;
+        private TextBox _qtyTextBox;
+        private ComboBox _categoryComboBox;
+        private ComboBox _typeNameComboBox;
+        private TableLayoutPanel UpdateViewForm(Form form, bool forUpdateProduct, bool forViewProduct)
         {
-            Label registerDateLabel = new Label
-            {
-                Text = "Register Date :",
-                Font = labelFont,
-                Dock = DockStyle.Fill,
-                ForeColor = Color.Black,
-                TextAlign = ContentAlignment.MiddleRight,
-            };
 
-            Label updateDateLabel = new Label
+            Label productIdLabel = new Label
             {
-                Text = "Update Date :",
-                Font = labelFont,
-                Dock = DockStyle.Fill,
-                ForeColor = Color.Black,
-                TextAlign = ContentAlignment.MiddleRight,
-            };
-
-            Label customerIdLabel = new Label
-            {
-                Text = "Customer Id :",
+                Text = "Product Id :",
                 Font = labelFont,
                 Dock = DockStyle.Fill,
                 ForeColor = Color.Black,
@@ -511,25 +557,43 @@ namespace StoreBillingSystem
 
             Label nameLabel = new Label
             {
-                Text = "Full Name :",
+                Text = "Product Name :",
                 Font = labelFont,
                 Dock = DockStyle.Fill,
                 ForeColor = Color.Black,
                 TextAlign = ContentAlignment.MiddleRight,
             };
 
-            Label addressLabel = new Label
+            Label categoryLabel = new Label
             {
-                Text = "Address :",
+                Text = "Category :",
+                Font = labelFont,
+                Dock = DockStyle.Fill,
+                ForeColor = Color.Black,
+                TextAlign = ContentAlignment.MiddleRight,
+            };
+
+            Label typeNameLabel = new Label
+            {
+                Text = "Product Type Name :",
+                Font = labelFont,
+                Dock = DockStyle.Fill,
+                ForeColor = Color.Black,
+                TextAlign = ContentAlignment.MiddleRight,
+            };
+
+            Label typeAbbrLabel = new Label
+            {
+                Text = "Product Type Abbr :",
                 ForeColor = Color.Black,
                 Dock = DockStyle.Fill,
                 Font = labelFont,
                 TextAlign = ContentAlignment.MiddleRight
             };
 
-            Label phoneLabel = new Label
+            Label qtyLabel = new Label
             {
-                Text = "Phone Number :",
+                Text = "Total Qty :",
                 ForeColor = Color.Black,
                 Dock = DockStyle.Fill,
                 Font = labelFont,
@@ -540,7 +604,7 @@ namespace StoreBillingSystem
             _idTextBox = new TextBox
             {
                 Dock = DockStyle.Fill,
-                Font = labelFont,
+                Font = U.StoreTextBoxFont,
                 Margin = new Padding(10),
                 ReadOnly = true,
                 BackColor = Color.White
@@ -553,23 +617,7 @@ namespace StoreBillingSystem
                 Margin = new Padding(10),
             };
 
-            _addressTextBox = new TextBox
-            {
-                Dock = DockStyle.Fill,
-                Size = new Size(200, 100),
-                Multiline = true,
-                Font = U.StoreTextBoxFont,
-                Margin = new Padding(10),
-            };
-
-            _phoneNumberTextBox = new TextBox
-            {
-                Dock = DockStyle.Fill,
-                Font = U.StoreTextBoxFont,
-                Margin = new Padding(10),
-            };
-
-            _registerDateTime = new TextBox
+            _typeAbbrTextBox = new TextBox
             {
                 Dock = DockStyle.Fill,
                 Font = U.StoreTextBoxFont,
@@ -578,6 +626,12 @@ namespace StoreBillingSystem
                 BackColor = Color.White
             };
 
+            _qtyTextBox = new TextBox
+            {
+                Dock = DockStyle.Fill,
+                Font = U.StoreTextBoxFont,
+                Margin = new Padding(10),
+            };
 
 
             TableLayoutPanel table = new TableLayoutPanel
@@ -585,58 +639,68 @@ namespace StoreBillingSystem
                 Dock = DockStyle.Fill,
                 CellBorderStyle = TableLayoutPanelCellBorderStyle.None,
                 //BackColor = Color.Aquamarine,
-                ColumnCount = 3,
+                ColumnCount = 4,
                 RowCount = 9
             };
 
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 125F));
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150F));
             table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 325F));
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100F));
 
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 150F));
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
 
-
-            table.Controls.Add(customerIdLabel, 0, 0);
+            table.Controls.Add(productIdLabel, 0, 0);
             table.Controls.Add(_idTextBox, 1, 0);
 
             table.Controls.Add(nameLabel, 0, 1);
             table.Controls.Add(_nameTextBox, 1, 1);
+            table.SetColumnSpan(_nameTextBox, 2);
 
-            table.Controls.Add(addressLabel, 0, 2);
-            table.Controls.Add(_addressTextBox, 1, 2);
+            table.Controls.Add(categoryLabel, 0, 2);
+            table.Controls.Add(typeNameLabel, 0, 3);
 
-            table.Controls.Add(phoneLabel, 0, 3);
-            table.Controls.Add(_phoneNumberTextBox, 1, 3);
+            table.Controls.Add(typeAbbrLabel, 0, 4);
+            table.Controls.Add(_typeAbbrTextBox, 1, 4);
 
-            table.Controls.Add(registerDateLabel, 0, 4);
-            table.Controls.Add(_registerDateTime, 1, 4);
+            table.Controls.Add(qtyLabel, 0, 5);
+            table.Controls.Add(_qtyTextBox, 1, 5);
+
 
 
             FlowLayoutPanel flowLayout = new FlowLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                FlowDirection = FlowDirection.LeftToRight
+                FlowDirection = FlowDirection.LeftToRight,
             };
 
             //To show Update Form
-            if (forUpdateCustomer)
+            if (forUpdateProduct)
             {
-                _updateDateTimePicker = new DateTimePicker
+                _categoryComboBox = new ComboBox
                 {
-                    //CustomFormat = "yyyy-MM-dd HH:mm:ss",
-                    Format = DateTimePickerFormat.Short,
                     Dock = DockStyle.Fill,
-                    Font = labelFont,
-                    Margin = new Padding(10)
+                    Font = textBoxFont,
+                    Margin = new Padding(10),
+                    DropDownStyle = ComboBoxStyle.DropDownList
                 };
 
-                table.Controls.Add(updateDateLabel, 0, 5);
-                table.Controls.Add(_updateDateTimePicker, 1, 5);
+                _typeNameComboBox = new ComboBox
+                {
+                    Dock = DockStyle.Fill,
+                    Font = textBoxFont,
+                    Margin = new Padding(10),
+                    DropDownStyle = ComboBoxStyle.DropDownList
+                };
+
+                table.Controls.Add(_categoryComboBox, 1, 2);
+                table.Controls.Add(_typeNameComboBox, 1, 3);
 
                 Button _cancelButton = new Button
                 {
@@ -666,23 +730,30 @@ namespace StoreBillingSystem
                 flowLayout.Controls.Add(_updateButton);
 
                 _cancelButton.Click += (sender, e) => form.Close();
-                _updateButton.Click += (sender, e) => UpdateCustomerFormEvent(form); ;
+                _updateButton.Click += (sender, e) => UpdateProductFormEvent(form); ;
 
                 form.CancelButton = _cancelButton;
             }
             //To show View Form
-            else if (forViewCustomer)
+            else if (forViewProduct)
             {
-                _updateDateTime = new TextBox
+                _categoryTextBox = new TextBox
                 {
                     Dock = DockStyle.Fill,
                     Font = U.StoreTextBoxFont,
                     Margin = new Padding(10),
-                    ForeColor = Color.Black
                 };
 
-                table.Controls.Add(updateDateLabel, 0, 5);
-                table.Controls.Add(_updateDateTime, 1, 5);
+                _typeNameTextBox = new TextBox
+                {
+                    Dock = DockStyle.Fill,
+                    Font = U.StoreTextBoxFont,
+                    Margin = new Padding(10),
+                };
+
+                table.Controls.Add(_categoryTextBox, 1, 2);
+                table.Controls.Add(_typeNameTextBox, 1, 3);
+
 
                 Button _okButton = new Button
                 {
@@ -693,19 +764,17 @@ namespace StoreBillingSystem
                     ForeColor = Color.White,
                     Height = 40,
                     Width = 100
-
                 };
 
-
                 _nameTextBox.ReadOnly = true;
-                _addressTextBox.ReadOnly = true;
-                _phoneNumberTextBox.ReadOnly = true;
-                _updateDateTime.ReadOnly = true;
+                _categoryTextBox.ReadOnly = true;
+                _typeNameTextBox.ReadOnly = true;
+                _qtyTextBox.ReadOnly = true;
 
                 _nameTextBox.BackColor = Color.White;
-                _addressTextBox.BackColor = Color.White;
-                _phoneNumberTextBox.BackColor = Color.White;
-                _updateDateTime.BackColor = Color.White;
+                _categoryTextBox.BackColor = Color.White;
+                _typeNameTextBox.BackColor = Color.White;
+                _qtyTextBox.BackColor = Color.White;
 
 
 
@@ -717,64 +786,81 @@ namespace StoreBillingSystem
                 form.CancelButton = _okButton;
             }
 
-            _nameTextBox.TextChanged += (sender, e) => TextBoxKeyEvent.CapitalizeText_TextChanged(_nameTextBox);
-            _addressTextBox.TextChanged += (sender, e) => TextBoxKeyEvent.CapitalizeText_TextChanged(_addressTextBox);
-            _phoneNumberTextBox.KeyPress += PhoneTextBox_KeyPress;
-
             table.Controls.Add(flowLayout, 1, 7);
+
+            _nameTextBox.TextChanged += (sender, e) => TextBoxKeyEvent.CapitalizeText_TextChanged(_nameTextBox);
+            _qtyTextBox.KeyPress += TextBoxKeyEvent.DecimalNumbericTextBox_KeyPress;
+
+            _qtyTextBox.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(_qtyTextBox, qtyPercentPlaceHolder);
+            _qtyTextBox.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(_qtyTextBox, qtyPercentPlaceHolder);
 
             return table;
         }
 
-        private void UpdateCustomerFormEvent(Form form)
+        private void UpdateProductFormEvent(Form form)
         {
             string name = _nameTextBox.Text.Trim();
-            string address = _addressTextBox.Text.Trim();
-            string phone = _phoneNumberTextBox.Text.Trim();
-
+            string qty = _qtyTextBox.Text.Trim();
 
             if (string.IsNullOrWhiteSpace(name))
             {
-                MessageBox.Show("Customer name can't be empty or null.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("Product name can't be empty or null.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
-            if (string.IsNullOrWhiteSpace(address))
+
+            if (string.IsNullOrWhiteSpace(qty))
             {
-                MessageBox.Show("Address can't be empty or null.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("Total quantity number can't be empty or null.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
-            if (string.IsNullOrWhiteSpace(phone))
-            {
-                MessageBox.Show("Phone number can't be empty or null.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                return;
-            }
-            if (_customer.Name == name && _customer.Address == address && _customer.PhoneNumber == long.Parse(phone))
+
+            var productType = (ProductType)_typeNameComboBox.SelectedItem;
+            var category = (Category)_categoryComboBox.SelectedItem;
+
+            if (_product.Name == name && _product.Category.Id == category.Id && _product.ProductType.Id == productType.Id && _product.TotalQty == float.Parse(qty))
             {
                 MessageBox.Show("There is nothing to update.", "Status", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-            if (_customer.PhoneNumber != long.Parse(phone))
+
+            if (_product.Name != name)
             {
-                if (customerDao.IsRecordExists(long.Parse(phone)))
+                if (productDao.IsRecordExists(name))
                 {
-                    MessageBox.Show("Phone number is already exist.", "Duplicate", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    return;
-                }
-            }
-            if (_customer.Name != name && _customer.PhoneNumber != long.Parse(phone))
-            {
-                if (customerDao.IsRecordExists(name, long.Parse(phone)))
-                {
-                    MessageBox.Show("Name & Phone number already exist.", "Duplicate", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Product name is already exist.", "Duplicate", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
             }
 
-            Customer customer = new Customer(_customer.Id, name, address, long.Parse(phone), _customer.RegisterDate, U.ToDateTime(_updateDateTimePicker.Value));
-            if (customerDao.Update(customer))
+            Product product = new Product(_product.Id, name, category, productType, float.Parse(qty));
+
+            /*
+            foreach (DataGridViewRow row in productTable.Rows)
+            {
+                // Set the value for Category.Name column
+                if (row.DataBoundItem is Product product)
+                {
+                    row.Cells[2].Value = product.Category?.Name;
+                    row.Cells[3].Value = product.ProductType?.Name;
+                    row.Cells[4].Value = product.ProductType?.Abbr;
+                }
+            }
+            */
+
+            if (productDao.Update(product))
             {
                 MessageBox.Show("Update successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                customers[customerTable.CurrentCell.RowIndex] = customer;
+                productList[productTable.CurrentCell.RowIndex] = product;
+
+                DataGridViewRow row = productTable.Rows[productTable.CurrentCell.RowIndex];
+                if (row.DataBoundItem is Product p)
+                {
+                    row.Cells[2].Value = p.Category?.Name;
+                    row.Cells[3].Value = p.ProductType?.Name;
+                    row.Cells[4].Value = p.ProductType?.Abbr;
+                }
+                // Or used below statement to update on table
+                //BindProductToDataGridView();
                 form.Close();
             }
             else
@@ -785,18 +871,5 @@ namespace StoreBillingSystem
 
         }
 
-        private void PhoneTextBox_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            // Allow digits, decimal point, and the backspace key
-            if (!char.IsDigit(e.KeyChar) && e.KeyChar != (char)Keys.Back)
-            {
-                e.Handled = true; // Ignore the input
-            }
-            if (_phoneNumberTextBox.Text.Length >= 10 && !char.IsControl(e.KeyChar))
-            {
-                e.Handled = true; // Cancel the key press
-                MessageBox.Show("Please enter a valid phone number with exactly 10 digits.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-            }
-        }
     }
 }

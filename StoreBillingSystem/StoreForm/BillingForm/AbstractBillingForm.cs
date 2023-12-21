@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using StoreBillingSystem.Util;
 
-namespace StoreBillingSystem
+namespace StoreBillingSystem.StoreForm.BillingForm
 {
     public class AbstractBillingForm : Form
     {

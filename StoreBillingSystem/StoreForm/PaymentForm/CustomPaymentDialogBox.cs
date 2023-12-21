@@ -6,7 +6,7 @@ using StoreBillingSystem.Entity;
 using StoreBillingSystem.Events;
 using StoreBillingSystem.Util;
 
-namespace StoreBillingSystem
+namespace StoreBillingSystem.StoreForm.PaymentForm
 {
     public class CustomPaymentDialogBox : Form
     {

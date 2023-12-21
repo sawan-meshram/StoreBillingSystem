@@ -11,7 +11,7 @@ using StoreBillingSystem.Entity;
 using StoreBillingSystem.Events;
 using StoreBillingSystem.Util;
 
-namespace StoreBillingSystem
+namespace StoreBillingSystem.StoreForm.CustomerForm
 {
     public class CustomerDisplayForm : Form
     {
@@ -141,7 +141,7 @@ namespace StoreBillingSystem
             {
                 Text = "Clear",
                 Dock = DockStyle.Fill,
-                DialogResult = DialogResult.OK,
+                //DialogResult = DialogResult.OK,
                 Font = labelFont,
                 ForeColor = Color.White,
                 BackColor = Color.Blue,
@@ -715,12 +715,20 @@ namespace StoreBillingSystem
                 //Ok button event
                 _okButton.Click += (sender, e) => form.Close();
 
+                _nameTextBox.Enter += (sender, e) => TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(_nameTextBox, Color.LightGray);
+                _addressTextBox.Enter += (sender, e) => TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(_addressTextBox, Color.LightGray);
+                _phoneNumberTextBox.Enter += (sender, e) => TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(_phoneNumberTextBox, Color.LightGray);
+                _updateDateTime.Enter += (sender, e) => TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(_updateDateTime, Color.LightGray);
+
                 form.CancelButton = _okButton;
             }
 
             _nameTextBox.TextChanged += (sender, e) => TextBoxKeyEvent.CapitalizeText_TextChanged(_nameTextBox);
             _addressTextBox.TextChanged += (sender, e) => TextBoxKeyEvent.CapitalizeText_TextChanged(_addressTextBox);
             _phoneNumberTextBox.KeyPress += PhoneTextBox_KeyPress;
+
+            _idTextBox.Enter += (sender, e) => TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(_idTextBox, Color.LightGray);
+            _registerDateTime.Enter += (sender, e) => TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(_registerDateTime, Color.LightGray);
 
             table.Controls.Add(flowLayout, 1, 7);
 

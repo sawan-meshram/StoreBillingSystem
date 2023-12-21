@@ -2,17 +2,21 @@
 using System.Windows.Forms;
 using System.Drawing;
 
+using StoreBillingSystem.StoreForm.CustomerForm;
+using StoreBillingSystem.StoreForm.ProductForm;
+using StoreBillingSystem.StoreForm.CategoryForm;
+using StoreBillingSystem.StoreForm.ProductTypeForm;
 namespace StoreBillingSystem
 {
 
     public class MainForm : Form
     {
         private TabControl tabControl;
-        private TabPage customerRegistrationTab;
+        //private TabPage customerRegistrationTab;
         private TabPage billingTab;
         private TabPage productTab;
 
-        private BillingForm1 billingForm;
+        private StoreForm.BillingForm.BillingForm billingForm;
         private AddCustomer registrationForm;
         private ProductForm productForm;
         public MainForm()
@@ -28,7 +32,7 @@ namespace StoreBillingSystem
 
             InitForms();
             // Add RegistrationForm to the Registration tab
-            customerRegistrationTab.Controls.Add(registrationForm);
+            //customerRegistrationTab.Controls.Add(registrationForm);
             billingTab.Controls.Add(billingForm);
             productTab.Controls.Add(productForm);
 
@@ -59,7 +63,7 @@ namespace StoreBillingSystem
             registrationForm.TopLevel = false;
             registrationForm.Dock = DockStyle.Fill;
 
-            billingForm = new BillingForm1();
+            billingForm = new StoreForm.BillingForm.BillingForm();
             billingForm.TopLevel = false;
             billingForm.Dock = DockStyle.Fill;
 
@@ -82,9 +86,11 @@ namespace StoreBillingSystem
             billingTab.Text = "Billing";
             tabControl.TabPages.Add(billingTab);
 
+            /*
             customerRegistrationTab = new TabPage();
             customerRegistrationTab.Text = "Customer";
             tabControl.TabPages.Add(customerRegistrationTab);
+            */
 
             productTab = new TabPage();
             productTab.Text = "Product";
@@ -101,14 +107,48 @@ namespace StoreBillingSystem
 
             // Create menu items
             MainMenu mainMenu = new MainMenu();
-            MenuItem fileMenuItem = new MenuItem("File");
+
+            MenuItem fileMenu = new MenuItem("File");
             MenuItem registrationMenuItem = new MenuItem("Open Registration Form");
             MenuItem billingMenuItem = new MenuItem("Open Billing Form");
 
             // Add menu items to the menu
-            fileMenuItem.MenuItems.Add(registrationMenuItem);
-            fileMenuItem.MenuItems.Add(billingMenuItem);
-            mainMenu.MenuItems.Add(fileMenuItem);
+            fileMenu.MenuItems.Add(registrationMenuItem);
+            fileMenu.MenuItems.Add(billingMenuItem);
+
+            MenuItem customerMenu = new MenuItem("Customer");
+            MenuItem customerNewMenu = new MenuItem("New");
+            MenuItem customerViewMenu = new MenuItem("View");
+            customerMenu.MenuItems.Add(customerNewMenu);
+            customerMenu.MenuItems.Add(customerViewMenu);
+
+            customerNewMenu.Click += (sender, e) => CustomerNewMenu();
+            customerViewMenu.Click += (sender, e) => CustomerViewMenu();
+
+            MenuItem productMenu = new MenuItem("Product");
+            MenuItem productViewMenu = new MenuItem("View");
+            productMenu.MenuItems.Add(productViewMenu);
+            productViewMenu.Click += (sender, e) => ProductViewMenu();
+
+            MenuItem categoryMenu = new MenuItem("Category");
+            MenuItem categoryNewAndViewMenu = new MenuItem("New / View");
+            categoryMenu.MenuItems.Add(categoryNewAndViewMenu);
+
+            categoryNewAndViewMenu.Click += (sender, e) => CategoryNewAndViewMenu();
+
+            MenuItem productTypeMenu = new MenuItem("Product Type");
+            MenuItem productTypeNewAndViewMenu = new MenuItem("New / View");
+            productTypeMenu.MenuItems.Add(productTypeNewAndViewMenu);
+
+            productTypeNewAndViewMenu.Click += (sender, e) => ProductTypeNewAndViewMenu();
+
+
+            mainMenu.MenuItems.Add(fileMenu);
+            mainMenu.MenuItems.Add(customerMenu);
+            mainMenu.MenuItems.Add(productMenu);
+            mainMenu.MenuItems.Add(categoryMenu);
+            mainMenu.MenuItems.Add(productTypeMenu);
+
             this.Menu = mainMenu;
 
             // Event handlers for menu items
@@ -116,6 +156,29 @@ namespace StoreBillingSystem
             //billingMenuItem.Click += new EventHandler(BillingMenuItem_Click);
         }
 
+        private void CustomerNewMenu()
+        {
+            new CustomerInsertForm().ShowDialog();
+        }
+
+        private void CustomerViewMenu()
+        {
+            new CustomerDisplayForm().ShowDialog();
+        }
+
+        private void ProductViewMenu()
+        {
+            new ProductDisplayForm().ShowDialog();
+        }
+        private void CategoryNewAndViewMenu()
+        {
+            new CategoryForm().ShowDialog();
+        }
+        private void ProductTypeNewAndViewMenu()
+        {
+            new ProductTypeForm().ShowDialog();
+        }
+        /*
         private void RegistrationMenuItem_Click(object sender, EventArgs e)
         {
             // Open Registration Form in the "Registration" tab
@@ -125,6 +188,7 @@ namespace StoreBillingSystem
             customerRegistrationTab.Controls.Add(registrationForm);
             registrationForm.Show();
         }
+        */
 
         private void BillingMenuItem_Click(object sender, EventArgs e)
         {

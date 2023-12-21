@@ -3,24 +3,38 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
 
+using StoreBillingSystem.Database;
 using StoreBillingSystem.DAO;
+using StoreBillingSystem.DAOImpl;
 using StoreBillingSystem.Entity;
 using StoreBillingSystem.Events;
-namespace StoreBillingSystem
+namespace StoreBillingSystem.StoreForm.ProductTypeForm
 {
     public class ProductTypeForm : Form
     {
+
+        public ProductTypeForm()
+        {
+            var _productTypeDao = new ProductTypeDaoImpl(DatabaseManager.GetConnection());
+
+            Init(_productTypeDao, _productTypeDao.ReadAll(false), null);
+        }
+
         public ProductTypeForm(IProductTypeDao productTypeDao, IList<ProductType> productTypeList): this(productTypeDao, productTypeList, null)
         {
         }
 
         public ProductTypeForm(IProductTypeDao productTypeDao, IList<ProductType> productTypeList, ComboBox productTypesComboBox)
         {
-            this.productTypeDao = productTypeDao;
-            this.productTypeList = productTypeList;
-            this.productTypesComboBox = productTypesComboBox;
-            InitializeComponent();
+            Init(productTypeDao, productTypeList, productTypesComboBox);
+        }
 
+        private void Init(IProductTypeDao _productTypeDao, IList<ProductType> _productTypeList, ComboBox _productTypesComboBox)
+        {
+            this.productTypeDao = _productTypeDao;
+            this.productTypeList = _productTypeList;
+            this.productTypesComboBox = _productTypesComboBox;
+            InitializeComponent();
         }
 
         private IList<ProductType> productTypeList;
@@ -36,14 +50,14 @@ namespace StoreBillingSystem
         private TextBox typeAbbrNameField;
         private void InitializeComponent()
         {
-            Text = "Add Product Type";
+            Text = "New / View Product Type";
             HelpButton = true; // Display a help button on the form
             FormBorderStyle = FormBorderStyle.FixedDialog; // Define the border style of the form to a dialog box.
             MaximizeBox = false; // Set the MaximizeBox to false to remove the maximize box.
             MinimizeBox = false; // Set the MinimizeBox to false to remove the minimize box.
             StartPosition = FormStartPosition.CenterScreen; // Set the start position of the form to the center of the screen.
             Size = new Size(600, 600);
-            BackColor = Color.Yellow;
+            BackColor = Util.U.StoreDialogBackColor;
 
 
             TableLayoutPanel footerPanel = new TableLayoutPanel
@@ -211,10 +225,17 @@ namespace StoreBillingSystem
             }
 
             //categoryTable.Rows.Add("1", "Daal", "KG", "1", "100.00", "5", "0", "100.00");
+            productTypeTable.ReadOnly = true;
+            productTypeTable.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            productTypeTable.MultiSelect = false;
 
             productTypeTable.AllowUserToAddRows = false;
             productTypeTable.AutoGenerateColumns = false;
             productTypeTable.RowHeadersVisible = false;
+            productTypeTable.AllowUserToResizeRows = false;
+            productTypeTable.AllowUserToResizeColumns = false;
+
+
             //Binf list with datagridview
             productTypeTable.Columns[0].DataPropertyName = "Id";
             productTypeTable.Columns[1].DataPropertyName = "Abbr";

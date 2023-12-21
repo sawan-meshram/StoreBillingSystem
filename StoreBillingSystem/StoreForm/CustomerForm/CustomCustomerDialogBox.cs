@@ -8,12 +8,12 @@ using StoreBillingSystem.Entity;
 using StoreBillingSystem.Events;
 using StoreBillingSystem.Util;
 
-namespace StoreBillingSystem
+namespace StoreBillingSystem.StoreForm.CustomerForm
 {
-    public class CustomerCustomDialogBox : Form
+    public class CustomCustomerDialogBox : Form
     {
 
-        public CustomerCustomDialogBox(DataGridView customerTable, IList<Customer> customers)
+        public CustomCustomerDialogBox(DataGridView customerTable, IList<Customer> customers)
         {
             this.customers = customers;
             this.customerTable = customerTable;

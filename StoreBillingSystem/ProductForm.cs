@@ -9,6 +9,8 @@ using StoreBillingSystem.DAO;
 using StoreBillingSystem.DAOImpl;
 using StoreBillingSystem.Database;
 using StoreBillingSystem.Events;
+using StoreBillingSystem.StoreForm.CategoryForm;
+using StoreBillingSystem.StoreForm.ProductTypeForm;
 
 namespace StoreBillingSystem
 {

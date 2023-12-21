@@ -3,25 +3,39 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
 
+using StoreBillingSystem.Database;
 using StoreBillingSystem.DAO;
+using StoreBillingSystem.DAOImpl;
 using StoreBillingSystem.Entity;
 using StoreBillingSystem.Events;
-namespace StoreBillingSystem
+namespace StoreBillingSystem.StoreForm.CategoryForm
 {
     public class CategoryForm : Form
     {
+
+        public CategoryForm()
+        {
+            var _categoryDao = new CategoryDaoImpl(DatabaseManager.GetConnection());
+
+            Init(_categoryDao, _categoryDao.ReadAll(false), null);
+        }
+
         public CategoryForm(ICategoryDao categoryDao, IList<Category> categoryList): this(categoryDao, categoryList, null)
         {
         }
 
         public CategoryForm(ICategoryDao categoryDao, IList<Category> categoryList, ComboBox categoryTypesComboBox)
         {
-            this.categoryDao = categoryDao;
-            this.categoryList = categoryList;
-            this.categoryTypesComboBox = categoryTypesComboBox;
-            InitializeComponent();
+            Init(categoryDao, categoryList, categoryTypesComboBox);
         }
 
+        private void Init(ICategoryDao _categoryDao, IList<Category> _categoryList, ComboBox _categoryTypesComboBox)
+        {
+            this.categoryDao = _categoryDao;
+            this.categoryList = _categoryList;
+            this.categoryTypesComboBox = _categoryTypesComboBox;
+            InitializeComponent();
+        }
 
 
         private Font labelFont = Util.U.StoreLabelFont;
@@ -35,14 +49,14 @@ namespace StoreBillingSystem
         private TextBox categoryNameField;
         private void InitializeComponent()
         {
-            Text = "Add Category";
+            Text = "New / View Category";
             HelpButton = true; // Display a help button on the form
             FormBorderStyle = FormBorderStyle.FixedDialog; // Define the border style of the form to a dialog box.
             MaximizeBox = false; // Set the MaximizeBox to false to remove the maximize box.
             MinimizeBox = false; // Set the MinimizeBox to false to remove the minimize box.
             StartPosition = FormStartPosition.CenterScreen; // Set the start position of the form to the center of the screen.
             Size = new Size(600, 600);
-            BackColor = Color.Yellow;
+            BackColor = Util.U.StoreDialogBackColor;
 
             TableLayoutPanel footerPanel = new TableLayoutPanel
             {
@@ -191,9 +205,15 @@ namespace StoreBillingSystem
 
             //categoryTable.Rows.Add("1", "Daal", "KG", "1", "100.00", "5", "0", "100.00");
 
+            categoryTable.ReadOnly = true;
+            categoryTable.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            categoryTable.MultiSelect = false;
+
             categoryTable.AllowUserToAddRows = false;
             categoryTable.AutoGenerateColumns = false;
             categoryTable.RowHeadersVisible = false;
+            categoryTable.AllowUserToResizeRows = false;
+            categoryTable.AllowUserToResizeColumns = false;
 
             //Binf list with datagridview
             categoryTable.Columns[0].DataPropertyName = "Id";

@@ -2,33 +2,22 @@
 using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
-using Mono.Data.Sqlite;
 
 using StoreBillingSystem.Entity;
 using StoreBillingSystem.DAO;
 using StoreBillingSystem.DAOImpl;
 using StoreBillingSystem.Database;
 using StoreBillingSystem.Events;
+using StoreBillingSystem.Util;
 
-namespace StoreBillingSystem
+namespace StoreBillingSystem.StoreForm.CustomerForm
 {
-    public class AddCustomer : Form
+    public class CustomerInsertForm : Form
     {
-        private Panel topPanel;
-        private Panel bottomPanel;
-        private Panel leftPanel;
-        private Panel rightPanel;
-        private Panel centerPanel;
-
-        private Font labelFont = Util.U.StoreLabelFont;
-        private Font textfieldFont = Util.U.StoreTextBoxFont;
-
-        public AddCustomer()
+        public CustomerInsertForm()
         {
             InitializeComponent();
 
-            //closed the database
-            //FormClosed += Program.ProductForm_FormClosed;
             InitComponentsData();
         }
 
@@ -42,9 +31,8 @@ namespace StoreBillingSystem
 
         private void InitComponentsData()
         {
-            SqliteConnection connection = DatabaseManager.GetConnection();
 
-            customerDao = new CustomerDaoImpl(connection);
+            customerDao = new CustomerDaoImpl(DatabaseManager.GetConnection());
 
             //Set New product Id
             idTextBox.Text = customerDao.GetNewCustomerId().ToString();
@@ -52,145 +40,55 @@ namespace StoreBillingSystem
             customerNameAutoSuggestion = new AutoCompleteStringCollection();
             customerNames = (List<string>)customerDao.CustomerNames();
 
-            phoneAutoSuggestion = new AutoCompleteStringCollection();
-            phones = (List<string>)customerDao.Phones();
+            //phoneAutoSuggestion = new AutoCompleteStringCollection();
+            //phones = (List<string>)customerDao.Phones();
 
             BindAutoSuggestionToCustomerNameTextBox();
-            BindAutoSuggestionToPhoneTextBox();
+            //BindAutoSuggestionToPhoneTextBox();
 
         }
 
-        private void InitializeComponent()
-        {
-            // Create the main form
-            this.Text = "Customer Registration Form";
-            this.Size = new Size(1366, 768);
-
-
-            // Create panels for each region
-            topPanel = new Panel();
-            topPanel.BackColor = Color.LightBlue;
-            topPanel.Dock = DockStyle.Top;
-            topPanel.Height = 80;
-
-
-            topPanel.Controls.Add(SetTop());
-
-            bottomPanel = new Panel();
-            bottomPanel.BackColor = Color.LightGreen;
-            bottomPanel.Dock = DockStyle.Bottom;
-            bottomPanel.Height = 50;
-
-            leftPanel = new Panel();
-            leftPanel.BackColor = Color.LightYellow;
-            leftPanel.Dock = DockStyle.Left;
-            leftPanel.Width = 100;
-
-            rightPanel = new Panel();
-            rightPanel.BackColor = Color.LightCoral;
-            rightPanel.Dock = DockStyle.Right;
-            rightPanel.Width = 100;
-
-            centerPanel = new Panel();
-            centerPanel.BackColor = Color.White;
-            centerPanel.Dock = DockStyle.Fill;
-
-            centerPanel.Controls.Add(SetCenter());
-
-            // Add panels to the form
-            this.Controls.Add(topPanel);
-            this.Controls.Add(bottomPanel);
-            this.Controls.Add(leftPanel);
-
-            this.Controls.Add(rightPanel);
-            this.Controls.Add(centerPanel);
-        }
-
-        private FlowLayoutPanel SetTop()
-        {
-            FlowLayoutPanel flowPanel = new FlowLayoutPanel();
-            flowPanel.Dock = DockStyle.Fill;
-            flowPanel.FlowDirection = FlowDirection.LeftToRight; // Flow from top to bottom
-
-            Label title = new Label
-            {
-                Text = "Customer Registration",
-                Dock = DockStyle.Fill,
-                Font = Util.U.StoreTitleFont,
-                ForeColor = Color.Black,
-                AutoSize = true,
-
-                Padding = new Padding()
-                {
-                    Left = 30,
-                    Top = 30
-                },
-
-                TextAlign = ContentAlignment.MiddleCenter
-            };
-
-            flowPanel.Controls.Add(title);
-
-            return flowPanel;
-
-        }
+        private Font labelFont = Util.U.StoreLabelFont;
+        private Font textfieldFont = Util.U.StoreTextBoxFont;
 
         private TextBox idTextBox;
         private TextBox nameTextBox;
         private TextBox addressTextBox;
         private TextBox phoneNumberTextBox;
-        //private Button registerButton;
-        //private Button clearButton;
         private DateTimePicker registerDateTimePicker;
 
         private string customerNamePlaceHolder = Util.U.ToTitleCase("Enter full name here...");
         private string customerPhonePlaceHolder = Util.U.ToTitleCase("Enter 10 digit mobile number ..");
         private string customerAddressPlaceHolder = Util.U.ToTitleCase("Enter address here...");
 
-        private TableLayoutPanel SetCenter()
+        private void InitializeComponent()
         {
-            TableLayoutPanel table = new TableLayoutPanel 
+            Text = "Register Customer";
+
+            HelpButton = true; // Display a help button on the form
+            FormBorderStyle = FormBorderStyle.FixedDialog; // Define the border style of the form to a dialog box.
+            MaximizeBox = false; // Set the MaximizeBox to false to remove the maximize box.
+            MinimizeBox = false; // Set the MinimizeBox to false to remove the minimize box.
+            StartPosition = FormStartPosition.CenterScreen; // Set the start position of the form to the center of the screen.
+            Size = new Size(560, 530);
+            BackColor = U.StoreDialogBackColor;
+            AutoScroll = true;
+
+
+
+            TableLayoutPanel table = new TableLayoutPanel
             {
+                Dock = DockStyle.Fill,
                 CellBorderStyle = TableLayoutPanelCellBorderStyle.None,
-                Size = new Size(540, 480),
-                Location = new Point(120, 100),
-                BackColor = Color.Aquamarine,
-                ColumnCount = 3
+                BackColor = U.StoreDialogBackColor,
+                ColumnCount = 4,
+                RowCount = 12
             };
 
-            /*
-            Label name = new Label
-            {
-                Text = "Name :",
-                Font = new Font("Arial", 14, FontStyle.Bold),
-                Location = new Point(130, 100),
-                ForeColor = Color.Black
-                //Dock = DockStyle.Fill,
-                //TextAlign = ContentAlignment.MiddleCenter
-            };
-
-            Label address =  new Label { 
-                Text = "Address:", 
-                Font = new Font("Arial", 14, FontStyle.Bold) ,
-                Location = new Point(130, 150),
-                ForeColor = Color.Black
-            };
-
-            Label phoneNumber = new Label
-            {
-                Text = "Phone Number:",
-                Font = new Font("Arial", 14, FontStyle.Bold),
-                Location = new Point(130, 200),
-                ForeColor = Color.Black
-            };
-
-            tableLayoutPanel.Controls.Add(name);
-            tableLayoutPanel.Controls.Add(address);
-            tableLayoutPanel.Controls.Add(phoneNumber);
-            */
 
             table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 125F));
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 10F));
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 15F));
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 400F));
 
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
@@ -207,11 +105,11 @@ namespace StoreBillingSystem
             //Registration date
             table.Controls.Add(new Label
             {
-               Text = "Register Date:",
-               Font = labelFont,
-               Dock = DockStyle.Fill,
-               ForeColor = Color.Black,
-               TextAlign = ContentAlignment.MiddleRight,
+                Text = "Register Date:",
+                Font = labelFont,
+                Dock = DockStyle.Fill,
+                ForeColor = Color.Black,
+                TextAlign = ContentAlignment.MiddleRight,
             }, 0, 0);
 
             table.Controls.Add(new Label
@@ -261,7 +159,8 @@ namespace StoreBillingSystem
                 //BorderStyle = BorderStyle.Fixed3D,
                 Font = labelFont,
                 Margin = new Padding(10),
-                ReadOnly = true
+                ReadOnly = true,
+                BackColor = Color.White
                 //Padding = new Padding(20)
                 //Height = 50
             };
@@ -303,8 +202,8 @@ namespace StoreBillingSystem
             table.Controls.Add(nameTextBox, 2, 4);
 
             //Address
-            table.Controls.Add(new Label 
-            { 
+            table.Controls.Add(new Label
+            {
                 Text = "Address:",
                 ForeColor = Color.Black,
                 Dock = DockStyle.Fill,
@@ -335,8 +234,8 @@ namespace StoreBillingSystem
             table.Controls.Add(addressTextBox, 2, 6);
 
             //Phone Number
-            table.Controls.Add(new Label 
-            { 
+            table.Controls.Add(new Label
+            {
                 Text = "Phone Number:",
                 ForeColor = Color.Black,
                 Dock = DockStyle.Fill,
@@ -366,6 +265,17 @@ namespace StoreBillingSystem
 
 
             //Buttons
+            Button cancelButton = new Button
+            {
+                Text = "Cancel",
+                Dock = DockStyle.None,
+                BackColor = Color.Blue,
+                Font = labelFont,
+                ForeColor = Color.White,
+                Height = 40,
+                Width = 100
+            };
+
             Button clearButton = new Button
             {
                 Text = "Clear",
@@ -397,6 +307,7 @@ namespace StoreBillingSystem
             FlowLayoutPanel flowLayout = new FlowLayoutPanel();
             flowLayout.Dock = DockStyle.Fill;
             flowLayout.FlowDirection = FlowDirection.LeftToRight;
+            flowLayout.Controls.Add(cancelButton); 
             flowLayout.Controls.Add(clearButton);
             flowLayout.Controls.Add(registerButton);
             table.Controls.Add(flowLayout, 2, 10);
@@ -406,8 +317,15 @@ namespace StoreBillingSystem
 
             registerButton.Click += (sender, e) => RegisterForm();
             clearButton.Click += (sender, e) => ClearForm();
+            cancelButton.Click+= (sender, e) => CancelForm();
 
-            return table;
+            this.CancelButton = cancelButton;
+            Controls.Add(table);
+        }
+
+        private void CancelForm()
+        {
+            this.Close();
         }
 
         private void RegisterForm()
@@ -440,16 +358,18 @@ namespace StoreBillingSystem
 
             if (customerDao.IsRecordExists(long.Parse(phone)))
             {
-                MessageBox.Show("Phone is already exist.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+
+                MessageBox.Show($"Phone is already taken for customer '{customerDao.Read(long.Parse(phone)).Name}'.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
+
 
             Customer customer = new Customer(int.Parse(id), name, address, long.Parse(phone), Util.U.ToDateTime(registerDateTime));
             if (customerDao.Insert(customer))
             {
                 MessageBox.Show("Customer added successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 customerNameAutoSuggestion.Add(customer.Name);
-                phoneAutoSuggestion.Add(customer.PhoneNumber.ToString());
+                //phoneAutoSuggestion.Add(customer.PhoneNumber.ToString());
                 ClearForm();
             }
             else
@@ -499,7 +419,7 @@ namespace StoreBillingSystem
             if (phoneNumberTextBox.Text.Length >= 10 && !char.IsControl(e.KeyChar))
             {
                 e.Handled = true; // Cancel the key press
-                MessageBox.Show("Please enter a valid phone number with exactly 10 digits.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                //MessageBox.Show("Please enter a valid phone number with exactly 10 digits.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
 

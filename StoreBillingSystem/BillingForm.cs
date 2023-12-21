@@ -11,6 +11,8 @@ using StoreBillingSystem.Database;
 using StoreBillingSystem.Events;
 using StoreBillingSystem.Util;
 
+using StoreBillingSystem.StoreForm.CustomerForm;
+using StoreBillingSystem.StoreForm.ProductForm;
 namespace StoreBillingSystem
 {
     public class BillingForm : Form
@@ -497,7 +499,7 @@ namespace StoreBillingSystem
             };
 
             // Open the dialog box when Enter key is pressed
-            CustomerCustomDialogBox customDialogBox = new CustomerCustomDialogBox(customerTable, customerDao.ReadAll());
+            CustomCustomerDialogBox customDialogBox = new CustomCustomerDialogBox(customerTable, customerDao.ReadAll());
             if (customDialogBox.ShowDialog() == DialogResult.OK)
             {
                 Console.WriteLine("Ok");
@@ -996,7 +998,7 @@ namespace StoreBillingSystem
                 Margin = new Padding(0),
             };
 
-            ProductSellingCustomDialogBox sellingCustomDialog = new ProductSellingCustomDialogBox(productSellingTable, selling);
+            CustomProductSellingDialogBox sellingCustomDialog = new CustomProductSellingDialogBox(productSellingTable, selling);
             if (sellingCustomDialog.ShowDialog() == DialogResult.OK)
             {
                 // Handle OK button logic

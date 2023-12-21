@@ -12,11 +12,14 @@ using StoreBillingSystem.Database;
 using StoreBillingSystem.Events;
 using StoreBillingSystem.Util;
 
-namespace StoreBillingSystem
-{
-    public class BillingForm1 : AbstractBillingForm
-    {
+using StoreBillingSystem.StoreForm.CustomerForm;
+using StoreBillingSystem.StoreForm.ProductForm;
+using StoreBillingSystem.StoreForm.PaymentForm;
 
+namespace StoreBillingSystem.StoreForm.BillingForm
+{
+    public class BillingForm : AbstractBillingForm
+    {
         private List<BillingItem> billingItems = new List<BillingItem>();
 
         private AutoCompleteStringCollection customerNameAutoSuggestion;
@@ -47,7 +50,7 @@ namespace StoreBillingSystem
         private BillingItem _billingItem;
         private BillingDetails _billingDetails;
 
-        public BillingForm1()
+        public BillingForm()
         {
             //for disable header bar
             //ControlBox = false;
@@ -263,7 +266,7 @@ namespace StoreBillingSystem
             };
 
             // Open the dialog box when Enter key is pressed
-            CustomerCustomDialogBox customDialogBox = new CustomerCustomDialogBox(customerTable, customerDao.ReadAll());
+            CustomCustomerDialogBox customDialogBox = new CustomCustomerDialogBox(customerTable, customerDao.ReadAll());
             if (customDialogBox.ShowDialog() == DialogResult.OK)
             {
                 Console.WriteLine("Ok");
@@ -577,7 +580,7 @@ namespace StoreBillingSystem
                 Margin = new Padding(0),
             };
 
-            ProductSellingCustomDialogBox sellingCustomDialog = new ProductSellingCustomDialogBox(productSellingTable, selling);
+            CustomProductSellingDialogBox sellingCustomDialog = new CustomProductSellingDialogBox(productSellingTable, selling);
             if (sellingCustomDialog.ShowDialog() == DialogResult.OK)
             {
                 // Handle OK button logic

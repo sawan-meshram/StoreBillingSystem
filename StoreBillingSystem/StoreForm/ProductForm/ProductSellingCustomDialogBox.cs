@@ -3,11 +3,11 @@ using System.Drawing;
 using System.Windows.Forms;
 
 using StoreBillingSystem.Entity;
-namespace StoreBillingSystem
+namespace StoreBillingSystem.StoreForm.ProductForm
 {
-    public class ProductSellingCustomDialogBox : Form
+    public class CustomProductSellingDialogBox : Form
     {
-        public ProductSellingCustomDialogBox(DataGridView productSellingTable, ProductSelling productSelling)
+        public CustomProductSellingDialogBox(DataGridView productSellingTable, ProductSelling productSelling)
         {
             this.productSellingTable = productSellingTable;
             this.productSelling = productSelling;

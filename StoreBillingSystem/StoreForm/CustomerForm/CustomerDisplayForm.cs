@@ -406,6 +406,8 @@ namespace StoreBillingSystem.StoreForm.CustomerForm
 
         private void DeleteButton_Click(object sender, EventArgs e)
         {
+            if (customerTable.Rows.Count == 0) return;
+
             DialogResult result = MessageBox.Show($"Do you want to remove the selected Customer with its ID is :{customerTable.CurrentRow.Cells[0].Value}?", "Delete Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (result == DialogResult.Yes)
             {

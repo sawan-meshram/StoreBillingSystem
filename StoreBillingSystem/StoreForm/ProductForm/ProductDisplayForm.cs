@@ -419,6 +419,7 @@ namespace StoreBillingSystem.StoreForm.ProductForm
 
         private void DeleteButton_Click(object sender, EventArgs e)
         {
+            if (productTable.Rows.Count == 0) return;
             DialogResult result = MessageBox.Show($"Do you want to remove the selected Product with its ID is :{productTable.CurrentRow.Cells[0].Value}?", "Delete Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (result == DialogResult.Yes)
             {

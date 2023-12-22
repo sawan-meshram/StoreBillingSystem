@@ -662,7 +662,7 @@ namespace StoreBillingSystem.StoreForm.BillingForm
         private void PreparedBillingTableMouseMenu()
         {
             mouseMenu = new ContextMenuStrip();
-            mouseMenu.Items.Add("Update Item", null, OnUpdateItem);
+            mouseMenu.Items.Add("Edit Item", null, OnUpdateItem);
             mouseMenu.Items.Add("Remove Item", null, OnRemoveItem);
             mouseMenu.Items.Add("Remove All Item", null, OnRemoveAllItem);
 

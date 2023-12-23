@@ -1,18 +1,21 @@
 ﻿<Properties StartupConfiguration="{264F6592-08B9-4A69-BB0A-FD7ED2E62E2A}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="StoreBillingSystem/Program.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="StoreBillingSystem/StoreForm/ProductForm/ProductSellingDisplayForm.cs">
     <Files>
       <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/WaterDistrictDemo.aspx" Line="5077" Column="42" />
-      <File FileName="StoreBillingSystem/Program.cs" Line="30" Column="13" />
+      <File FileName="StoreBillingSystem/Program.cs" Line="38" Column="62" />
       <File FileName="StoreBillingSystem/StoreForm/BillingForm/BillingForm.cs" Line="703" Column="34" />
-      <File FileName="StoreBillingSystem/ProductForm.cs" Line="59" Column="41" />
-      <File FileName="StoreBillingSystem/StoreForm/CustomerForm/CustomerDisplayForm.cs" Line="239" Column="58" />
+      <File FileName="StoreBillingSystem/ProductForm.cs" Line="1172" Column="99" />
+      <File FileName="StoreBillingSystem/StoreForm/ProductForm/ProductSellingDisplayForm.cs" Line="712" Column="9" />
+      <File FileName="StoreBillingSystem/StoreForm/ProductForm/ProductDisplayForm.cs" Line="444" Column="35" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="StoreBillingSystem" expanded="True" selected="True">
             <Node name="StoreBillingSystem" expanded="True">
+              <Node name="DAO" expanded="True" />
               <Node name="DAOImpl" expanded="True" />
+              <Node name="Database" expanded="True" />
               <Node name="Entity" expanded="True" />
               <Node name="Events" expanded="True" />
               <Node name="StoreForm" expanded="True">
@@ -23,6 +26,7 @@
                 <Node name="ProductForm" expanded="True" />
                 <Node name="ProductTypeForm" expanded="True" />
               </Node>
+              <Node name="Util" expanded="True" />
             </Node>
           </Node>
         </State>

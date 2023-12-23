@@ -20,7 +20,7 @@ namespace StoreBillingSystem.StoreForm.ProductForm
             InitializeComponent();
             InitializeProductData();
 
-            InitCustomerDialogFormEvent();
+            InitProductFormEvent();
         }
 
 
@@ -167,7 +167,7 @@ namespace StoreBillingSystem.StoreForm.ProductForm
 
             productTable.Columns[0].Width = 100;
             productTable.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            productTable.Columns[2].Width = 200;
+            productTable.Columns[2].Width = 250;
             productTable.Columns[3].Width = 120;
             productTable.Columns[4].Width = 120;
             productTable.Columns[5].Width = 150;
@@ -325,7 +325,7 @@ namespace StoreBillingSystem.StoreForm.ProductForm
             productList = new List<Product>(productDao.ReadAll());
 
             BindProductToDataGridView();
-            UpdateCustomerCountAtLabel(productList.Count);
+            UpdateProductCountAtLabel(productList.Count);
 
 
             categoryDao = new CategoryDaoImpl(DatabaseManager.GetConnection());
@@ -344,12 +344,12 @@ namespace StoreBillingSystem.StoreForm.ProductForm
             productTypeList = productTypeDao.ReadAll(true);
         }
 
-        private void UpdateCustomerCountAtLabel(int count)
+        private void UpdateProductCountAtLabel(int count)
         {
             totalProductLabel.Text = count.ToString();
         }
 
-        private void InitCustomerDialogFormEvent()
+        private void InitProductFormEvent()
         {
 
             productNameText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(productNameText, _productNamePlaceHolder);
@@ -384,7 +384,7 @@ namespace StoreBillingSystem.StoreForm.ProductForm
 
             productTable.DataSource = null;
             productTable.DataSource = filteredList;
-            UpdateCustomerCountAtLabel(filteredList.Count);
+            UpdateProductCountAtLabel(filteredList.Count);
         }
 
 
@@ -394,14 +394,14 @@ namespace StoreBillingSystem.StoreForm.ProductForm
             var category = (Category)categoryTypesComboBox.SelectedItem;
 
             List<Product> filteredList = productList
-                .Where(product => product.Category.Id == category.Id || category.Id == 0)
+                .Where(product => product.Category?.Id == category.Id || category.Id == 0)
                 .ToList();
 
             // Update the BindingSource with the filtered data
 
             productTable.DataSource = null;
             productTable.DataSource = filteredList;
-            UpdateCustomerCountAtLabel(filteredList.Count);
+            UpdateProductCountAtLabel(filteredList.Count);
         }
 
         private void ClearButton_Click(object sender, EventArgs e)
@@ -432,7 +432,7 @@ namespace StoreBillingSystem.StoreForm.ProductForm
                     productTable.Rows.RemoveAt(productTable.CurrentCell.RowIndex);
 
                     //update totalCustomer count
-                    UpdateCustomerCountAtLabel(productList.Count);
+                    UpdateProductCountAtLabel(productList.Count);
                 }
             }
         }
@@ -481,12 +481,12 @@ namespace StoreBillingSystem.StoreForm.ProductForm
             _idTextBox.Text = _product.Id.ToString();
             _nameTextBox.Text = _product.Name;
             _qtyTextBox.Text = _product.TotalQty.ToString("N");
-            _typeAbbrTextBox.Text = _product.ProductType.Abbr;
+            _typeAbbrTextBox.Text = _product.ProductType?.Abbr ?? "";
 
             if (forViewProduct)
             {
-                _categoryTextBox.Text = _product.Category.Name;
-                _typeNameTextBox.Text = _product.ProductType.Name;
+                _categoryTextBox.Text = _product.Category?.Name ?? "";
+                _typeNameTextBox.Text = _product.ProductType?.Name ?? "";
             }
             else if (forUpdateProduct)
             {
@@ -499,10 +499,10 @@ namespace StoreBillingSystem.StoreForm.ProductForm
                 }
 
 
-                int categoryIndex = categoryList.IndexOf(categoryList.FirstOrDefault(category => _product.Category.Id == category.Id));
+                int categoryIndex = categoryList.IndexOf(categoryList.FirstOrDefault(category => _product.Category?.Id == category.Id));
                 _categoryComboBox.SelectedIndex = categoryIndex;
 
-                int productTypeIndex = productTypeList.IndexOf(productTypeList.FirstOrDefault(productType => _product.ProductType.Id == productType.Id));
+                int productTypeIndex = productTypeList.IndexOf(productTypeList.FirstOrDefault(productType => _product.ProductType?.Id == productType.Id));
                 _typeNameComboBox.SelectedIndex = productTypeIndex;
 
                 _typeNameComboBox.SelectedIndexChanged += TypeNameComboBox_SelectedIndexChanged;

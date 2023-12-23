@@ -95,6 +95,7 @@
     <Compile Include="StoreForm\PaymentForm\CustomPaymentDialogBox.cs" />
     <Compile Include="StoreForm\BillingForm\AbstractBillingForm.cs" />
     <Compile Include="StoreForm\BillingForm\BillingForm.cs" />
+    <Compile Include="StoreForm\ProductForm\ProductSellingDisplayForm.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Database\" />

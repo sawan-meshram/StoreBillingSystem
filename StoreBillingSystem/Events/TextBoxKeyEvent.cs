@@ -85,8 +85,12 @@ namespace StoreBillingSystem.Events
         /// <param name="textBox">Text box.</param>
         public static void CapitalizeText_TextChanged(TextBox textBox)
         {
+            int cursorPosition = textBox.SelectionStart;
+
             textBox.Text = CapitalizeEachWord(textBox.Text);
-            textBox.SelectionStart = textBox.Text.Length; // Set the cursor at the end
+            textBox.SelectionStart = cursorPosition;
+            textBox.SelectionLength = 0;
+            //textBox.SelectionStart = textBox.Text.Length; // Set the cursor at the end
         }
 
         /// <summary>

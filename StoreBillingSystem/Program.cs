@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using StoreBillingSystem.Database;
 using StoreBillingSystem.StoreForm.CategoryForm;
+using StoreBillingSystem.StoreForm.ProductTypeForm;
 using StoreBillingSystem.StoreForm.CustomerForm;
 using StoreBillingSystem.StoreForm.ProductForm;
 namespace StoreBillingSystem
@@ -27,13 +28,14 @@ namespace StoreBillingSystem
             //Application.Run(new BillingForm());
             //Application.Run(new BillingForm1());
             //Application.Run(new AddCustomer());
-            Application.Run(new ProductForm());
+            //Application.Run(new ProductForm());
             //Application.Run(new CategoryForm());
+            //Application.Run(new ProductTypeForm());
 
             //Application.Run(new CustomerDisplayForm());
             //Application.Run(new ProductDisplayForm());
             //Application.Run(new CustomerInsertForm());
-
+            Application.Run(new ProductSellingDisplayForm());
 
 
 

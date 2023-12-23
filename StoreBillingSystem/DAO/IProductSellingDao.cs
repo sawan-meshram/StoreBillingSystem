@@ -12,5 +12,6 @@ namespace StoreBillingSystem.DAO
         bool Insert(ProductSelling selling);
         bool Update(ProductSelling selling);
         bool Delete(long id);
+        bool Delete(Product product);
     }
 }

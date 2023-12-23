@@ -251,7 +251,7 @@ namespace StoreBillingSystem.StoreForm.CategoryForm
 
             //add event
             cancelButton.Click += (sender, e) => Close();
-            clearButton.Click += ClearButton_Click;
+            clearButton.Click += (sender, e) => ClearCategoryForm();
             addButton.Click += AddCategoryButton_Click;
             updateButton.Click += UpdateButton_Click;
             deleteButton.Click += DeleteButton_Click;
@@ -262,17 +262,17 @@ namespace StoreBillingSystem.StoreForm.CategoryForm
 
         }
 
-        private void ClearButton_Click(object sender, EventArgs e)
-        {
-            categoryNameField.Text = "";
-        }
-
         private void UpdateCategoryTotalCount()
         {
-            if (totalCategoryLabel == null) Console.WriteLine("label");
-            if (categoryList == null) Console.WriteLine("list");
             totalCategoryLabel.Text = categoryList.Count.ToString();
         }
+
+        private void ClearCategoryForm()
+        {
+            categoryNameField.Clear();
+        }
+
+       
         private void DeleteButton_Click(object sender, EventArgs e)
         {
             if (categoryTable.Rows.Count == 0) return;
@@ -311,7 +311,7 @@ namespace StoreBillingSystem.StoreForm.CategoryForm
             if (string.IsNullOrWhiteSpace(categoryNameField.Text))
             {
                 // Validation failed, display a message box
-                MessageBox.Show("Field is empty.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Enter category name.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -363,9 +363,10 @@ namespace StoreBillingSystem.StoreForm.CategoryForm
                 //Category ComboBox from Product Form
                 if(categoryTypesComboBox != null)
                     BindCategoryTypeToComboBox();
-                
+
                 //categorySrNo++;
-                categoryNameField.Clear();
+                ClearCategoryForm();
+
                 if (_onUpdateCategory)
                 {
                     MessageBox.Show("Update successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);

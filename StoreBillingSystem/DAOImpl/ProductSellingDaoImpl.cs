@@ -231,5 +231,31 @@ namespace StoreBillingSystem.DAOImpl
             }
             return false;
         }
+
+        public bool Delete(Product product)
+        {
+            // Create the SQL command to delete the record
+            string deleteQuery = $"DELETE FROM {_tableName} WHERE Product_ID = @ProductId";
+
+            using (SqliteCommand command = new SqliteCommand(deleteQuery, _conn))
+            {
+                using (SqliteTransaction transaction = _conn.BeginTransaction())
+                {
+                    // Add the ID parameter to the command
+                    command.Parameters.AddWithValue("@ProductId", product.Id);
+
+                    // Execute the DELETE command
+                    int rowsAffected = command.ExecuteNonQuery();
+
+                    transaction.Commit();
+
+                    if (rowsAffected > 0)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
     }
 }

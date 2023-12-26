@@ -1,17 +1,18 @@
 ﻿<Properties StartupConfiguration="{264F6592-08B9-4A69-BB0A-FD7ED2E62E2A}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="StoreBillingSystem/StoreForm/ProductForm/ProductSellingDisplayForm.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="StoreBillingSystem/StoreForm/ProductForm/ProductDisplayForm.cs">
     <Files>
       <File FileName="../../Downloads/WaterViewCII_Project/EagleAerialCIIWater_Pallavi_31_Oct_23/EagleAerialCIIWater/View/WaterDistrictDemo.aspx" Line="5077" Column="42" />
-      <File FileName="StoreBillingSystem/Program.cs" Line="38" Column="62" />
-      <File FileName="StoreBillingSystem/StoreForm/BillingForm/BillingForm.cs" Line="703" Column="34" />
-      <File FileName="StoreBillingSystem/ProductForm.cs" Line="1172" Column="99" />
-      <File FileName="StoreBillingSystem/StoreForm/ProductForm/ProductSellingDisplayForm.cs" Line="712" Column="9" />
-      <File FileName="StoreBillingSystem/StoreForm/ProductForm/ProductDisplayForm.cs" Line="444" Column="35" />
+      <File FileName="StoreBillingSystem/Program.cs" Line="26" Column="13" />
+      <File FileName="StoreBillingSystem/StoreForm/BillingForm/BillingForm.cs" Line="574" Column="35" />
+      <File FileName="StoreBillingSystem/ProductForm.cs" Line="1137" Column="64" />
+      <File FileName="StoreBillingSystem/StoreForm/ProductForm/ProductSellingDisplayForm.cs" Line="690" Column="15" />
+      <File FileName="StoreBillingSystem/StoreForm/ProductForm/ProductDisplayForm.cs" Line="321" Column="43" />
+      <File FileName="StoreBillingSystem/MainForm.cs" Line="180" Column="58" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="StoreBillingSystem" expanded="True" selected="True">
+          <Node name="StoreBillingSystem" expanded="True">
             <Node name="StoreBillingSystem" expanded="True">
               <Node name="DAO" expanded="True" />
               <Node name="DAOImpl" expanded="True" />
@@ -23,7 +24,9 @@
                 <Node name="CategoryForm" expanded="True" />
                 <Node name="CustomerForm" expanded="True" />
                 <Node name="PaymentForm" expanded="True" />
-                <Node name="ProductForm" expanded="True" />
+                <Node name="ProductForm" expanded="True">
+                  <Node name="ProductDisplayForm.cs" selected="True" />
+                </Node>
                 <Node name="ProductTypeForm" expanded="True" />
               </Node>
               <Node name="Util" expanded="True" />

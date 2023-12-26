@@ -126,5 +126,12 @@ namespace StoreBillingSystem.Entity
             return CGSTInPercent + SGSTInPercent;
         }
 
+        public override string ToString()
+        {
+            return $"ProductSelling : Id={Id}, SellingPrice_A={SellingPrice_A}, DiscountPrice_A={DiscountPrice_A}, "
+                + $"SellingPrice_B={SellingPrice_B}, DiscountPrice_B={DiscountPrice_B}, SellingPrice_C={SellingPrice_C}, DiscountPrice_C={DiscountPrice_C}, "
+                + $"SellingPrice_D={SellingPrice_D}, DiscountPrice_D={DiscountPrice_D}, SellingPrice_C={SellingPrice_C}, DiscountPrice_C={DiscountPrice_C}, "
+                + $"CGSTInPercent={CGSTInPercent}, SGSTInPercent={SGSTInPercent}, {Product}";
+        }
     }
 }

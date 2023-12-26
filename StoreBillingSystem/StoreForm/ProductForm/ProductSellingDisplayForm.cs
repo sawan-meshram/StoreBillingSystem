@@ -22,6 +22,8 @@ namespace StoreBillingSystem.StoreForm.ProductForm
             InitializeProductData();
         }
 
+        private bool _OnUpdateSelling;
+
         private IProductDao productDao;
         private ICategoryDao categoryDao;
         private IProductSellingDao productSellingDao;
@@ -663,16 +665,59 @@ namespace StoreBillingSystem.StoreForm.ProductForm
             deleteButton.Click += DeleteButton_Click;
             updateButton.Click += UpdateButton_Click;
             clearButton.Click += ClearButton_Click;
-            clearSellingButton.Click += ClearSellingButton_Click;
+            clearSellingButton.Click += (sender, e) => ClearSellingForm();
             saveButton.Click += SaveButton_Click;
         }
 
         private void SaveButton_Click(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            double sellPriceA = double.Parse(sellingPriceText_1.Text.Trim());
+            double sellPriceB = double.Parse(sellingPriceText_2.Text.Trim());
+            double sellPriceC = double.Parse(sellingPriceText_3.Text.Trim());
+            double sellPriceD = double.Parse(sellingPriceText_4.Text.Trim());
+
+            double discountA = double.Parse(discountText_1.Text.Trim());
+            double discountB = double.Parse(discountText_2.Text.Trim());
+            double discountC = double.Parse(discountText_3.Text.Trim());
+            double discountD = double.Parse(discountText_4.Text.Trim());
+
+            float sellingCGST = float.Parse(cgstText.Text.Trim());
+            float sellingSGST = float.Parse(sgstText.Text.Trim());
+
+            ProductSelling productSelling = new ProductSelling(_product, sellPriceA, discountA, sellPriceB, discountB, sellPriceC, discountC, sellPriceD, discountD, sellingCGST, sellingSGST);
+            productSelling.Id = _productSelling.Id;
+
+            //Console.WriteLine(productSelling);
+
+            if (_OnUpdateSelling)
+            {
+                if (_productSelling.SellingPrice_A == sellPriceA && _productSelling.SellingPrice_B == sellPriceB 
+                    && _productSelling.SellingPrice_C == sellPriceC && _productSelling.SellingPrice_D == sellPriceD
+                    && _productSelling.DiscountPrice_A == discountA && _productSelling.DiscountPrice_B == discountB
+                    && _productSelling.DiscountPrice_C == discountC && _productSelling.DiscountPrice_D == discountD
+                    && _productSelling.CGSTInPercent == sellingCGST && _productSelling.SGSTInPercent == sellingSGST)
+                {
+                    MessageBox.Show("Nothing to update.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                if (!productSellingDao.Update(productSelling))
+                {
+                    MessageBox.Show("Something occur while updation.", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                MessageBox.Show("Update successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                _OnUpdateSelling = false;
+                ClearSellingForm();
+
+            }
+            else
+            {
+                MessageBox.Show("Allow after edit", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
-        private void ClearSellingButton_Click(object sender, EventArgs e)
+        private void ClearSellingForm()
         {
             TextBoxKeyEvent.BindPlaceholderToTextBox(sellingPriceText_1, _pricePlaceHolder, Color.Gray);
             TextBoxKeyEvent.BindPlaceholderToTextBox(discountText_1, _pricePlaceHolder, Color.Gray);
@@ -684,6 +729,8 @@ namespace StoreBillingSystem.StoreForm.ProductForm
             TextBoxKeyEvent.BindPlaceholderToTextBox(discountText_4, _pricePlaceHolder, Color.Gray);
             TextBoxKeyEvent.BindPlaceholderToTextBox(cgstText, _pricePlaceHolder, Color.Gray);
             TextBoxKeyEvent.BindPlaceholderToTextBox(sgstText, _pricePlaceHolder, Color.Gray);
+
+            _OnUpdateSelling = false;
         }
 
         private void ClearButton_Click(object sender, EventArgs e)
@@ -695,19 +742,61 @@ namespace StoreBillingSystem.StoreForm.ProductForm
 
         private void UpdateButton_Click(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            SetValuesForUpdateViewToForm();
+            TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(sellingPriceText_1, false, Color.White);
+            TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(discountText_1, false, Color.White);
+            TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(sellingPriceText_2, false, Color.White);
+            TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(discountText_2, false, Color.White);
+            TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(sellingPriceText_3, false, Color.White);
+            TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(discountText_3, false, Color.White);
+            TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(sellingPriceText_4, false, Color.White);
+            TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(discountText_4, false, Color.White);
+            TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(cgstText, false, Color.White);
+            TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(sgstText, false, Color.White);
+
+            _OnUpdateSelling = true;
         }
+
+
 
         private void DeleteButton_Click(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            MessageBox.Show("Not allow (not implemented).", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
         }
 
-        private void ViewButton_Click(object sender, EventArgs e)
+        private void SetValuesForUpdateViewToForm()
         {
             _product = productList[productTable.CurrentCell.RowIndex];
             _productSelling = productSellingDao.Read(_product);
 
+            TextBoxKeyEvent.BindPlaceholderToTextBox(sellingPriceText_1, _productSelling.SellingPrice_A.ToString("N"), Color.Black);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(discountText_1, _productSelling.DiscountPrice_A.ToString("N"), Color.Black);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(sellingPriceText_2, _productSelling.SellingPrice_B.ToString("N"), Color.Black);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(discountText_2, _productSelling.DiscountPrice_B.ToString("N"), Color.Black);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(sellingPriceText_3, _productSelling.SellingPrice_C.ToString("N"), Color.Black);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(discountText_3, _productSelling.DiscountPrice_C.ToString("N"), Color.Black);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(sellingPriceText_4, _productSelling.SellingPrice_D.ToString("N"), Color.Black);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(discountText_4, _productSelling.DiscountPrice_D.ToString("N"), Color.Black);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(cgstText, _productSelling.CGSTInPercent.ToString("N"), Color.Black);
+            TextBoxKeyEvent.BindPlaceholderToTextBox(sgstText, _productSelling.SGSTInPercent.ToString("N"), Color.Black);
+        }
+
+        private void ViewButton_Click(object sender, EventArgs e)
+        {
+            SetValuesForUpdateViewToForm();
+
+            TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(sellingPriceText_1, true, Color.White);
+            TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(discountText_1, true, Color.White);
+            TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(sellingPriceText_2, true, Color.White);
+            TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(discountText_2, true, Color.White);
+            TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(sellingPriceText_3, true, Color.White);
+            TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(discountText_3, true, Color.White);
+            TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(sellingPriceText_4, true, Color.White);
+            TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(discountText_4, true, Color.White);
+            TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(cgstText, true, Color.White);
+            TextBoxKeyEvent.ReadOnlyTextBox_GotFocus(sgstText, true, Color.White);
+            _OnUpdateSelling = false;
         }
 
         private void OkButton_Click(object sender, EventArgs e)

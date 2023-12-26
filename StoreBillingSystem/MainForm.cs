@@ -126,9 +126,13 @@ namespace StoreBillingSystem
             customerViewMenu.Click += (sender, e) => CustomerViewMenu();
 
             MenuItem productMenu = new MenuItem("Product");
-            MenuItem productViewMenu = new MenuItem("View");
+            MenuItem productViewMenu = new MenuItem("View / Edit Product");
+            MenuItem productSellingViewMenu = new MenuItem("View / Edit Selling Price");
             productMenu.MenuItems.Add(productViewMenu);
+            productMenu.MenuItems.Add(productSellingViewMenu);
+
             productViewMenu.Click += (sender, e) => ProductViewMenu();
+            productSellingViewMenu.Click += (sender, e) => ProductSellingViewEditMenu();
 
             MenuItem categoryMenu = new MenuItem("Category");
             MenuItem categoryNewAndViewMenu = new MenuItem("New / View");
@@ -170,6 +174,12 @@ namespace StoreBillingSystem
         {
             new ProductDisplayForm().ShowDialog();
         }
+
+        private void ProductSellingViewEditMenu()
+        {
+            new ProductSellingDisplayForm().ShowDialog();
+        }
+
         private void CategoryNewAndViewMenu()
         {
             new CategoryForm().ShowDialog();

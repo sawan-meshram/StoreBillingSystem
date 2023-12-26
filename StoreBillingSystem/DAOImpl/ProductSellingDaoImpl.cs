@@ -197,7 +197,7 @@ namespace StoreBillingSystem.DAOImpl
                 "PRICE_B=@PriceB, DISCOUNT_PRICE_B=@DiscountB, " +
                 "PRICE_C=@PriceC, DISCOUNT_PRICE_C=@DiscountC, " +
                 "PRICE_D=@PriceD, DISCOUNT_PRICE_D=@DiscountD, " +
-                "CGST_PERCENT=@CGST, SGST_PERCENT=@SGST, Product_ID=@ProductId " +
+                "CGST_PERCENT=@CGST, SGST_PERCENT=@SGST " +
                 "WHERE ID = @Id";
 
             using (SqliteCommand command = new SqliteCommand(query, _conn))
@@ -208,15 +208,14 @@ namespace StoreBillingSystem.DAOImpl
                 {
                     command.Parameters.AddWithValue("@PriceA", selling.SellingPrice_A);
                     command.Parameters.AddWithValue("@DiscountA", selling.DiscountPrice_A);
-                    command.Parameters.AddWithValue("@PriceB", selling.SellingPrice_A);
-                    command.Parameters.AddWithValue("@DiscountB", selling.DiscountPrice_A);
-                    command.Parameters.AddWithValue("@PriceC", selling.SellingPrice_A);
-                    command.Parameters.AddWithValue("@DiscountC", selling.DiscountPrice_A);
-                    command.Parameters.AddWithValue("@PriceD", selling.SellingPrice_A);
-                    command.Parameters.AddWithValue("@DiscountD", selling.DiscountPrice_A);
-                    command.Parameters.AddWithValue("@CGSTP", selling.CGSTInPercent);
+                    command.Parameters.AddWithValue("@PriceB", selling.SellingPrice_B);
+                    command.Parameters.AddWithValue("@DiscountB", selling.DiscountPrice_B);
+                    command.Parameters.AddWithValue("@PriceC", selling.SellingPrice_C);
+                    command.Parameters.AddWithValue("@DiscountC", selling.DiscountPrice_C);
+                    command.Parameters.AddWithValue("@PriceD", selling.SellingPrice_D);
+                    command.Parameters.AddWithValue("@DiscountD", selling.DiscountPrice_D);
+                    command.Parameters.AddWithValue("@CGST", selling.CGSTInPercent);
                     command.Parameters.AddWithValue("@SGST", selling.SGSTInPercent);
-                    command.Parameters.AddWithValue("@ProductId", selling.Product.Id);
                     command.Parameters.AddWithValue("@Id", selling.Id);
 
                     int rowsAffected = command.ExecuteNonQuery();

@@ -125,5 +125,11 @@ namespace StoreBillingSystem.Events
         {
             textBox.BackColor = backgroundColor;
         }
+
+        public static void ReadOnlyTextBox_GotFocus(TextBox textBox, bool readOnly, System.Drawing.Color backgroundColor)
+        {
+            textBox.ReadOnly = readOnly;
+            textBox.BackColor = backgroundColor;
+        }
     }
 }

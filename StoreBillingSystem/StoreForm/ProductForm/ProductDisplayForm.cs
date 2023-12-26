@@ -814,7 +814,7 @@ namespace StoreBillingSystem.StoreForm.ProductForm
             var productType = (ProductType)_typeNameComboBox.SelectedItem;
             var category = (Category)_categoryComboBox.SelectedItem;
 
-            if (_product.Name == name && _product.Category.Id == category.Id && _product.ProductType.Id == productType.Id && _product.TotalQty == float.Parse(qty))
+            if (_product.Name == name && _product.Category?.Id == category?.Id && _product.ProductType?.Id == productType?.Id && _product.TotalQty == float.Parse(qty))
             {
                 MessageBox.Show("There is nothing to update.", "Status", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;

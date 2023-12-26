@@ -23,7 +23,7 @@ namespace StoreBillingSystem
             //Application.Run(new MainClass());
             // Console.WriteLine("Hello World!");
 
-            //Application.Run(new MainForm());
+            Application.Run(new MainForm());
 
             //Application.Run(new BillingForm());
             //Application.Run(new BillingForm1());
@@ -35,7 +35,7 @@ namespace StoreBillingSystem
             //Application.Run(new CustomerDisplayForm());
             //Application.Run(new ProductDisplayForm());
             //Application.Run(new CustomerInsertForm());
-            Application.Run(new ProductSellingDisplayForm());
+            //Application.Run(new ProductSellingDisplayForm());
 
 
 

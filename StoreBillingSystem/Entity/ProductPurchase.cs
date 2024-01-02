@@ -39,6 +39,12 @@ namespace StoreBillingSystem.Entity
 
         public string BatchNumber { get; set; }
 
+        public DateTime PurchaseDateTime
+        {
+            get { 
+                return DateTime.ParseExact(PurchaseDate, "yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+            }
+        }
 
         public void GST(float purchaseCGSTInPercent, float purchaseSGSTInPercent)
         {

@@ -6,6 +6,7 @@ using StoreBillingSystem.StoreForm.CategoryForm;
 using StoreBillingSystem.StoreForm.ProductTypeForm;
 using StoreBillingSystem.StoreForm.CustomerForm;
 using StoreBillingSystem.StoreForm.ProductForm;
+using StoreBillingSystem.StoreForm.PurchaseForm;
 namespace StoreBillingSystem
 {
     public class Program
@@ -23,7 +24,7 @@ namespace StoreBillingSystem
             //Application.Run(new MainClass());
             // Console.WriteLine("Hello World!");
 
-            Application.Run(new MainForm());
+            //Application.Run(new MainForm());
 
             //Application.Run(new BillingForm());
             //Application.Run(new BillingForm1());
@@ -36,7 +37,7 @@ namespace StoreBillingSystem
             //Application.Run(new ProductDisplayForm());
             //Application.Run(new CustomerInsertForm());
             //Application.Run(new ProductSellingDisplayForm());
-
+            Application.Run(new PurchaseHistoryForm());
 
 
             //Console.WriteLine(System.IO.Directory.GetCurrentDirectory());

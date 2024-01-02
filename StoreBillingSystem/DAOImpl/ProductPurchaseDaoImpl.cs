@@ -102,9 +102,9 @@ namespace StoreBillingSystem.DAOImpl
                             PurchasePrice = reader.GetDouble(reader.GetOrdinal("PRICE")),
                             PurchaseCGSTInPercent = reader.GetFloat(reader.GetOrdinal("CGST_PERCENT")),
                             PurchaseSGSTInPercent = reader.GetFloat(reader.GetOrdinal("SGST_PERCENT")),
-                            MfgDate = reader.GetString(reader.GetOrdinal("MFG_DATE")),
-                            ExpDate = reader.GetString(reader.GetOrdinal("EXP_DATE")),
-                            BatchNumber = reader.GetString(reader.GetOrdinal("BATCH")),
+                            MfgDate = reader.IsDBNull(reader.GetOrdinal("MFG_DATE")) ? null : reader.GetString(reader.GetOrdinal("MFG_DATE")),
+                            ExpDate = reader.IsDBNull(reader.GetOrdinal("EXP_DATE")) ? null : reader.GetString(reader.GetOrdinal("EXP_DATE")),
+                            BatchNumber = reader.IsDBNull(reader.GetOrdinal("BATCH")) ? null : reader.GetString(reader.GetOrdinal("BATCH"))
                         };
 
                         purchase.Product = _productDao.Read(reader.GetInt64(reader.GetOrdinal("Product_ID")));
@@ -137,9 +137,9 @@ namespace StoreBillingSystem.DAOImpl
                             PurchasePrice = reader.GetDouble(reader.GetOrdinal("PRICE")),
                             PurchaseCGSTInPercent = reader.GetFloat(reader.GetOrdinal("CGST_PERCENT")),
                             PurchaseSGSTInPercent = reader.GetFloat(reader.GetOrdinal("SGST_PERCENT")),
-                            MfgDate = reader.GetString(reader.GetOrdinal("MFG_DATE")),
-                            ExpDate = reader.GetString(reader.GetOrdinal("EXP_DATE")),
-                            BatchNumber = reader.GetString(reader.GetOrdinal("BATCH")),
+                            MfgDate = reader.IsDBNull(reader.GetOrdinal("MFG_DATE")) ? null : reader.GetString(reader.GetOrdinal("MFG_DATE")),
+                            ExpDate = reader.IsDBNull(reader.GetOrdinal("EXP_DATE")) ? null : reader.GetString(reader.GetOrdinal("EXP_DATE")),
+                            BatchNumber = reader.IsDBNull(reader.GetOrdinal("BATCH")) ? null : reader.GetString(reader.GetOrdinal("BATCH")),
                             Product = product
                         });
                     }
@@ -169,9 +169,9 @@ namespace StoreBillingSystem.DAOImpl
                             PurchasePrice = reader.GetDouble(reader.GetOrdinal("PRICE")),
                             PurchaseCGSTInPercent = reader.GetFloat(reader.GetOrdinal("CGST_PERCENT")),
                             PurchaseSGSTInPercent = reader.GetFloat(reader.GetOrdinal("SGST_PERCENT")),
-                            MfgDate = reader.GetString(reader.GetOrdinal("MFG_DATE")),
-                            ExpDate = reader.GetString(reader.GetOrdinal("EXP_DATE")),
-                            BatchNumber = reader.GetString(reader.GetOrdinal("BATCH")),
+                            MfgDate = reader.IsDBNull(reader.GetOrdinal("MFG_DATE"))? null : reader.GetString(reader.GetOrdinal("MFG_DATE")),
+                            ExpDate = reader.IsDBNull(reader.GetOrdinal("EXP_DATE")) ? null : reader.GetString(reader.GetOrdinal("EXP_DATE")),
+                            BatchNumber = reader.IsDBNull(reader.GetOrdinal("BATCH")) ? null : reader.GetString(reader.GetOrdinal("BATCH"))
                         };
                         purchase.Product = _productDao.Read(reader.GetInt64(reader.GetOrdinal("Product_ID")));
 

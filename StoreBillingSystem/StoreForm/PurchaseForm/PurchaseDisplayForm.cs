@@ -14,39 +14,46 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
 {
     public class PurchaseDisplayForm : Form
     {
-        public PurchaseDisplayForm()
+        /*
+        public PurchaseDisplayForm() : this(DateTime.Now, null)
         {
+        }
+          */    
+
+        public PurchaseDisplayForm(DateTime purchaseDate, IList<ProductPurchase> datewisePurchasesList)
+        {
+            this.purchaseDate = purchaseDate;
+            this.datewisePurchasesList = datewisePurchasesList;
             InitializeComponent();
 
+            InitComponentEvent();
         }
 
 
-        private Font labelFont = U.StoreLabelFont;
+        //private IProductDao productDao;
+        private IList<ProductPurchase> datewisePurchasesList;
+        private DateTime purchaseDate;
+
         private Font textBoxFont = U.StoreTextBoxFont;
 
-        private Label totalProductLabel;
-        private TextBox productNameText;
+        private Label totalPurchaseRecordLabel;
+        private Label totalPurchaseAmountLabel;
 
         private Button okButton;
-        private Button viewButton;
-        private Button deleteButton;
-        private Button updateButton;
-        private Button clearButton;
-        private ComboBox categoryTypesComboBox;
-        private DataGridView productTable;
-        private DateTimePicker fromDate;
-        private DateTimePicker ToDate;
+        private DataGridView historyTable;
+
 
         private void InitializeComponent()
         {
-            Text = "Product History";
+            Text = $"Product history on date, {purchaseDate.ToString("dd MMMM yyyy")}";
+
 
             HelpButton = true; // Display a help button on the form
             FormBorderStyle = FormBorderStyle.FixedDialog; // Define the border style of the form to a dialog box.
             MaximizeBox = false; // Set the MaximizeBox to false to remove the maximize box.
             MinimizeBox = false; // Set the MinimizeBox to false to remove the minimize box.
             StartPosition = FormStartPosition.CenterScreen; // Set the start position of the form to the center of the screen.
-            Size = new Size(1150, 650);
+            Size = new Size(1150, 620);
             BackColor = U.StoreDialogBackColor;
             AutoScroll = true;
 
@@ -55,228 +62,209 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
             {
                 Dock = DockStyle.Fill,
                 ColumnCount = 7,
-                RowCount = 6,
+                RowCount = 5,
                 CellBorderStyle = TableLayoutPanelCellBorderStyle.None,
-                //BackColor = Color.Lime,
             };
 
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-0
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 10F)); //row-1
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 460F)); //row-2 //DataGridView
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 490F)); //row-2 //DataGridView
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F)); //row-3
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F)); //row-3
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-3
 
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130f)); //name
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 400f)); //name
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F)); //black
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130F)); //phone
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 300F)); //phone
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 15f)); //blank
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 200f)); //history purchase lbl
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100f)); //history purchase lbl
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 460f)); //history purchase lbl
 
-
-            //row-0
-            table.Controls.Add(new Label
-            {
-                Text = "Search Product :",
-                Font = labelFont,
-                Dock = DockStyle.Fill,
-                ForeColor = Color.Black,
-                TextAlign = ContentAlignment.MiddleRight,
-            }, 0, 0);
-
-            productNameText = new TextBox
-            {
-                Dock = DockStyle.Fill,
-                Font = labelFont,
-                Margin = new Padding(5),
-                //Text = _productNamePlaceHolder,
-                ForeColor = Color.Gray,
-            };
-            table.Controls.Add(productNameText, 1, 0);
-
-            table.Controls.Add(new Label
-            {
-                Text = "Select Category :",
-                Font = labelFont,
-                Dock = DockStyle.Fill,
-                ForeColor = Color.Black,
-                TextAlign = ContentAlignment.MiddleRight,
-            }, 3, 0);
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150f)); //history purchase lbl
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 200f)); //history purchase lbl
 
 
-            categoryTypesComboBox = new ComboBox
-            {
-                Dock = DockStyle.Fill,
-                Font = textBoxFont,
-                Margin = new Padding(5),
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
-            table.Controls.Add(categoryTypesComboBox, 4, 0);
 
-
-            clearButton = new Button
-            {
-                Text = "Clear",
-                Dock = DockStyle.Fill,
-                DialogResult = DialogResult.OK,
-                Font = labelFont,
-                ForeColor = Color.White,
-                BackColor = Color.Blue,
-                Margin = new Padding(5)
-            };
-            table.Controls.Add(clearButton, 5, 0);
-
+            //row-0 //blank
             //row-1
-            //blank
-
-            //row-2
-
-            productTable = new DataGridView
+            historyTable = new DataGridView
             {
                 Dock = DockStyle.Fill,
                 BackgroundColor = Color.LightGray,
                 Margin = new Padding(0),
                 ScrollBars = ScrollBars.Vertical,
             };
-            productTable.RowHeadersDefaultCellStyle.Font = U.StoreLabelFont;
+            historyTable.RowHeadersDefaultCellStyle.Font = U.StoreLabelFont;
 
-            productTable.ColumnCount = 6;
-            productTable.Columns[0].Name = "Id";
-            productTable.Columns[1].Name = "Name";
-            productTable.Columns[2].Name = "Category";
-            productTable.Columns[3].Name = "Product Type Full";
-            productTable.Columns[4].Name = "Product Type Abbr";
-            productTable.Columns[5].Name = "Total Qty";
-
-
-            productTable.Columns[0].Width = 100;
-            productTable.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            productTable.Columns[2].Width = 250;
-            productTable.Columns[3].Width = 120;
-            productTable.Columns[4].Width = 120;
-            productTable.Columns[5].Width = 150;
+            historyTable.ColumnCount = 10;
+            historyTable.Columns[0].Name = "Sr. No.";
+            historyTable.Columns[1].Name = "Product Name";
+            historyTable.Columns[2].Name = "Qty";
+            historyTable.Columns[3].Name = "Price";
+            historyTable.Columns[4].Name = "Purchase SGST";
+            historyTable.Columns[5].Name = "Purchase CGST";
+            historyTable.Columns[6].Name = "Mfg Date";
+            historyTable.Columns[7].Name = "Exp Date";
+            historyTable.Columns[8].Name = "Batch Number";
+            historyTable.Columns[9].Name = "Total";
 
 
-            productTable.Columns[0].DataPropertyName = "Id";
-            productTable.Columns[1].DataPropertyName = "Name";
-            productTable.Columns[5].DataPropertyName = "TotalQty";
+            historyTable.Columns[0].Width = 60;
+            historyTable.Columns[2].Width = 90;
+            historyTable.Columns[3].Width = 120;
+            historyTable.Columns[4].Width = 100;
+            historyTable.Columns[5].Width = 100;
+            historyTable.Columns[6].Width = 75;
+            historyTable.Columns[7].Width = 75;
+            historyTable.Columns[8].Width = 100;
+            historyTable.Columns[9].Width = 120;
+            historyTable.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
-            productTable.Columns[5].DefaultCellStyle.Format = "N";
+            historyTable.Columns[2].DefaultCellStyle.Format = "N";
+            historyTable.Columns[3].DefaultCellStyle.Format = "C3";
+            historyTable.Columns[4].DefaultCellStyle.Format = "P";
+            historyTable.Columns[5].DefaultCellStyle.Format = "P";
+            historyTable.Columns[9].DefaultCellStyle.Format = "C3";
 
 
-            productTable.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft; //data display in center
-            productTable.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter; //header display in center
+            historyTable.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft; //data display in center
+            historyTable.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter; //header display in center
 
-            productTable.ReadOnly = true;
-            productTable.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            productTable.MultiSelect = false;
+            historyTable.ReadOnly = true;
+            historyTable.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            historyTable.MultiSelect = false;
 
 
-            foreach (DataGridViewColumn column in productTable.Columns)
+            foreach (DataGridViewColumn column in historyTable.Columns)
             {
                 column.SortMode = DataGridViewColumnSortMode.NotSortable;
             }
 
-            productTable.AllowUserToAddRows = false;
-            productTable.AutoGenerateColumns = false;
-            productTable.RowHeadersVisible = false;
-            productTable.AllowUserToResizeRows = false;
-            productTable.AllowUserToResizeColumns = false;
+            historyTable.AllowUserToAddRows = false;
+            historyTable.AutoGenerateColumns = false;
+            historyTable.RowHeadersVisible = false;
+            historyTable.AllowUserToResizeRows = false;
+            historyTable.AllowUserToResizeColumns = false;
 
-            table.Controls.Add(productTable, 0, 2);
-            table.SetColumnSpan(productTable, table.ColumnCount);
+            table.Controls.Add(historyTable, 1, 1);
+            table.SetColumnSpan(historyTable, table.ColumnCount - 2);
 
             //row-3
-            Label totalProductShowLabel = new Label
+            Label purchaseRecordLabel = new Label
             {
-                Text = "Total Product :",
-                Font = labelFont,
+                Text = "Purchase Record :",
+                Font = textBoxFont,
                 Dock = DockStyle.Fill,
                 ForeColor = Color.Navy,
                 TextAlign = ContentAlignment.MiddleRight,
             };
-            table.Controls.Add(totalProductShowLabel, 3, 3);
-            table.SetColumnSpan(totalProductShowLabel, 2);
+            table.Controls.Add(purchaseRecordLabel, 1, 2);
 
-            totalProductLabel = new Label
+
+            totalPurchaseRecordLabel = new Label
             {
-                Font = labelFont,
+                Font = textBoxFont,
                 Dock = DockStyle.Fill,
                 ForeColor = Color.Crimson,
                 TextAlign = ContentAlignment.MiddleLeft,
             };
-            table.Controls.Add(totalProductLabel, 5, 3);
+            table.Controls.Add(totalPurchaseRecordLabel, 2, 2);
 
-            //Row-4
-            TableLayoutPanel table1 = new TableLayoutPanel
+            Label totalLabel = new Label
             {
+                Text = "Total Purchase Amt. :",
+                Font = textBoxFont,
                 Dock = DockStyle.Fill,
-                ColumnCount = 6,
-                RowCount = 1,
-                CellBorderStyle = TableLayoutPanelCellBorderStyle.None,
-                //BackColor = Color.Gold
+                ForeColor = Color.Navy,
+                TextAlign = ContentAlignment.MiddleRight,
             };
-            table1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 290)); //name
+            table.Controls.Add(totalLabel, 4, 2);
+
+            totalPurchaseAmountLabel = new Label
+            {
+                Font = textBoxFont,
+                Dock = DockStyle.Fill,
+                ForeColor = Color.Crimson,
+                TextAlign = ContentAlignment.MiddleLeft,
+            };
+            table.Controls.Add(totalPurchaseAmountLabel, 5, 2);
+
+
 
             okButton = new Button
             {
                 Text = "Ok",
-                Dock = DockStyle.Fill,
+                //Dock = DockStyle.Fill,
                 //DialogResult = DialogResult.OK,
-                Font = labelFont,
+                Anchor = AnchorStyles.None,
+                Width = 100,
+                Height = 35,
+                Font = textBoxFont,
                 ForeColor = Color.White,
                 BackColor = Color.Blue,
                 Margin = new Padding(5)
             };
 
-            viewButton = new Button
-            {
-                Text = "View",
-                //DialogResult = DialogResult.Cancel,
-                Dock = DockStyle.Fill,
-                Font = labelFont,
-                ForeColor = Color.White,
-                BackColor = Color.Blue,
-                Margin = new Padding(5)
-            };
-
-            deleteButton = new Button
-            {
-                Text = "Delete",
-                //DialogResult = DialogResult.Cancel,
-                Dock = DockStyle.Fill,
-                Font = labelFont,
-                ForeColor = Color.White,
-                BackColor = Color.Blue,
-                Margin = new Padding(5)
-            };
-            updateButton = new Button
-            {
-                Text = "Edit",
-                //DialogResult = DialogResult.Cancel,
-                Dock = DockStyle.Fill,
-                Font = labelFont,
-                ForeColor = Color.White,
-                BackColor = Color.Blue,
-                Margin = new Padding(5)
-            };
-            CancelButton = okButton;
+            table.Controls.Add(okButton, 3, 3);
 
 
-
-            table1.Controls.Add(updateButton, 1, 0);
-            table1.Controls.Add(deleteButton, 2, 0);
-            table1.Controls.Add(viewButton, 3, 0);
-            table1.Controls.Add(okButton, 4, 0);
-
-            table.Controls.Add(table1, 1, 4);
-            table.SetColumnSpan(table1, 4);
-
-            //row-5
+            //row-4
             //blank
-
             Controls.Add(table);
-
-
         }
+
+
+        private void InitComponentEvent()
+        {
+            this.Load += Form_Load;
+
+            okButton.Click += OkButton_Click;
+
+            CancelButton = okButton;
+        }
+
+        private void Form_Load(object sender, EventArgs e)
+        {
+            //productDao = new ProductDaoImpl(DatabaseManager.GetConnection());
+
+            if(datewisePurchasesList != null)
+            {
+                int srNo = 1;
+                double totalAmount = 0;
+                foreach(ProductPurchase purchase in datewisePurchasesList)
+                {
+                    double total = purchase.PurchasePrice * purchase.Qty;
+                    Console.WriteLine(purchase.Product?.Name);
+                    Console.WriteLine($"{purchase.Qty}={purchase.PurchasePrice}={purchase.PurchaseCGSTInPercent}={purchase.PurchaseSGSTInPercent}={purchase.BatchNumber}");
+                    Console.WriteLine("mfg :"+ (string.IsNullOrEmpty(purchase.MfgDate) ? "" : DateTime.ParseExact(purchase.MfgDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("MMM yyy")));
+                    Console.WriteLine("exp :"+ (string.IsNullOrEmpty(purchase.ExpDate) ? "" : DateTime.ParseExact(purchase.ExpDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("MMM yyy")));
+
+                    historyTable.Rows.Add(srNo, purchase.Product?.Name, purchase.Qty, purchase.PurchasePrice,
+                        purchase.PurchaseCGSTInPercent, purchase.PurchaseSGSTInPercent,
+                        string.IsNullOrEmpty(purchase.MfgDate) ? "" : DateTime.ParseExact(purchase.MfgDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("MMM yyy"),
+                        string.IsNullOrEmpty(purchase.ExpDate) ? "" : DateTime.ParseExact(purchase.ExpDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("MMM yyy"),
+                        string.IsNullOrEmpty(purchase.BatchNumber) ? "" : purchase.BatchNumber, 
+                        total);
+
+                    srNo++;
+                    totalAmount += total;
+                }
+                ShowPurchaseRecordCount(datewisePurchasesList.Count);
+                ShowTotalPurchaseAmount(totalAmount);
+            }
+        }
+
+        private void OkButton_Click(object sender, EventArgs e)
+        {
+            DialogResult = DialogResult.OK;
+            Close();
+        }
+
+        private void ShowPurchaseRecordCount(int count)
+        {
+            totalPurchaseRecordLabel.Text = count.ToString();
+        }
+
+        public void ShowTotalPurchaseAmount(double totalAmount)
+        {
+            totalPurchaseAmountLabel.Text = totalAmount.ToString("C3");
+        }
+
     }
 }

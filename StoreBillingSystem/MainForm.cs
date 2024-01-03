@@ -6,6 +6,8 @@ using StoreBillingSystem.StoreForm.CustomerForm;
 using StoreBillingSystem.StoreForm.ProductForm;
 using StoreBillingSystem.StoreForm.CategoryForm;
 using StoreBillingSystem.StoreForm.ProductTypeForm;
+using StoreBillingSystem.StoreForm.PurchaseForm;
+
 namespace StoreBillingSystem
 {
 
@@ -134,6 +136,15 @@ namespace StoreBillingSystem
             productViewMenu.Click += (sender, e) => ProductViewMenu();
             productSellingViewMenu.Click += (sender, e) => ProductSellingViewEditMenu();
 
+            MenuItem salesMenu = new MenuItem("Sales");
+
+            MenuItem purchaseMenu = new MenuItem("Purchase");
+            MenuItem productPurchaseHistoryMenu = new MenuItem("View Product Purchase History");
+            purchaseMenu.MenuItems.Add(productPurchaseHistoryMenu);
+
+            productPurchaseHistoryMenu.Click += (sender, e) => ProductPurchaseHistoryViewMenu();
+
+
             MenuItem categoryMenu = new MenuItem("Category");
             MenuItem categoryNewAndViewMenu = new MenuItem("New / View");
             categoryMenu.MenuItems.Add(categoryNewAndViewMenu);
@@ -150,6 +161,8 @@ namespace StoreBillingSystem
             mainMenu.MenuItems.Add(fileMenu);
             mainMenu.MenuItems.Add(customerMenu);
             mainMenu.MenuItems.Add(productMenu);
+            mainMenu.MenuItems.Add(salesMenu);
+            mainMenu.MenuItems.Add(purchaseMenu);
             mainMenu.MenuItems.Add(categoryMenu);
             mainMenu.MenuItems.Add(productTypeMenu);
 
@@ -187,6 +200,10 @@ namespace StoreBillingSystem
         private void ProductTypeNewAndViewMenu()
         {
             new ProductTypeForm().ShowDialog();
+        }
+        private void ProductPurchaseHistoryViewMenu()
+        {
+            new PurchaseHistoryForm().ShowDialog();
         }
         /*
         private void RegistrationMenuItem_Click(object sender, EventArgs e)

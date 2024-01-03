@@ -21,9 +21,12 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
             InitComponentEvent();
 
         }
-        private IProductDao productDao;
+        private List<DateTime> uniqueDates;
+        private Dictionary<DateTime, IList<ProductPurchase>> datewiseMap;
+
         private IProductPurchaseDao productPurchaseDao;
-        private IList<ProductPurchase> productPurchaseList;
+        private IList<ProductPurchase> allProductPurchaseList;
+        private IList<DateTime> sortedDates;
 
         private Font labelFont = U.StoreLabelFont;
         private Font textBoxFont = U.StoreTextBoxFont;
@@ -37,11 +40,12 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
         private Button viewButton;
         private Button deleteButton;
         private Button deleteAllButton;
+        private Button searchButton;
 
         private ComboBox historyComboBox;
         private DataGridView historyTable;
         private DateTimePicker fromDate;
-        private DateTimePicker ToDate;
+        private DateTimePicker toDate;
 
         private void InitializeComponent()
         {
@@ -101,6 +105,22 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
             };
             table.Controls.Add(historyComboBox, 2, 0);
 
+            searchButton = new Button
+            {
+                Text = "Search",
+                //Dock = DockStyle.Fill,
+                Anchor = AnchorStyles.None,
+                //DialogResult = DialogResult.OK,
+                Width = 80,
+                Height = 40,
+                Font = labelFont,
+                ForeColor = Color.White,
+                BackColor = Color.Blue,
+                Margin = new Padding(5)
+
+            };
+            table.Controls.Add(searchButton, 3, 0);
+
             lblFrom = new Label
             {
                 Text = "From :",
@@ -117,7 +137,6 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
                 Font = textBoxFont,
                 Margin = new Padding(5),
                 Format = DateTimePickerFormat.Short,
-                Enabled = false,
             };
             table.Controls.Add(fromDate, 5, 0);
 
@@ -132,15 +151,14 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
 
             table.Controls.Add(lblTo, 7, 0);
 
-            ToDate = new DateTimePicker
+            toDate = new DateTimePicker
             {
                 Dock = DockStyle.Fill,
                 Font = textBoxFont,
                 Margin = new Padding(5),
                 Format = DateTimePickerFormat.Short,
-                Enabled = false
             };
-            table.Controls.Add(ToDate, 8, 0);
+            table.Controls.Add(toDate, 8, 0);
 
             //row-1 - blank
 
@@ -311,37 +329,27 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
             historyComboBox.SelectedValueChanged += HistoryComboBox_SelectedValueChanged;
 
             okButton.Click += OkButton_Click;
-
+            viewButton.Click += ViewButton_Click;
             CancelButton = okButton;
+
+            fromDate.ValueChanged += FromDate_ValueChanged;
+            toDate.ValueChanged += ToDate_ValueChanged;
+
+            searchButton.Click += SearchButton_Click;
         }
 
-        private void HistoryComboBox_SelectedValueChanged(object sender, EventArgs e)
+        private void ViewButton_Click(object sender, EventArgs e)
         {
-            string selectedValue = historyComboBox.SelectedItem.ToString();
-            if(selectedValue == "Date Range")
+            //Console.WriteLine("Select index :" + historyTable.SelectedRows[0].Index);
+
+            if(historyTable.SelectedRows[0].Index >= 0)
             {
-                ShowDateRange();
+                DateTime purchaseDate = sortedDates[historyTable.SelectedRows[0].Index];
+                Console.WriteLine(purchaseDate);
+                Console.WriteLine(datewiseMap[purchaseDate].Count);
+                new PurchaseDisplayForm(purchaseDate, datewiseMap[purchaseDate]).ShowDialog();
             }
-            else
-            {
-                HideDateRange();
-            }
-        }
-
-        private void ShowDateRange()
-        {
-            lblTo.Show();
-            lblFrom.Show();
-            fromDate.Show();
-            ToDate.Show();
-        }
-
-        private void HideDateRange()
-        {
-            lblTo.Hide();
-            lblFrom.Hide();
-            fromDate.Hide();
-            ToDate.Hide();
+            // = productList[historyTable.CurrentCell.RowIndex];
         }
 
         private void Form_Load(object sender, EventArgs e)
@@ -354,23 +362,146 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
             historyComboBox.SelectedIndex = 0;
 
             productPurchaseDao = new ProductPurchaseDaoImpl(DatabaseManager.GetConnection());
-            productPurchaseList = productPurchaseDao.ReadAll();
+            allProductPurchaseList = productPurchaseDao.ReadAll();
 
-            List<DateTime> uniqueDates = productPurchaseList.Select(x => x.PurchaseDateTime.Date).Distinct().ToList();
-            Dictionary<DateTime, IList<ProductPurchase>> datewiseMap = new Dictionary<DateTime, IList<ProductPurchase>>();
+            uniqueDates = allProductPurchaseList.Select(x => x.PurchaseDateTime.Date).Distinct().ToList();
+            datewiseMap = new Dictionary<DateTime, IList<ProductPurchase>>();
 
-            foreach(DateTime date in uniqueDates)
+            foreach (DateTime date in uniqueDates)
             {
-                datewiseMap.Add(date, productPurchaseList.Where(x => DateTime.Equals(x.PurchaseDateTime.Date, date)).ToList());
-                
-                Console.WriteLine(date);
+                datewiseMap.Add(date, allProductPurchaseList.Where(x => DateTime.Equals(x.PurchaseDateTime.Date, date)).ToList());
             }
 
+            ShowPurchaseRecordCount(0);
+            ShowTotalPurchaseAmount(0);
+        }
+
+
+        private void HistoryComboBox_SelectedValueChanged(object sender, EventArgs e)
+        {
+            string selectedValue = historyComboBox.SelectedItem.ToString();
+            if(selectedValue == "Date Range")
+            {
+                ShowDateRange();
+            }
+            else
+            {
+                HideDateRange();
+            }
+            Clear();
         }
 
         private void OkButton_Click(object sender, EventArgs e)
         {
             Close();
         }
+
+
+        private void FromDate_ValueChanged(object sender, EventArgs e)
+        {
+            if(fromDate.Value > toDate.Value)
+                toDate.Value = fromDate.Value;
+        }
+
+
+        private void ToDate_ValueChanged(object sender, EventArgs e)
+        {
+            if(fromDate.Value > toDate.Value)
+                fromDate.Value = toDate.Value;
+        }
+
+        private void SearchButton_Click(object sender, EventArgs e)
+        {
+            string selectedValue = historyComboBox.SelectedItem.ToString();
+            if (selectedValue == "All")
+            {
+                sortedDates = datewiseMap.Keys.OrderBy(date => date).ToList();
+                //var sortedDatewiseMap = datewiseMap.OrderBy(kvp => kvp.Key).ToList();
+                ShowPurchaseHistory();
+            }
+            else if (selectedValue == "Date Range")
+            {
+                sortedDates = datewiseMap.Keys.Where(date => fromDate.Value <= date && date <= toDate.Value)
+                    .OrderBy(date => date)
+                    .ToList();
+                ShowPurchaseHistory();
+            }
+            else
+            {
+                sortedDates = null;
+                Clear();
+                MessageBox.Show("Search is not allow.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void ShowPurchaseHistory() //IList<KeyValuePair<DateTime, IList<ProductPurchase>>> sortedDatewiseMap
+        {
+            historyTable.Rows.Clear();
+
+            int srNo = 1;
+            double totalAmount = 0;
+            foreach (DateTime purchaseDate in sortedDates)
+            {
+                IList<ProductPurchase> productPurchases = datewiseMap[purchaseDate];
+                double total = 0;
+
+                foreach (ProductPurchase purchase in productPurchases)
+                {
+                    total += purchase.PurchasePrice * purchase.Qty;
+                }
+                historyTable.Rows.Add(srNo, purchaseDate, total.ToString("C3"));
+                srNo++;
+
+                totalAmount += total;
+
+            }
+
+            ShowPurchaseRecordCount(sortedDates.Count);
+            ShowTotalPurchaseAmount(totalAmount);
+
+            if(sortedDates.Count == 0)
+                MessageBox.Show("No records found.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+
+        private void ShowPurchaseRecordCount(int count)
+        {
+            totalPurchaseRecordLabel.Text = count.ToString();
+        }
+
+        public void ShowTotalPurchaseAmount(double totalAmount)
+        {
+            totalPurchaseAmountLabel.Text = totalAmount.ToString("C3");
+        }
+
+
+        private void Clear()
+        {
+            ShowPurchaseRecordCount(0);
+            ShowTotalPurchaseAmount(0);
+            historyTable.Rows.Clear();
+        }
+
+        private void ShowDateRange()
+        {
+            lblTo.Show();
+            lblFrom.Show();
+            fromDate.Show();
+            toDate.Show();
+
+            fromDate.Value = DateTime.Today;
+            toDate.Value = DateTime.Today;
+            //fromDate.MaxDate = fromDate.Value;
+            //toDate.MinDate = toDate.Value;
+        }
+
+        private void HideDateRange()
+        {
+            lblTo.Hide();
+            lblFrom.Hide();
+            fromDate.Hide();
+            toDate.Hide();
+        }
+
     }
 }

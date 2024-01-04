@@ -98,6 +98,8 @@
     <Compile Include="StoreForm\ProductForm\ProductSellingDisplayForm.cs" />
     <Compile Include="StoreForm\PurchaseForm\PurchaseDisplayForm.cs" />
     <Compile Include="StoreForm\PurchaseForm\PurchaseHistoryForm.cs" />
+    <Compile Include="StoreForm\PurchaseForm\ProductPurchaseHistoryForm.cs" />
+    <Compile Include="StoreForm\PurchaseForm\ProductPurchaseDisplayForm.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Database\" />

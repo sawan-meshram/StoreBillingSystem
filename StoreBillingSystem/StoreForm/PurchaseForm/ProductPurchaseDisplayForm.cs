@@ -8,31 +8,22 @@ using StoreBillingSystem.Database;
 using StoreBillingSystem.DAO;
 using StoreBillingSystem.DAOImpl;
 using StoreBillingSystem.Entity;
-using StoreBillingSystem.Events;
 using StoreBillingSystem.Util;
 namespace StoreBillingSystem.StoreForm.PurchaseForm
 {
-    public class PurchaseDisplayForm : Form
+    public class ProductPurchaseDisplayForm : Form
     {
-        /*
-        public PurchaseDisplayForm() : this(DateTime.Now, null)
-        {
-        }
-          */    
 
-        public PurchaseDisplayForm(DateTime purchaseDate, IList<ProductPurchase> datewisePurchasesList)
+        public ProductPurchaseDisplayForm(Product product, IList<ProductPurchase> datewisePurchasesList)
         {
-            this.purchaseDate = purchaseDate;
+            this.product = product;
             this.datewisePurchasesList = datewisePurchasesList;
             InitializeComponent();
-
             InitComponentEvent();
         }
 
-
-        //private IProductDao productDao;
         private IList<ProductPurchase> datewisePurchasesList;
-        private DateTime purchaseDate;
+        private Product product;
 
         private Font textBoxFont = U.StoreTextBoxFont;
 
@@ -45,7 +36,7 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
 
         private void InitializeComponent()
         {
-            Text = $"Product history on date, {purchaseDate.ToString("dd MMMM yyyy")}";
+            Text = $"Product history for \"{ product.Name}\"";
 
 
             HelpButton = true; // Display a help button on the form
@@ -94,7 +85,7 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
 
             historyTable.ColumnCount = 10;
             historyTable.Columns[0].Name = "Sr. No.";
-            historyTable.Columns[1].Name = "Product Name";
+            historyTable.Columns[1].Name = "Purchase Date";
             historyTable.Columns[2].Name = "Qty";
             historyTable.Columns[3].Name = "Price";
             historyTable.Columns[4].Name = "Purchase SGST";
@@ -106,15 +97,15 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
 
 
             historyTable.Columns[0].Width = 60;
-            historyTable.Columns[2].Width = 90;
-            historyTable.Columns[3].Width = 120;
+            historyTable.Columns[1].Width = 120;
+            historyTable.Columns[2].Width = 100;
+            historyTable.Columns[3].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             historyTable.Columns[4].Width = 100;
             historyTable.Columns[5].Width = 100;
-            historyTable.Columns[6].Width = 75;
-            historyTable.Columns[7].Width = 75;
-            historyTable.Columns[8].Width = 100;
-            historyTable.Columns[9].Width = 120;
-            historyTable.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            historyTable.Columns[6].Width = 100;
+            historyTable.Columns[7].Width = 100;
+            historyTable.Columns[8].Width = 120;
+            historyTable.Columns[9].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
             historyTable.Columns[2].DefaultCellStyle.Format = "N";
             historyTable.Columns[3].DefaultCellStyle.Format = "C3";
@@ -223,19 +214,19 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
         {
             //productDao = new ProductDaoImpl(DatabaseManager.GetConnection());
 
-            if(datewisePurchasesList != null)
+            if (datewisePurchasesList != null)
             {
                 int srNo = 1;
                 double totalAmount = 0;
-                foreach(ProductPurchase purchase in datewisePurchasesList)
+                foreach (ProductPurchase purchase in datewisePurchasesList)
                 {
                     double total = purchase.PurchasePrice * purchase.Qty;
 
-                    historyTable.Rows.Add(srNo, purchase.Product?.Name, purchase.Qty, purchase.PurchasePrice,
+                    historyTable.Rows.Add(srNo, purchase.PurchaseDateTime.ToString("dd MMM yyyy"), purchase.Qty, purchase.PurchasePrice,
                         purchase.PurchaseCGSTInPercent, purchase.PurchaseSGSTInPercent,
                         string.IsNullOrEmpty(purchase.MfgDate) ? "" : DateTime.ParseExact(purchase.MfgDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("MMM yyy"),
                         string.IsNullOrEmpty(purchase.ExpDate) ? "" : DateTime.ParseExact(purchase.ExpDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("MMM yyy"),
-                        string.IsNullOrEmpty(purchase.BatchNumber) ? "" : purchase.BatchNumber, 
+                        string.IsNullOrEmpty(purchase.BatchNumber) ? "" : purchase.BatchNumber,
                         total);
 
                     srNo++;

@@ -25,7 +25,7 @@ namespace StoreBillingSystem
         {
             this.Text = "Main Form";
             //this.Size = new Size(1366, 780);
-            this.Size = Screen.PrimaryScreen.WorkingArea.Size;
+            //this.Size = Screen.PrimaryScreen.WorkingArea.Size;
 
             this.MinimumSize = new Size(1366, 768); // Set your minimum size
             //this.MaximumSize = new Size(1366, 768); // Set your maximum size
@@ -139,11 +139,14 @@ namespace StoreBillingSystem
             MenuItem salesMenu = new MenuItem("Sales");
 
             MenuItem purchaseMenu = new MenuItem("Purchase");
+            MenuItem purchaseHistoryMenu = new MenuItem("View Purchase History");
             MenuItem productPurchaseHistoryMenu = new MenuItem("View Product Purchase History");
+
+            purchaseMenu.MenuItems.Add(purchaseHistoryMenu);
             purchaseMenu.MenuItems.Add(productPurchaseHistoryMenu);
 
-            productPurchaseHistoryMenu.Click += (sender, e) => ProductPurchaseHistoryViewMenu();
-
+            purchaseHistoryMenu.Click += (sender, e) => PurchaseHistoryViewMenu();
+            productPurchaseHistoryMenu.Click +=(sender, e) => ProductPurchaseHistoryViewMenu();
 
             MenuItem categoryMenu = new MenuItem("Category");
             MenuItem categoryNewAndViewMenu = new MenuItem("New / View");
@@ -201,9 +204,14 @@ namespace StoreBillingSystem
         {
             new ProductTypeForm().ShowDialog();
         }
-        private void ProductPurchaseHistoryViewMenu()
+        private void PurchaseHistoryViewMenu()
         {
             new PurchaseHistoryForm().ShowDialog();
+        }
+
+        private void ProductPurchaseHistoryViewMenu()
+        {
+            new ProductPurchaseHistoryForm().ShowDialog();
         }
         /*
         private void RegistrationMenuItem_Click(object sender, EventArgs e)

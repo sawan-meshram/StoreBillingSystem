@@ -100,6 +100,7 @@
     <Compile Include="StoreForm\PurchaseForm\PurchaseHistoryForm.cs" />
     <Compile Include="StoreForm\PurchaseForm\ProductPurchaseHistoryForm.cs" />
     <Compile Include="StoreForm\PurchaseForm\ProductPurchaseDisplayForm.cs" />
+    <Compile Include="StoreForm\SalesForm\SalesHistoryForm.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Database\" />
@@ -116,6 +117,7 @@
     <Folder Include="StoreForm\PaymentForm\" />
     <Folder Include="StoreForm\BillingForm\" />
     <Folder Include="StoreForm\PurchaseForm\" />
+    <Folder Include="StoreForm\SalesForm\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

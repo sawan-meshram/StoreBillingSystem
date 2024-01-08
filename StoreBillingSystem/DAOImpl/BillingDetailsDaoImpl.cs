@@ -19,7 +19,7 @@ namespace StoreBillingSystem.DAOImpl
         public BillingDetailsDaoImpl(SqliteConnection conn)
         {
             _conn = conn;
-            _tableName = StoreDbTable.BillingDate.ToString();
+            _tableName = StoreDbTable.BillingDetails.ToString();
 
             _billingDao = new BillingDaoImpl(conn);
             _productDao = new ProductDaoImpl(conn);

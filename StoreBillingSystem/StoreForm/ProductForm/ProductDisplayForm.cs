@@ -697,6 +697,8 @@ namespace StoreBillingSystem.StoreForm.ProductForm
                 };
 
                 table.Controls.Add(_categoryComboBox, 1, 2);
+                table.SetColumnSpan(_categoryComboBox, 2);
+
                 table.Controls.Add(_typeNameComboBox, 1, 3);
 
                 Button _cancelButton = new Button
@@ -749,6 +751,8 @@ namespace StoreBillingSystem.StoreForm.ProductForm
                 };
 
                 table.Controls.Add(_categoryTextBox, 1, 2);
+                table.SetColumnSpan(_categoryTextBox, 2);
+
                 table.Controls.Add(_typeNameTextBox, 1, 3);
 
 

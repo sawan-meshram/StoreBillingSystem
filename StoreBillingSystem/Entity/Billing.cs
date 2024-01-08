@@ -38,6 +38,13 @@ namespace StoreBillingSystem.Entity
         public double DiscountPrice { get; set; }
         public double NetAmount { get; set; }
 
+        public DateTime BillingDateTimeAsObject
+        {
+            get
+            {
+                return DateTime.ParseExact(BillingDateTime, "yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.GetCultureInfo("en-US"));
+            }
+        }
 
         public override string ToString()
         {

@@ -787,9 +787,9 @@ namespace StoreBillingSystem.StoreForm.BillingForm
 
         private void SaveBilling()
         {
-            //DialogResult result = MessageBox.Show($"Do you want to save this bill?", "Save Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            DialogResult result = MessageBox.Show($"Do you want to save this bill?", "Save Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-            //if (result == DialogResult.Yes)
+            if (result == DialogResult.Yes)
             {
                 if (!ValidationOnBillingForm()) return;
 
@@ -851,19 +851,20 @@ namespace StoreBillingSystem.StoreForm.BillingForm
 
 
                     Console.WriteLine(payment);
-                    /*
+
                     //Write code to insert into database
                     bool isBillingInsert = billingDao.Insert(billing);
                     bool isBillingDetailsInsert = billingDetailsDao.Insert(_billingDetails);
                     bool isPaymentInsert = paymentDao.Insert(payment);
                     bool isProductUpdate = productDao.UpdateQty(updateProducts);
 
+                    Console.WriteLine("isBillingDetailsInsert :" + isBillingDetailsInsert);
                     if (isBillingInsert && isBillingDetailsInsert && isPaymentInsert && isProductUpdate)
                     {
                         MessageBox.Show("Save successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         ClearAll();
                     }
-                    */
+
                 }
                 else
                 {

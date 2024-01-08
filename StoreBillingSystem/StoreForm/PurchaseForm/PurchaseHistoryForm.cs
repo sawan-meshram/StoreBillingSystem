@@ -88,7 +88,7 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
             //row-0
             table.Controls.Add(new Label
             {
-                Text = "History Purchase :",
+                Text = "Purchase History :",
                 Font = labelFont,
                 Dock = DockStyle.Fill,
                 ForeColor = Color.Black,

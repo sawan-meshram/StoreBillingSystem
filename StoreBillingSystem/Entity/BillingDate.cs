@@ -25,6 +25,15 @@ namespace StoreBillingSystem.Entity
         public long Id { get; set; }
         public string BillDate { get; set; }
 
+        public DateTime BillDateTime
+        {
+            get
+            {
+                return DateTime.ParseExact(BillDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            }
+        }
+
+
         public override string ToString()
         {
             return $"BillingDate : Id={Id}, BillDate={BillDate}";

@@ -168,12 +168,46 @@ namespace StoreBillingSystem.DAOImpl
                             NetAmount = reader.GetDouble(reader.GetOrdinal("NET_AMOUNT")),
                         };
                         billing.Customer = _customerDao.Read(reader.GetInt32(reader.GetOrdinal("Customer_ID")));
-                        billing.BillingDate = _billingDateDao.Read(reader.GetInt64(reader.GetOrdinal("BillingDate_ID")));
+                        billing.BillingDate = billingDate; //_billingDateDao.Read(reader.GetInt64(reader.GetOrdinal("BillingDate_ID")));
                     }
                 }
             }
 
             return billing;
+        }
+
+        public IList<Billing> ReadAll(BillingDate billingDate)
+        {
+            IList<Billing> billings = new List<Billing>();
+
+            string query = $"SELECT * FROM {_tableName} WHERE BillingDate_ID = @BillingDateId";
+
+            using (SqliteCommand command = new SqliteCommand(query, _conn))
+            {
+                command.Parameters.AddWithValue("@BillingDateId", billingDate.Id);
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Billing billing = new Billing
+                        {
+                            Id = reader.GetInt64(reader.GetOrdinal("ID")),
+                            BillingNumber = reader.GetInt64(reader.GetOrdinal("BILLING_NUMBER")),
+                            BillingDateTime = reader.GetString(reader.GetOrdinal("BILLING_DATE")),
+                            GrossAmount = reader.GetDouble(reader.GetOrdinal("GROSS_AMOUNT")),
+                            GSTPrice = reader.GetDouble(reader.GetOrdinal("GST_PRICE")),
+                            DiscountPrice = reader.GetDouble(reader.GetOrdinal("DISCOUNT_PRICE")),
+                            NetAmount = reader.GetDouble(reader.GetOrdinal("NET_AMOUNT")),
+                        };
+                        billing.Customer = _customerDao.Read(reader.GetInt32(reader.GetOrdinal("Customer_ID")));
+                        billing.BillingDate = billingDate;  //_billingDateDao.Read(reader.GetInt64(reader.GetOrdinal("BillingDate_ID")));
+
+                        billings.Add(billing);
+                    }
+                }
+            }
+
+            return billings;
         }
 
         public IList<Billing> ReadAll()

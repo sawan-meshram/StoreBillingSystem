@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Data;
-
 using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
@@ -11,38 +9,31 @@ using StoreBillingSystem.DAO;
 using StoreBillingSystem.DAOImpl;
 using StoreBillingSystem.Entity;
 using StoreBillingSystem.Util;
-using StoreBillingSystem.Events;
-
-namespace StoreBillingSystem.StoreForm.PurchaseForm
+namespace StoreBillingSystem.StoreForm.SalesForm
 {
-    public class ProductPurchaseHistoryForm : Form
+    public class SalesHistoryForm : Form
     {
-        public ProductPurchaseHistoryForm()
+        public SalesHistoryForm()
         {
             InitializeComponent();
-
             InitComponentEvent();
-
         }
 
-        private List<DateTime> uniqueDates;
-        private IDictionary<DateTime, IList<ProductPurchase>> datewiseMap;
-        private IDictionary<long, Product> allProductMap;
-
-        private IProductPurchaseDao productPurchaseDao;
-        private IList<ProductPurchase> allProductPurchaseList;
+        private IDictionary<DateTime, IList<Billing>> datewiseMap;
+        private IList<BillingDate> billDateList;
         private IList<DateTime> sortedDates;
+        private IList<Billing> historyBillingList;
 
-        private string _productNamePlaceHolder = U.ToTitleCase("Search Product Name Here..");
+        private IBillingDateDao billingDateDao;
+        private IBillingDao billingDao;
+        private IPaymentDao paymentDao;
 
-
-        private DataTable productDataTable;
-        private TextBox productNameText;
 
         private Font labelFont = U.StoreLabelFont;
         private Font textBoxFont = U.StoreTextBoxFont;
 
-        private Label totalPurchaseRecordLabel;
+        private Label totalSalesRecordLabel;
+        private Label totalSalesAmountLabel;
         private Label lblFrom;
         private Label lblTo;
 
@@ -59,14 +50,14 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
 
         private void InitializeComponent()
         {
-            Text = "Product Purchase History";
+            Text = "Sales History";
 
             HelpButton = true; // Display a help button on the form
             FormBorderStyle = FormBorderStyle.FixedDialog; // Define the border style of the form to a dialog box.
             MaximizeBox = false; // Set the MaximizeBox to false to remove the maximize box.
             MinimizeBox = false; // Set the MinimizeBox to false to remove the minimize box.
             StartPosition = FormStartPosition.CenterScreen; // Set the start position of the form to the center of the screen.
-            Size = new Size(1100, 700);
+            Size = new Size(1100, 650);
             BackColor = U.StoreDialogBackColor;
             AutoScroll = true;
 
@@ -75,22 +66,20 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
             {
                 Dock = DockStyle.Fill,
                 ColumnCount = 10,
-                RowCount = 8,
+                RowCount = 6,
                 CellBorderStyle = TableLayoutPanelCellBorderStyle.None,
                 //BackColor = Color.Lime,
             };
 
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-0
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 10F)); //row-1
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); //row-2
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 10F)); //row-3
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 460F)); //row-4 //DataGridView
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F)); //row-5
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F)); //row-6
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 460F)); //row-2 //DataGridView
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F)); //row-3
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F)); //row-3
 
             table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 15f)); //blank
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130f)); //history purchase lbl
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 200f)); //combo box
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150f)); //history purchase lbl
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 180f)); //combo box
             table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150f)); //blank
             table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 70f)); //from
             table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 180f)); //from date
@@ -101,7 +90,7 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
             //row-0
             table.Controls.Add(new Label
             {
-                Text = "Purchase History :",
+                Text = "Sales History :",
                 Font = labelFont,
                 Dock = DockStyle.Fill,
                 ForeColor = Color.Black,
@@ -175,28 +164,6 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
             //row-1 - blank
 
             //row-2
-            table.Controls.Add(new Label
-            {
-                Text = "Search Product :",
-                Font = labelFont,
-                Dock = DockStyle.Fill,
-                ForeColor = Color.Black,
-                TextAlign = ContentAlignment.MiddleRight,
-            }, 1, 2);
-
-            productNameText = new TextBox
-            {
-                Dock = DockStyle.Fill,
-                Font = labelFont,
-                Margin = new Padding(5),
-                Text = _productNamePlaceHolder,
-                ForeColor = Color.Gray,
-            };
-            table.Controls.Add(productNameText, 2, 2);
-            table.SetColumnSpan(productNameText, 2);
-            //row-3 - blank
-
-            //row-4
             historyTable = new DataGridView
             {
                 Dock = DockStyle.Fill,
@@ -206,16 +173,39 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
             };
             historyTable.RowHeadersDefaultCellStyle.Font = U.StoreLabelFont;
 
-            historyTable.ColumnCount = 3;
-            historyTable.Columns[0].Name = "SrNo.";
-            historyTable.Columns[1].Name = "Product Id";
-            historyTable.Columns[2].Name = "Product Name";
+            historyTable.ColumnCount = 8;
+            historyTable.Columns[0].Name = "Sr. No.";
+            historyTable.Columns[1].Name = "Billing Date";
+            historyTable.Columns[2].Name = "Billing No.";
+            historyTable.Columns[3].Name = "Customer";
+            historyTable.Columns[4].Name = "Gross Amt.";
+            historyTable.Columns[5].Name = "GST Amt";
+            historyTable.Columns[6].Name = "Discount Amt";
+            historyTable.Columns[7].Name = "Net Amt";
 
-            historyTable.Columns[0].Width = 200;
-            historyTable.Columns[1].Width = 200;
-            historyTable.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
-            historyTable.Columns[2].DefaultCellStyle.Format = "N";
+            historyTable.Columns[0].Width = 90;
+            historyTable.Columns[1].Width = 170;
+            historyTable.Columns[2].Width = 80;
+            historyTable.Columns[3].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            historyTable.Columns[4].Width = 120;
+            historyTable.Columns[5].Width = 100;
+            historyTable.Columns[6].Width = 100;
+            historyTable.Columns[7].Width = 120;
+            //historyTable.Columns[1]
+            //historyTable.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+
+            //historyTable.Columns[1].DataPropertyName = "BillingDateTime";
+            historyTable.Columns[2].DataPropertyName = "BillingNumber";
+            historyTable.Columns[4].DataPropertyName = "GrossAmount";
+            historyTable.Columns[5].DataPropertyName = "GSTPrice";
+            historyTable.Columns[6].DataPropertyName = "DiscountPrice";
+            historyTable.Columns[7].DataPropertyName = "NetAmount";
+
+            historyTable.Columns[4].DefaultCellStyle.Format = "C3";
+            historyTable.Columns[5].DefaultCellStyle.Format = "C3";
+            historyTable.Columns[6].DefaultCellStyle.Format = "C3";
+            historyTable.Columns[7].DefaultCellStyle.Format = "C3";
 
 
             historyTable.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft; //data display in center
@@ -237,34 +227,55 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
             historyTable.AllowUserToResizeRows = false;
             historyTable.AllowUserToResizeColumns = false;
 
-            table.Controls.Add(historyTable, 1, 4);
+            table.Controls.Add(historyTable, 1, 2);
             table.SetColumnSpan(historyTable, table.ColumnCount - 2);
 
 
 
-            //row-5
+            //row-3
             Label purchaseRecordLabel = new Label
             {
-                Text = "Purchase Record :",
+                Text = "Sales Record :",
                 Font = labelFont,
                 Dock = DockStyle.Fill,
                 ForeColor = Color.Navy,
                 TextAlign = ContentAlignment.MiddleRight,
             };
-            table.Controls.Add(purchaseRecordLabel, 1, 5);
+            table.Controls.Add(purchaseRecordLabel, 1, 3);
 
 
-            totalPurchaseRecordLabel = new Label
+            totalSalesRecordLabel = new Label
             {
                 Font = labelFont,
                 Dock = DockStyle.Fill,
                 ForeColor = Color.Crimson,
                 TextAlign = ContentAlignment.MiddleLeft,
             };
-            table.Controls.Add(totalPurchaseRecordLabel, 2, 5);
+            table.Controls.Add(totalSalesRecordLabel, 2, 3);
+
+            Label totalLabel = new Label
+            {
+                Text = "Total Sales Amt. :",
+                Font = labelFont,
+                Dock = DockStyle.Fill,
+                ForeColor = Color.Navy,
+                TextAlign = ContentAlignment.MiddleRight,
+            };
+            table.Controls.Add(totalLabel, 5, 3);
+            table.SetColumnSpan(totalLabel, 2);
+
+            totalSalesAmountLabel = new Label
+            {
+                Font = labelFont,
+                Dock = DockStyle.Fill,
+                ForeColor = Color.Crimson,
+                TextAlign = ContentAlignment.MiddleLeft,
+            };
+            table.Controls.Add(totalSalesAmountLabel, 7, 3);
+            table.SetColumnSpan(totalSalesAmountLabel, 2);
 
 
-            //Row-6
+            //Row-4
             TableLayoutPanel table1 = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
@@ -326,35 +337,34 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
             table1.Controls.Add(viewButton, 3, 0);
             table1.Controls.Add(okButton, 4, 0);
 
-            table.Controls.Add(table1, 1, 6);
+            table.Controls.Add(table1, 1, 4);
             table.SetColumnSpan(table1, table.ColumnCount - 1);
 
-            //row-7 //blank
+            //row-5
+            //blank
 
             Controls.Add(table);
         }
+
 
         private void InitComponentEvent()
         {
             this.Load += Form_Load;
 
-            productNameText.Enter += (sender, e) => TextBoxKeyEvent.PlaceHolderText_GotFocus(productNameText, _productNamePlaceHolder);
-            productNameText.Leave += (sender, e) => TextBoxKeyEvent.PlaceHolderText_LostFocus(productNameText, _productNamePlaceHolder);
-            productNameText.TextChanged += SearchCustomerTextBox_TextChanged;
-
-
             historyComboBox.SelectedValueChanged += HistoryComboBox_SelectedValueChanged;
 
             okButton.Click += OkButton_Click;
-            viewButton.Click += ViewButton_Click;
+            //viewButton.Click += ViewButton_Click;
             CancelButton = okButton;
 
             fromDate.ValueChanged += FromDate_ValueChanged;
             toDate.ValueChanged += ToDate_ValueChanged;
 
             searchButton.Click += SearchButton_Click;
-        }
+            historyTable.DataBindingComplete += HistoryTable_DataBindingComplete;
 
+        }
+      
         private void Form_Load(object sender, EventArgs e)
         {
             HideDateRange();
@@ -364,67 +374,47 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
 
             historyComboBox.SelectedIndex = 0;
 
-            productPurchaseDao = new ProductPurchaseDaoImpl(DatabaseManager.GetConnection());
-            allProductPurchaseList = productPurchaseDao.ReadAll();
+            datewiseMap = new Dictionary<DateTime, IList<Billing>>();
+            historyBillingList = new List<Billing>();
+            sortedDates = new List<DateTime>();
 
-            allProductMap = new Dictionary<long, Product>();
-            foreach(ProductPurchase purchase in allProductPurchaseList)
+            billingDateDao = new BillingDateDaoImpl(DatabaseManager.GetConnection());
+            billingDao = new BillingDaoImpl(DatabaseManager.GetConnection());
+            paymentDao = new PaymentDaoImpl(DatabaseManager.GetConnection());
+
+
+            billDateList = billingDateDao.ReadAll();
+
+            foreach (BillingDate billDate in billDateList)
             {
-                if(purchase.Product != null && !allProductMap.ContainsKey(purchase.Product.Id))
-                {
-                    allProductMap.Add(purchase.Product.Id, purchase.Product);
-                }
+                datewiseMap.Add(billDate.BillDateTime, billingDao.ReadAll(billDate));
             }
 
-            uniqueDates = allProductPurchaseList.Select(x => x.PurchaseDateTime.Date).Distinct().ToList();
-            datewiseMap = new Dictionary<DateTime, IList<ProductPurchase>>();
+            BindSalesToDataGridView();
 
-            foreach (DateTime date in uniqueDates)
-            {
-                datewiseMap.Add(date, allProductPurchaseList.Where(x => DateTime.Equals(x.PurchaseDateTime.Date, date)).ToList());
-            }
-
-            productDataTable = new DataTable();
-            productDataTable.Columns.Add("SrNo.", typeof(int));
-            productDataTable.Columns.Add("Product Id", typeof(long));
-            productDataTable.Columns.Add("Name", typeof(string));
-
-            historyTable.Columns[0].DataPropertyName = "SrNo.";
-            historyTable.Columns[1].DataPropertyName = "Product Id";
-            historyTable.Columns[2].DataPropertyName = "Name";
-
-            historyTable.DataSource = productDataTable;
-
-            ShowPurchaseRecordCount(0);
+            ShowSalesRecordCount(0);
+            ShowTotalSalesAmount(0);
         }
 
-        private void SearchCustomerTextBox_TextChanged(object sender, EventArgs e)
+        private void BindSalesToDataGridView()
         {
-            TextBoxKeyEvent.CapitalizeText_TextChanged(productNameText);
+            historyTable.DataSource = null;
+            historyTable.DataSource = historyBillingList;
+        }
 
-            string searchTerm = productNameText.Text.ToLower();
-
-            if (string.IsNullOrWhiteSpace(searchTerm) || searchTerm == _productNamePlaceHolder.ToLower()) return;
-
-            if (productDataTable.Rows.Count == 0) return;
-
-
-            DataTable filterResults = productDataTable.Copy();
-            filterResults.Clear();
-            int srNo = 1;
-            foreach (DataRow row in productDataTable.Rows)
+        private void HistoryTable_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            long srNo = 1;
+            foreach (DataGridViewRow row in historyTable.Rows)
             {
-                if (row["Name"].ToString().ToLower().Contains(searchTerm))
+                // Set the value for Customer.Name column
+                if (row.DataBoundItem is Billing billing)
                 {
-
-                    row["SrNo."] = srNo++;
-                    filterResults.Rows.Add(row.ItemArray);
+                    row.Cells[0].Value = srNo++;
+                    row.Cells[3].Value = billing.Customer?.Name;
+                    row.Cells[1].Value = billing.BillingDateTimeAsObject.ToString("dd MMM yyyy, hh:mm:ss tt");
                 }
             }
-
-            historyTable.Rows.Clear();
-            historyTable.DataSource = filterResults;
-            ShowPurchaseRecordCount(filterResults.Rows.Count);
         }
 
         private void HistoryComboBox_SelectedValueChanged(object sender, EventArgs e)
@@ -443,19 +433,21 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
 
         private void SearchButton_Click(object sender, EventArgs e)
         {
+            historyBillingList.Clear();
+
             string selectedValue = historyComboBox.SelectedItem.ToString();
             if (selectedValue == "All")
             {
                 sortedDates = datewiseMap.Keys.OrderBy(date => date).ToList();
                 //var sortedDatewiseMap = datewiseMap.OrderBy(kvp => kvp.Key).ToList();
-                ShowProductPurchaseHistory();
+                ShowSalesHistory();
             }
             else if (selectedValue == "Date Range")
             {
                 sortedDates = datewiseMap.Keys.Where(date => fromDate.Value <= date && date <= toDate.Value)
                     .OrderBy(date => date)
                     .ToList();
-                ShowProductPurchaseHistory();
+                ShowSalesHistory();
             }
             else
             {
@@ -465,44 +457,39 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
             }
         }
 
-        private void ShowProductPurchaseHistory()
+        private void ShowSalesHistory() //IList<KeyValuePair<DateTime, IList<ProductPurchase>>> sortedDatewiseMap
         {
-            productDataTable.Clear();
-            historyTable.Rows.Clear();
 
-            int srNo = 1;
-            ISet<long> uniqueProductIds = new HashSet<long>();
+            double totalAmount = 0;
 
-            foreach (DateTime purchaseDate in sortedDates)
+            foreach (DateTime billDate in sortedDates)
             {
-                IList<ProductPurchase> productPurchases = datewiseMap[purchaseDate];
+                IList<Billing> billings = datewiseMap[billDate];
 
-                foreach (ProductPurchase purchase in productPurchases)
+                foreach (Billing billing in billings)
                 {
-                    if (purchase.Product != null)
-                    {
-                        if (uniqueProductIds.Add(purchase.Product.Id))
-                        {
-                            productDataTable.Rows.Add(srNo, purchase.Product.Id, purchase.Product.Name);
-                            srNo++;
-                        }
-                    }
+                    historyBillingList.Add(billing);
+
+                    totalAmount += billing.NetAmount;
                 }
+
             }
 
-            historyTable.DataSource = productDataTable;
+            BindSalesToDataGridView();
 
-            ShowPurchaseRecordCount(productDataTable.Rows.Count);
+            ShowSalesRecordCount(historyBillingList.Count);
+            ShowTotalSalesAmount(totalAmount);
 
-            if (sortedDates.Count == 0)
+            if (historyBillingList.Count == 0)
                 MessageBox.Show("No records found.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void ToDate_ValueChanged(object sender, EventArgs e)
+
+        private void OkButton_Click(object sender, EventArgs e)
         {
-            if (fromDate.Value > toDate.Value)
-                fromDate.Value = toDate.Value;
+            Close();
         }
+
 
         private void FromDate_ValueChanged(object sender, EventArgs e)
         {
@@ -510,48 +497,27 @@ namespace StoreBillingSystem.StoreForm.PurchaseForm
                 toDate.Value = fromDate.Value;
         }
 
-        private void ViewButton_Click(object sender, EventArgs e)
+
+        private void ToDate_ValueChanged(object sender, EventArgs e)
         {
-            if (historyTable.SelectedRows[0].Index >= 0)
-            {
-                object[] row = productDataTable.Rows[historyTable.SelectedRows[0].Index].ItemArray;
-
-                Product product = allProductMap[(long)row[1]];
-
-                IList<ProductPurchase> selectedProductPurchases = new List<ProductPurchase>();
-
-                foreach (DateTime purchaseDate in sortedDates)
-                {
-                    IList<ProductPurchase> productPurchases = datewiseMap[purchaseDate];
-
-                    foreach (ProductPurchase purchase in productPurchases)
-                    {
-                        if (purchase.Product != null && purchase.Product.Id == product.Id)
-                        {
-                            selectedProductPurchases.Add(purchase);
-                        }
-                    }
-                }
-                new ProductPurchaseDisplayForm(product, selectedProductPurchases).ShowDialog();
-            }
+            if (fromDate.Value > toDate.Value)
+                fromDate.Value = toDate.Value;
         }
-
-        private void OkButton_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
-
         private void Clear()
         {
-            TextBoxKeyEvent.BindPlaceholderToTextBox(productNameText, _productNamePlaceHolder, Color.Gray);
-
-            ShowPurchaseRecordCount(0);
+            ShowSalesRecordCount(0);
+            ShowTotalSalesAmount(0);
             historyTable.Rows.Clear();
         }
 
-        private void ShowPurchaseRecordCount(int count)
+        private void ShowSalesRecordCount(int count)
         {
-            totalPurchaseRecordLabel.Text = count.ToString();
+            totalSalesRecordLabel.Text = count.ToString();
+        }
+
+        public void ShowTotalSalesAmount(double totalAmount)
+        {
+            totalSalesAmountLabel.Text = totalAmount.ToString("C3");
         }
 
         private void ShowDateRange()

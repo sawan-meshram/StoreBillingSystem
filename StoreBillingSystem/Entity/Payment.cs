@@ -39,6 +39,13 @@ namespace StoreBillingSystem.Entity
         public double BalanceAmount { get; set; }
         public string BalancePaidDate { get; set; }
 
+        public DateTime PaidDateTime
+        {
+            get
+            {
+                return DateTime.ParseExact(PaidDate, "yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.GetCultureInfo("en-US"));
+            }
+        }
 
         public override string ToString()
         {

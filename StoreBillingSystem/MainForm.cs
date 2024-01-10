@@ -8,7 +8,7 @@ using StoreBillingSystem.StoreForm.CategoryForm;
 using StoreBillingSystem.StoreForm.ProductTypeForm;
 using StoreBillingSystem.StoreForm.PurchaseForm;
 using StoreBillingSystem.StoreForm.SalesForm;
-
+using StoreBillingSystem.StoreForm.PaymentForm;
 namespace StoreBillingSystem
 {
 
@@ -30,10 +30,12 @@ namespace StoreBillingSystem
 
             this.MinimumSize = new Size(1366, 768); // Set your minimum size
             //this.MaximumSize = new Size(1366, 768); // Set your maximum size
+            StartPosition = FormStartPosition.CenterScreen; // Set the start position of the form to the center of the screen.
 
-            InitComponents();
-
+            InitMenus();
+            InitTabs();
             InitForms();
+
             // Add RegistrationForm to the Registration tab
             //customerRegistrationTab.Controls.Add(registrationForm);
             billingTab.Controls.Add(billingForm);
@@ -75,11 +77,8 @@ namespace StoreBillingSystem
             productForm.Dock = DockStyle.Fill;
         }
 
-        private void InitComponents()
+        private void InitTabs()
         {
-
-            //this.Size = new System.Drawing.Size(1366, 768);
-
             // Create tab control
             tabControl = new TabControl();
             tabControl.Dock = DockStyle.Fill;
@@ -104,83 +103,124 @@ namespace StoreBillingSystem
             billingTab.Click += new EventHandler(BillingMenuItem_Click);
             // Add tab control to the main form
             this.Controls.Add(tabControl);
+        }
 
 
+        private MenuStrip mainMenu;
+        private ToolStripMenuItem fileMenu;
+        private ToolStripMenuItem customerMenu;
+        private ToolStripMenuItem productMenu;
+        private ToolStripMenuItem categoryMenu;
+        private ToolStripMenuItem productTypeMenu;
+        private ToolStripMenuItem salesMenu;
+        private ToolStripMenuItem purchaseMenu;
+        private ToolStripMenuItem paymentMenu;
 
+        private void InitMenus()
+        {
+            mainMenu = new MenuStrip();
+            /*
+             * File Menu           
+             */
+            fileMenu = new ToolStripMenuItem("File");
+            ToolStripMenuItem exitFileMenu = new ToolStripMenuItem("Exit");
+            fileMenu.DropDownItems.Add(exitFileMenu);
 
-            // Create menu items
-            MainMenu mainMenu = new MainMenu();
+            exitFileMenu.Click += ExitFileMenu_Click;
 
-            MenuItem fileMenu = new MenuItem("File");
-            MenuItem registrationMenuItem = new MenuItem("Open Registration Form");
-            MenuItem billingMenuItem = new MenuItem("Open Billing Form");
-
-            // Add menu items to the menu
-            fileMenu.MenuItems.Add(registrationMenuItem);
-            fileMenu.MenuItems.Add(billingMenuItem);
-
-            MenuItem customerMenu = new MenuItem("Customer");
-            MenuItem customerNewMenu = new MenuItem("New");
-            MenuItem customerViewMenu = new MenuItem("View");
-            customerMenu.MenuItems.Add(customerNewMenu);
-            customerMenu.MenuItems.Add(customerViewMenu);
+            /*
+             * Customer Menu
+             */
+            customerMenu = new ToolStripMenuItem("Customer");
+            ToolStripMenuItem customerNewMenu = new ToolStripMenuItem("New");
+            ToolStripMenuItem customerViewMenu = new ToolStripMenuItem("View");
+            customerMenu.DropDownItems.Add(customerNewMenu);
+            customerMenu.DropDownItems.Add(customerViewMenu);
 
             customerNewMenu.Click += (sender, e) => CustomerNewMenu();
             customerViewMenu.Click += (sender, e) => CustomerViewMenu();
 
-            MenuItem productMenu = new MenuItem("Product");
-            MenuItem productViewMenu = new MenuItem("View / Edit Product");
-            MenuItem productSellingViewMenu = new MenuItem("View / Edit Selling Price");
-            productMenu.MenuItems.Add(productViewMenu);
-            productMenu.MenuItems.Add(productSellingViewMenu);
+            /*
+             * Product Menu
+             */
+            productMenu = new ToolStripMenuItem("Product");
+            ToolStripMenuItem productViewMenu = new ToolStripMenuItem("View / Edit Product");
+            ToolStripMenuItem productSellingViewMenu = new ToolStripMenuItem("View / Edit Selling Price");
+            productMenu.DropDownItems.Add(productViewMenu);
+            productMenu.DropDownItems.Add(productSellingViewMenu);
 
             productViewMenu.Click += (sender, e) => ProductViewMenu();
             productSellingViewMenu.Click += (sender, e) => ProductSellingViewEditMenu();
 
-            MenuItem salesMenu = new MenuItem("Sales");
-            MenuItem salesHistoryMenu = new MenuItem("View Sales History");
-            salesMenu.MenuItems.Add(salesHistoryMenu);
-
-
-            salesHistoryMenu.Click += (sender, e) => SalesHistoryViewMenu();
-
-
-            MenuItem purchaseMenu = new MenuItem("Purchase");
-            MenuItem purchaseHistoryMenu = new MenuItem("View Purchase History");
-            MenuItem productPurchaseHistoryMenu = new MenuItem("View Product Purchase History");
-
-            purchaseMenu.MenuItems.Add(purchaseHistoryMenu);
-            purchaseMenu.MenuItems.Add(productPurchaseHistoryMenu);
-
-            purchaseHistoryMenu.Click += (sender, e) => PurchaseHistoryViewMenu();
-            productPurchaseHistoryMenu.Click +=(sender, e) => ProductPurchaseHistoryViewMenu();
-
-            MenuItem categoryMenu = new MenuItem("Category");
-            MenuItem categoryNewAndViewMenu = new MenuItem("New / View");
-            categoryMenu.MenuItems.Add(categoryNewAndViewMenu);
+            /*
+             * Category Menu
+             */
+            categoryMenu = new ToolStripMenuItem("Category");
+            ToolStripMenuItem categoryNewAndViewMenu = new ToolStripMenuItem("New / View");
+            categoryMenu.DropDownItems.Add(categoryNewAndViewMenu);
 
             categoryNewAndViewMenu.Click += (sender, e) => CategoryNewAndViewMenu();
 
-            MenuItem productTypeMenu = new MenuItem("Product Type");
-            MenuItem productTypeNewAndViewMenu = new MenuItem("New / View");
-            productTypeMenu.MenuItems.Add(productTypeNewAndViewMenu);
+
+            /*
+             * ProductType Menu
+             */
+            productTypeMenu = new ToolStripMenuItem("Product Type");
+            ToolStripMenuItem productTypeNewAndViewMenu = new ToolStripMenuItem("New / View");
+            productTypeMenu.DropDownItems.Add(productTypeNewAndViewMenu);
 
             productTypeNewAndViewMenu.Click += (sender, e) => ProductTypeNewAndViewMenu();
 
+            /*
+             * Sales Menu
+             */
+            salesMenu = new ToolStripMenuItem("Sales");
+            ToolStripMenuItem salesHistoryMenu = new ToolStripMenuItem("View Sales History");
+            salesMenu.DropDownItems.Add(salesHistoryMenu);
 
-            mainMenu.MenuItems.Add(fileMenu);
-            mainMenu.MenuItems.Add(customerMenu);
-            mainMenu.MenuItems.Add(productMenu);
-            mainMenu.MenuItems.Add(salesMenu);
-            mainMenu.MenuItems.Add(purchaseMenu);
-            mainMenu.MenuItems.Add(categoryMenu);
-            mainMenu.MenuItems.Add(productTypeMenu);
+            salesHistoryMenu.Click += (sender, e) => SalesHistoryViewMenu();
 
-            this.Menu = mainMenu;
+            /*
+             * Purchase Menu
+             */
+            purchaseMenu = new ToolStripMenuItem("Purchase");
+            ToolStripMenuItem purchaseHistoryMenu = new ToolStripMenuItem("View Purchase History");
+            ToolStripMenuItem productPurchaseHistoryMenu = new ToolStripMenuItem("View Product Purchase History");
 
-            // Event handlers for menu items
-            //registrationMenuItem.Click += new EventHandler(RegistrationMenuItem_Click);
-            //billingMenuItem.Click += new EventHandler(BillingMenuItem_Click);
+            purchaseMenu.DropDownItems.Add(purchaseHistoryMenu);
+            purchaseMenu.DropDownItems.Add(productPurchaseHistoryMenu);
+
+            purchaseHistoryMenu.Click += (sender, e) => PurchaseHistoryViewMenu();
+            productPurchaseHistoryMenu.Click += (sender, e) => ProductPurchaseHistoryViewMenu();
+
+            /*
+             * Payment Menu
+             */
+            paymentMenu = new ToolStripMenuItem("Payment");
+            ToolStripMenuItem paymentHistoryMenu = new ToolStripMenuItem("View Payment History");
+            paymentMenu.DropDownItems.Add(paymentHistoryMenu);
+
+            paymentHistoryMenu.Click += (sender, e) => PaymentHistoryViewMenu();
+
+            /*
+             * Add all menus to menu bar
+             */
+            mainMenu.Items.Add(fileMenu);
+            mainMenu.Items.Add(customerMenu);
+            mainMenu.Items.Add(productMenu);
+            mainMenu.Items.Add(categoryMenu);
+            mainMenu.Items.Add(productTypeMenu);
+            mainMenu.Items.Add(salesMenu);
+            mainMenu.Items.Add(purchaseMenu);
+            mainMenu.Items.Add(paymentMenu);
+
+            this.MainMenuStrip = mainMenu;
+            Controls.Add(mainMenu);
+        }
+
+        private void ExitFileMenu_Click(object sender, EventArgs e)
+        {
+            Close();
         }
 
         private void CustomerNewMenu()
@@ -226,6 +266,10 @@ namespace StoreBillingSystem
             new SalesHistoryForm().ShowDialog();
         }
 
+        private void PaymentHistoryViewMenu()
+        {
+            new PaymentHistoryForm().ShowDialog();
+        }
         /*
         private void RegistrationMenuItem_Click(object sender, EventArgs e)
         {

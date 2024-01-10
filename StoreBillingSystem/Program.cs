@@ -8,6 +8,7 @@ using StoreBillingSystem.StoreForm.CustomerForm;
 using StoreBillingSystem.StoreForm.ProductForm;
 using StoreBillingSystem.StoreForm.PurchaseForm;
 using StoreBillingSystem.StoreForm.SalesForm;
+using StoreBillingSystem.StoreForm.PaymentForm;
 namespace StoreBillingSystem
 {
     public class Program
@@ -42,6 +43,7 @@ namespace StoreBillingSystem
             //Application.Run(new PurchaseDisplayForm());
             //Application.Run(new ProductPurchaseHistoryForm());
             //Application.Run(new SalesHistoryForm());
+            //Application.Run(new PaymentHistoryForm());
 
             //Console.WriteLine(System.IO.Directory.GetCurrentDirectory());
             //Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);

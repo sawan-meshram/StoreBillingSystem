@@ -8,6 +8,7 @@ namespace StoreBillingSystem.DAO
     {
         IList<Billing> ReadAll();
         IList<Billing> ReadAll(BillingDate billingDate);
+        IList<Billing> ReadAll(Customer customer);
         Billing Read(long id);
         Billing Read(long billingNumber, BillingDate billingDate);
         bool Insert(Billing billing);

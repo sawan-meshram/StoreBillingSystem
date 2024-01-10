@@ -176,6 +176,41 @@ namespace StoreBillingSystem.DAOImpl
             return billing;
         }
 
+
+        public IList<Billing> ReadAll()
+        {
+            IList<Billing> billings = new List<Billing>();
+
+            string query = $"SELECT * FROM {_tableName}";
+
+            using (SqliteCommand command = new SqliteCommand(query, _conn))
+            {
+
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Billing billing = new Billing
+                        {
+                            Id = reader.GetInt64(reader.GetOrdinal("ID")),
+                            BillingNumber = reader.GetInt64(reader.GetOrdinal("BILLING_NUMBER")),
+                            BillingDateTime = reader.GetString(reader.GetOrdinal("BILLING_DATE")),
+                            GrossAmount = reader.GetDouble(reader.GetOrdinal("GROSS_AMOUNT")),
+                            GSTPrice = reader.GetDouble(reader.GetOrdinal("GST_PRICE")),
+                            DiscountPrice = reader.GetDouble(reader.GetOrdinal("DISCOUNT_PRICE")),
+                            NetAmount = reader.GetDouble(reader.GetOrdinal("NET_AMOUNT")),
+                        };
+                        billing.Customer = _customerDao.Read(reader.GetInt32(reader.GetOrdinal("Customer_ID")));
+                        billing.BillingDate = _billingDateDao.Read(reader.GetInt64(reader.GetOrdinal("BillingDate_ID")));
+
+                        billings.Add(billing);
+                    }
+                }
+            }
+
+            return billings;
+        }
+
         public IList<Billing> ReadAll(BillingDate billingDate)
         {
             IList<Billing> billings = new List<Billing>();
@@ -210,15 +245,15 @@ namespace StoreBillingSystem.DAOImpl
             return billings;
         }
 
-        public IList<Billing> ReadAll()
+        public IList<Billing> ReadAll(Customer customer)
         {
             IList<Billing> billings = new List<Billing>();
 
-            string query = $"SELECT * FROM {_tableName}";
+            string query = $"SELECT * FROM {_tableName} WHERE Customer_ID = @CustomerId";
 
             using (SqliteCommand command = new SqliteCommand(query, _conn))
             {
-
+                command.Parameters.AddWithValue("@CustomerId", customer.Id);
                 using (SqliteDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
@@ -233,7 +268,7 @@ namespace StoreBillingSystem.DAOImpl
                             DiscountPrice = reader.GetDouble(reader.GetOrdinal("DISCOUNT_PRICE")),
                             NetAmount = reader.GetDouble(reader.GetOrdinal("NET_AMOUNT")),
                         };
-                        billing.Customer = _customerDao.Read(reader.GetInt32(reader.GetOrdinal("Customer_ID")));
+                        billing.Customer = customer; //_customerDao.Read(reader.GetInt32(reader.GetOrdinal("Customer_ID")));
                         billing.BillingDate = _billingDateDao.Read(reader.GetInt64(reader.GetOrdinal("BillingDate_ID")));
 
                         billings.Add(billing);

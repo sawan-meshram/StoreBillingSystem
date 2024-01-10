@@ -233,7 +233,7 @@ namespace StoreBillingSystem.StoreForm.SalesForm
 
 
             //row-3
-            Label purchaseRecordLabel = new Label
+            Label salesRecordLabel = new Label
             {
                 Text = "Sales Record :",
                 Font = labelFont,
@@ -241,7 +241,7 @@ namespace StoreBillingSystem.StoreForm.SalesForm
                 ForeColor = Color.Navy,
                 TextAlign = ContentAlignment.MiddleRight,
             };
-            table.Controls.Add(purchaseRecordLabel, 1, 3);
+            table.Controls.Add(salesRecordLabel, 1, 3);
 
 
             totalSalesRecordLabel = new Label

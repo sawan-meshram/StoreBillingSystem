@@ -115,7 +115,7 @@ namespace StoreBillingSystem.DAOImpl
                             PaidAmount = reader.GetDouble(reader.GetOrdinal("PAID_AMOUNT")),
                             PaidDate = reader.GetString(reader.GetOrdinal("PAID_DATE")),
                             BalanceAmount = reader.GetDouble(reader.GetOrdinal("BALANCE_AMOUNT")),
-                            BalancePaidDate = reader.GetString(reader.GetOrdinal("BALANCE_PAID_DATE"))
+                            BalancePaidDate = reader.IsDBNull(reader.GetOrdinal("BALANCE_PAID_DATE")) ? "" : reader.GetString(reader.GetOrdinal("BALANCE_PAID_DATE"))
                         };
                         payment.Billing = _billingDao.Read(reader.GetInt64(reader.GetOrdinal("Billing_ID")));
                         payment.PaymentMode = (PaymentMode)Enum.Parse(typeof(PaymentMode), reader.GetString(reader.GetOrdinal("PAYMENT_MODE")), true);

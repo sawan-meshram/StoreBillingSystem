@@ -198,10 +198,12 @@ namespace StoreBillingSystem
              */
             paymentMenu = new ToolStripMenuItem("Payment");
             ToolStripMenuItem paymentHistoryMenu = new ToolStripMenuItem("View Payment History");
+            ToolStripMenuItem balanceHistoryMenu = new ToolStripMenuItem("View Balance History");
             paymentMenu.DropDownItems.Add(paymentHistoryMenu);
+            paymentMenu.DropDownItems.Add(balanceHistoryMenu);
 
             paymentHistoryMenu.Click += (sender, e) => PaymentHistoryViewMenu();
-
+            balanceHistoryMenu.Click += (sender, e) => BalanceHistoryViewMenu();
             /*
              * Add all menus to menu bar
              */
@@ -269,6 +271,11 @@ namespace StoreBillingSystem
         private void PaymentHistoryViewMenu()
         {
             new PaymentHistoryForm().ShowDialog();
+        }
+
+        private void BalanceHistoryViewMenu()
+        {
+            new PaymentBalanceHistoryForm().ShowDialog();
         }
         /*
         private void RegistrationMenuItem_Click(object sender, EventArgs e)

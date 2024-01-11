@@ -26,7 +26,7 @@ namespace StoreBillingSystem
             //Application.Run(new MainClass());
             // Console.WriteLine("Hello World!");
 
-            Application.Run(new MainForm());
+            //Application.Run(new MainForm());
 
             //Application.Run(new BillingForm());
             //Application.Run(new BillingForm1());
@@ -44,6 +44,7 @@ namespace StoreBillingSystem
             //Application.Run(new ProductPurchaseHistoryForm());
             //Application.Run(new SalesHistoryForm());
             //Application.Run(new PaymentHistoryForm());
+            Application.Run(new PaymentBalanceHistoryForm());
 
             //Console.WriteLine(System.IO.Directory.GetCurrentDirectory());
             //Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);

@@ -33,6 +33,14 @@ namespace StoreBillingSystem.Entity
         public string RegisterDate { get; set; }
         public string UpdateDate { get; set; }
 
+        public DateTime RegisterDateTime
+        {
+            get
+            {
+                return DateTime.ParseExact(RegisterDate, "yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.GetCultureInfo("en-US"));
+            }
+        }
+
         public override string ToString()
         {
             return $"Customer : Id={Id}, Name={Name}, Address={Address}, PhoneNumber={PhoneNumber}, RegisterDate={RegisterDate}, UpdateDate={UpdateDate}";

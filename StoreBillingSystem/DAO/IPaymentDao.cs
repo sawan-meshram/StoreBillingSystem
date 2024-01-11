@@ -7,6 +7,7 @@ namespace StoreBillingSystem.DAO
     public interface IPaymentDao
     {
         IList<Payment> ReadAll();
+        IList<Payment> ReadAllByBalance();
         Payment ReadById(long id);
         Payment ReadByBillingId(long billingId);
         bool Insert(Payment payment);

@@ -102,6 +102,7 @@
     <Compile Include="StoreForm\PurchaseForm\ProductPurchaseDisplayForm.cs" />
     <Compile Include="StoreForm\SalesForm\SalesHistoryForm.cs" />
     <Compile Include="StoreForm\PaymentForm\PaymentHistoryForm.cs" />
+    <Compile Include="StoreForm\PaymentForm\PaymentBalanceHistoryForm.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Database\" />

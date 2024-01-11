@@ -252,7 +252,6 @@ namespace StoreBillingSystem.StoreForm.PaymentForm
                     MessageBox.Show("Paid Amount must greater than zero.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     return;
                 }
-                payment.PaidDate = payment.Billing.BillingDateTime;
                 payment.PaymentMode = (PaymentMode)paymentModes.SelectedValue;
 
             }
@@ -260,6 +259,7 @@ namespace StoreBillingSystem.StoreForm.PaymentForm
             {
                 payment.PaymentMode = PaymentMode.None;
             }
+            payment.PaidDate = payment.Billing.BillingDateTime;
             payment.PaidAmount = double.Parse(paidAmount.Text);
             payment.BalanceAmount = double.Parse(balanceAmount.Text);
             payment.Status = status;

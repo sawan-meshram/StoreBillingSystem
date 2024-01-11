@@ -129,6 +129,38 @@ namespace StoreBillingSystem.DAOImpl
             return payments;
         }
 
+        public IList<Payment> ReadAllByBalance()
+        {
+            string query = $"SELECT * FROM {_tableName} WHERE BALANCE_AMOUNT > 0";
+
+            IList<Payment> payments = new List<Payment>();
+
+            using (SqliteCommand command = new SqliteCommand(query, _conn))
+            {
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Payment payment = new Payment
+                        {
+                            Id = reader.GetInt64(reader.GetOrdinal("ID")),
+                            PaidAmount = reader.GetDouble(reader.GetOrdinal("PAID_AMOUNT")),
+                            PaidDate = reader.GetString(reader.GetOrdinal("PAID_DATE")),
+                            BalanceAmount = reader.GetDouble(reader.GetOrdinal("BALANCE_AMOUNT")),
+                            BalancePaidDate = reader.IsDBNull(reader.GetOrdinal("BALANCE_PAID_DATE")) ? "" : reader.GetString(reader.GetOrdinal("BALANCE_PAID_DATE"))
+                        };
+                        payment.Billing = _billingDao.Read(reader.GetInt64(reader.GetOrdinal("Billing_ID")));
+                        payment.PaymentMode = (PaymentMode)Enum.Parse(typeof(PaymentMode), reader.GetString(reader.GetOrdinal("PAYMENT_MODE")), true);
+                        payment.Status = (BillingStatus)Enum.Parse(typeof(BillingStatus), reader.GetString(reader.GetOrdinal("STATUS")), true);
+
+                        payments.Add(payment);
+                    }
+                }
+            }
+
+            return payments;
+        }
+
         public Payment ReadByBillingId(long billingId)
         {
             string query = $"SELECT * FROM {_tableName} WHERE Billing_ID = @BillingId";
